@@ -34,6 +34,13 @@ export default async function AnimalesPage() {
         <h1 className="text-2xl font-bold text-gray-800">Animales</h1>
         <div className="flex gap-2">
           <a
+            href="/api/animales/export"
+            download
+            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+          >
+            Exportar
+          </a>
+          <a
             href="/animales/importar"
             className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
           >
