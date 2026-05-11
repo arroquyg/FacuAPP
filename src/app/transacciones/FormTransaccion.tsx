@@ -19,6 +19,29 @@ function hoy() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function Tooltip({ texto }: { texto: string }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <span className="relative inline-flex items-center ml-1">
+      <button
+        type="button"
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        onFocus={() => setVisible(true)}
+        onBlur={() => setVisible(false)}
+        className="w-4 h-4 rounded-full bg-gray-300 text-gray-600 text-xs font-bold flex items-center justify-center hover:bg-gray-400 leading-none"
+      >
+        ?
+      </button>
+      {visible && (
+        <span className="absolute left-6 top-0 z-20 w-64 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-pre-line">
+          {texto}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function formatPeso(n: number) {
   return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -40,6 +63,10 @@ export default function FormTransaccion() {
   const [paso, setPaso] = useState<Paso>("form");
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [guardando, setGuardando] = useState(false);
+
+  const [textMasivo, setTextMasivo] = useState("");
+  const [cargandoMasivo, setCargandoMasivo] = useState(false);
+  const [avisoMasivo, setAvisoMasivo] = useState<string | null>(null);
 
   useEffect(() => {
     if (query.length < 2) { setResultados([]); return; }
@@ -64,6 +91,43 @@ export default function FormTransaccion() {
 
   function quitarAnimal(id: string) {
     setSeleccionados((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function cargarMasivo() {
+    const chips = textMasivo
+      .split(",")
+      .map((c) => c.trim().toUpperCase())
+      .filter(Boolean);
+    if (chips.length === 0) return;
+
+    setCargandoMasivo(true);
+    setAvisoMasivo(null);
+    try {
+      const res = await fetch(
+        `/api/animales/bulk-search?chips=${encodeURIComponent(chips.join(","))}`
+      );
+      const encontrados: AnimalResultado[] = await res.json();
+      const nuevos = encontrados.filter(
+        (a) => !seleccionados.find((s) => s.id === a.id)
+      );
+      setSeleccionados((prev) => [...prev, ...nuevos.map((a) => ({ ...a, precio: "" }))]);
+
+      const noEncontrados = chips.filter(
+        (c) => !encontrados.find((a) => a.chip_id === c)
+      );
+      if (noEncontrados.length > 0) {
+        setAvisoMasivo(
+          `${nuevos.length} agregado${nuevos.length !== 1 ? "s" : ""}. No encontrados: ${noEncontrados.join(", ")}`
+        );
+      } else {
+        setAvisoMasivo(`${nuevos.length} animal${nuevos.length !== 1 ? "es" : ""} agregado${nuevos.length !== 1 ? "s" : ""} correctamente.`);
+      }
+      setTextMasivo("");
+    } catch {
+      setAvisoMasivo("Error al buscar los chips. Intentá de nuevo.");
+    } finally {
+      setCargandoMasivo(false);
+    }
   }
 
   function setPrecio(id: string, valor: string) {
@@ -243,6 +307,36 @@ export default function FormTransaccion() {
               </button>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Carga masiva */}
+      <div>
+        <label className="block text-xs text-gray-500 mb-1 flex items-center">
+          Carga masiva por chip
+          <Tooltip texto={"Pegá los chips separados por coma.\nEjemplo:\nCHK-001, CHK-002, CHK-003\n\nSe agregan con precio vacío — completá el precio de cada uno después."} />
+        </label>
+        <div className="flex gap-2">
+          <textarea
+            value={textMasivo}
+            onChange={(e) => { setTextMasivo(e.target.value); setAvisoMasivo(null); }}
+            placeholder="CHK-001, CHK-002, CHK-003..."
+            rows={2}
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-300 resize-none"
+          />
+          <button
+            type="button"
+            onClick={cargarMasivo}
+            disabled={cargandoMasivo || !textMasivo.trim()}
+            className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed self-end"
+          >
+            {cargandoMasivo ? "Cargando..." : "Cargar"}
+          </button>
+        </div>
+        {avisoMasivo && (
+          <p className={`text-xs mt-1 ${avisoMasivo.includes("No encontrados") ? "text-amber-600" : "text-green-600"}`}>
+            {avisoMasivo}
+          </p>
         )}
       </div>
 
