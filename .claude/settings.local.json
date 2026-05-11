@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@14 *)",
+      "Bash(npm install *)",
+      "Bash(xargs ls -la)",
+      "Bash(curl -s https://dxxrjvbcgcwylkjdhfmg.supabase.co/rest/v1/animales?limit=1 -H 'apikey: sb_publishable_6YCEstVFyBbCn0nRbWtJsw_a5uuTO4q' -H 'Authorization: Bearer sb_publishable_6YCEstVFyBbCn0nRbWtJsw_a5uuTO4q')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s https://dxxrjvbcgcwylkjdhfmg.supabase.co/rest/v1/ -H 'apikey: sb_publishable_6YCEstVFyBbCn0nRbWtJsw_a5uuTO4q' -H 'Authorization: Bearer sb_publishable_6YCEstVFyBbCn0nRbWtJsw_a5uuTO4q' -H 'Accept: application/openapi+json')",
+      "Bash(python3 -c ' *)",
+      "Bash(curl *)",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)"
+    ]
+  }
+}
