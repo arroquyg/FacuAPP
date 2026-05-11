@@ -32,12 +32,20 @@ export default async function AnimalesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Animales</h1>
-        <a
-          href="/animales/nuevo"
-          className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700"
-        >
-          + Nuevo animal
-        </a>
+        <div className="flex gap-2">
+          <a
+            href="/animales/importar"
+            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+          >
+            Importar
+          </a>
+          <a
+            href="/animales/nuevo"
+            className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700"
+          >
+            + Nuevo animal
+          </a>
+        </div>
       </div>
       <AnimalesTable
         animales={animales ?? []}
