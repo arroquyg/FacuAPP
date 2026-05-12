@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getCamposOperario } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -19,6 +19,64 @@ export default async function DashboardPage() {
   const supabase = createAdminClient();
   const empresaId = user.empresa_id;
 
+  let campoIds: string[] | null = null;
+  let campoNombres: string[] | null = null;
+  if (user.rol === "operario") {
+    campoIds = await getCamposOperario(user.id);
+    if (campoIds.length > 0) {
+      const { data: camposData } = await supabase.from("campos").select("nombre").in("id", campoIds);
+      campoNombres = camposData?.map((c) => c.nombre) ?? [];
+    } else {
+      campoNombres = [];
+    }
+  }
+
+  // Queries de animales con filtro de campo si es operario
+  const sinCampoFallback = "sin-campo-asignado";
+
+  let qVivos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
+  let qMuertos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false);
+  let qSexo = supabase.from("animales").select("sexo").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
+  let qConteo = supabase.from("animales").select("campo_actual_id").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
+
+  if (campoIds !== null) {
+    if (campoIds.length > 0) {
+      qVivos = qVivos.in("campo_actual_id", campoIds);
+      qMuertos = qMuertos.in("campo_actual_id", campoIds);
+      qSexo = qSexo.in("campo_actual_id", campoIds);
+      qConteo = qConteo.in("campo_actual_id", campoIds);
+    } else {
+      qVivos = qVivos.eq("campo_actual_id", sinCampoFallback);
+      qMuertos = qMuertos.eq("campo_actual_id", sinCampoFallback);
+      qSexo = qSexo.eq("campo_actual_id", sinCampoFallback);
+      qConteo = qConteo.eq("campo_actual_id", sinCampoFallback);
+    }
+  }
+
+  let qCampos = supabase.from("campos").select("id, nombre, capacidad_max, activo").eq("activo", true);
+  if (campoIds !== null) {
+    qCampos = campoIds.length > 0 ? qCampos.in("id", campoIds) : qCampos.eq("id", sinCampoFallback);
+  } else {
+    qCampos = qCampos.eq("empresa_id", empresaId);
+  }
+
+  let qMovimientos = supabase.from("movimientos_campo")
+    .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
+    .order("fecha_movimiento", { ascending: false })
+    .limit(10);
+  if (campoIds !== null) {
+    qMovimientos = campoIds.length > 0
+      ? qMovimientos.in("campo_destino_id", campoIds)
+      : qMovimientos.eq("campo_destino_id", sinCampoFallback);
+  }
+
+  let qTrabajos = supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId);
+  if (campoNombres !== null) {
+    qTrabajos = campoNombres.length > 0
+      ? qTrabajos.in("campo", campoNombres)
+      : qTrabajos.eq("campo", sinCampoFallback);
+  }
+
   const [
     { count: totalVivos },
     { count: totalMuertos },
@@ -26,24 +84,13 @@ export default async function DashboardPage() {
     { data: campos, error: errCampos },
     { data: movimientos, error: errMovimientos },
     { count: totalTrabajos },
+    { data: conteoXCampo },
   ] = await Promise.all([
-    supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
-    supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false),
-    supabase.from("animales").select("sexo").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
-    supabase.from("campos").select("id, nombre, capacidad_max, activo").eq("empresa_id", empresaId).eq("activo", true),
-    supabase.from("movimientos_campo")
-      .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
-      .order("fecha_movimiento", { ascending: false })
-      .limit(10),
-    supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId),
+    qVivos, qMuertos, qSexo, qCampos, qMovimientos, qTrabajos, qConteo,
   ]);
 
   const machos = animalesSexo?.filter((a) => a.sexo === "macho").length ?? 0;
   const hembras = animalesSexo?.filter((a) => a.sexo === "hembra").length ?? 0;
-
-  const { data: conteoXCampo } = await supabase
-    .from("animales").select("campo_actual_id")
-    .eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
 
   const conteoPorCampo: Record<string, number> = {};
   conteoXCampo?.forEach((a) => {
@@ -167,9 +214,9 @@ export default async function DashboardPage() {
             {/* Mobile cards */}
             <div className="md:hidden space-y-2">
               {movimientos.map((m) => {
-                const chip = (m.animal as { chip_id: string } | null)?.chip_id ?? "—";
-                const origen = (m.origen as { nombre: string } | null)?.nombre ?? "—";
-                const destino = (m.destino as { nombre: string } | null)?.nombre ?? "—";
+                const chip = (m.animal as unknown as { chip_id: string } | null)?.chip_id ?? "—";
+                const origen = (m.origen as unknown as { nombre: string } | null)?.nombre ?? "—";
+                const destino = (m.destino as unknown as { nombre: string } | null)?.nombre ?? "—";
                 return (
                   <div key={m.id} className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-2">
@@ -203,10 +250,10 @@ export default async function DashboardPage() {
                     <tr key={m.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
                       <td className="px-4 py-3 font-mono text-stone-700 text-xs">
-                        {(m.animal as { chip_id: string } | null)?.chip_id ?? "—"}
+                        {(m.animal as unknown as { chip_id: string } | null)?.chip_id ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-stone-600">{(m.origen as { nombre: string } | null)?.nombre ?? "—"}</td>
-                      <td className="px-4 py-3 text-stone-600">{(m.destino as { nombre: string } | null)?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-600">{(m.origen as unknown as { nombre: string } | null)?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-600">{(m.destino as unknown as { nombre: string } | null)?.nombre ?? "—"}</td>
                       <td className="px-4 py-3 text-stone-400">{m.motivo ?? "—"}</td>
                     </tr>
                   ))}
