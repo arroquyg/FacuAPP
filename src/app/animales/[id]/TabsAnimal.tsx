@@ -44,17 +44,17 @@ export default function TabsAnimal({
   const [tab, setTab] = useState<Tab>("Movimientos");
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
       {/* Pestañas */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-stone-200 bg-stone-50">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
               tab === t
-                ? "border-green-800 text-gray-800"
-                : "border-transparent text-gray-400 hover:text-gray-600"
+                ? "border-green-800 text-stone-800"
+                : "border-transparent text-stone-400 hover:text-stone-600"
             }`}
           >
             {t}
@@ -65,12 +65,12 @@ export default function TabsAnimal({
       <div className="p-4">
         {tab === "Movimientos" &&
           (movimientos.length === 0 ? (
-            <p className="text-gray-400 text-sm py-4 text-center">
+            <p className="text-stone-400 text-sm py-4 text-center">
               Sin registros
             </p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-xs text-gray-400 uppercase">
+              <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>
                   <th className="pb-2 text-left">Origen</th>
@@ -79,16 +79,16 @@ export default function TabsAnimal({
                   <th className="pb-2 text-left">Observaciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-stone-100">
                 {movimientos.map((m) => (
                   <tr key={m.id}>
-                    <td className="py-2 pr-4 text-gray-600 whitespace-nowrap">
+                    <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">
                       {m.fecha}
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">{m.origen}</td>
-                    <td className="py-2 pr-4 text-gray-600">{m.destino}</td>
-                    <td className="py-2 pr-4 text-gray-600">{m.motivo}</td>
-                    <td className="py-2 text-gray-400">
+                    <td className="py-2 pr-4 text-stone-600">{m.origen}</td>
+                    <td className="py-2 pr-4 text-stone-600">{m.destino}</td>
+                    <td className="py-2 pr-4 text-stone-600">{m.motivo}</td>
+                    <td className="py-2 text-stone-400">
                       {m.observaciones ?? "—"}
                     </td>
                   </tr>
@@ -99,12 +99,12 @@ export default function TabsAnimal({
 
         {tab === "Pesajes" &&
           (pesajes.length === 0 ? (
-            <p className="text-gray-400 text-sm py-4 text-center">
+            <p className="text-stone-400 text-sm py-4 text-center">
               Sin registros
             </p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-xs text-gray-400 uppercase">
+              <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>
                   <th className="pb-2 text-left">Peso</th>
@@ -112,17 +112,17 @@ export default function TabsAnimal({
                   <th className="pb-2 text-left">Observaciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-stone-100">
                 {pesajes.map((p) => (
                   <tr key={p.id}>
-                    <td className="py-2 pr-4 text-gray-600 whitespace-nowrap">
+                    <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">
                       {p.fecha}
                     </td>
-                    <td className="py-2 pr-4 text-gray-700 font-medium">
+                    <td className="py-2 pr-4 text-stone-700 font-medium">
                       {Number(p.peso).toFixed(2)} kg
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">{p.campo}</td>
-                    <td className="py-2 text-gray-400">
+                    <td className="py-2 pr-4 text-stone-600">{p.campo}</td>
+                    <td className="py-2 text-stone-400">
                       {p.observaciones ?? "—"}
                     </td>
                   </tr>
@@ -133,12 +133,12 @@ export default function TabsAnimal({
 
         {tab === "Eventos sanitarios" &&
           (eventos.length === 0 ? (
-            <p className="text-gray-400 text-sm py-4 text-center">
+            <p className="text-stone-400 text-sm py-4 text-center">
               Sin registros
             </p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="text-xs text-gray-400 uppercase">
+              <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>
                   <th className="pb-2 text-left">Tipo</th>
@@ -147,20 +147,20 @@ export default function TabsAnimal({
                   <th className="pb-2 text-left">Veterinario</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-stone-100">
                 {eventos.map((e) => (
                   <tr key={e.id}>
-                    <td className="py-2 pr-4 text-gray-600 whitespace-nowrap">
+                    <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">
                       {e.fecha}
                     </td>
-                    <td className="py-2 pr-4 text-gray-600 capitalize">
+                    <td className="py-2 pr-4 text-stone-600 capitalize">
                       {e.tipo}
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">{e.producto}</td>
-                    <td className="py-2 pr-4 text-gray-600">
+                    <td className="py-2 pr-4 text-stone-600">{e.producto}</td>
+                    <td className="py-2 pr-4 text-stone-600">
                       {e.dosis !== null ? `${e.dosis} ml` : "—"}
                     </td>
-                    <td className="py-2 text-gray-600">{e.veterinario}</td>
+                    <td className="py-2 text-stone-600">{e.veterinario}</td>
                   </tr>
                 ))}
               </tbody>

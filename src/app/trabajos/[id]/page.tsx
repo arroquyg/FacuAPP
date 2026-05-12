@@ -33,11 +33,11 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/trabajos" className="text-sm text-gray-500 hover:text-gray-700">
-          ← Volver
+      <div className="border-b border-stone-200 pb-5">
+        <Link href="/trabajos" className="text-sm text-stone-400 hover:text-green-700 transition-colors">
+          ← Trabajos
         </Link>
-        <h1 className="text-2xl font-bold text-gray-800">{trabajo.tipo}</h1>
+        <h1 className="text-3xl font-bold text-stone-800 mt-2">{trabajo.tipo}</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -47,9 +47,9 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
           { label: "Fecha", value: formatDate(trabajo.fecha) },
           { label: "Chips registrados", value: trabajo.total_chips },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500">{label}</p>
-            <p className="font-medium mt-1">{value}</p>
+          <div key={label} className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">{label}</p>
+            <p className="font-semibold text-stone-800 mt-1.5 text-lg">{value}</p>
           </div>
         ))}
       </div>
@@ -57,7 +57,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
       <div className="flex justify-end">
         <Link
           href={`/trabajos/${params.id}/importar`}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50"
         >
           Importar datos CSV
         </Link>
@@ -74,9 +74,9 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
+          <thead className="bg-stone-50 text-stone-400 uppercase text-xs border-b border-stone-100">
             <tr>
               <th className="px-4 py-3 text-left">EID (Chip)</th>
               <th className="px-4 py-3 text-left">Caravana</th>
@@ -86,10 +86,10 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
               <th className="px-4 py-3 text-left">Estado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-stone-100">
             {todos.length === 0 ? (
               <tr>
-                <td colSpan={3 + columnas.length} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={3 + columnas.length} className="px-4 py-8 text-center text-stone-400">
                   Sin registros
                 </td>
               </tr>
@@ -97,7 +97,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
               todos.map((r) => {
                 const animal = r.animal as { chip_id: string; numero_caravana: string } | null;
                 return (
-                  <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-gray-50"}>
+                  <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-stone-50"}>
                     <td className="px-4 py-3 font-mono text-xs">{r.eid}</td>
                     <td className="px-4 py-3">{animal?.numero_caravana ?? "—"}</td>
                     {datoKeys.slice(0, columnas.length).map((key, i) => (

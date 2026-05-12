@@ -101,42 +101,42 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
 
       {/* Formulario nuevo campo */}
       {mostrarNuevo ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
-          <p className="text-sm font-medium text-gray-700">Nuevo campo</p>
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 space-y-3">
+          <p className="text-sm font-medium text-stone-700">Nuevo campo</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="col-span-2 sm:col-span-1">
-              <label className="text-xs text-gray-500">Nombre *</label>
+              <label className="text-xs text-stone-500">Nombre *</label>
               <input
                 autoFocus
                 value={formNuevo.nombre}
                 onChange={(e) => setFormNuevo((f) => ({ ...f, nombre: e.target.value }))}
-                className="mt-0.5 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="mt-0.5 w-full border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Superficie (ha)</label>
+              <label className="text-xs text-stone-500">Superficie (ha)</label>
               <input
                 type="number"
                 value={formNuevo.superficie_ha}
                 onChange={(e) => setFormNuevo((f) => ({ ...f, superficie_ha: e.target.value }))}
-                className="mt-0.5 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="mt-0.5 w-full border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Cap. máx. animales</label>
+              <label className="text-xs text-stone-500">Cap. máx. animales</label>
               <input
                 type="number"
                 value={formNuevo.capacidad_max}
                 onChange={(e) => setFormNuevo((f) => ({ ...f, capacidad_max: e.target.value }))}
-                className="mt-0.5 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="mt-0.5 w-full border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Tipo de pasto</label>
+              <label className="text-xs text-stone-500">Tipo de pasto</label>
               <input
                 value={formNuevo.tipo_pasto}
                 onChange={(e) => setFormNuevo((f) => ({ ...f, tipo_pasto: e.target.value }))}
-                className="mt-0.5 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="mt-0.5 w-full border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
               />
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
             </button>
             <button
               onClick={() => { setMostrarNuevo(false); setFormNuevo(formVacio); }}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              className="px-3 py-1.5 border border-stone-300 rounded-lg text-sm hover:bg-stone-50"
             >
               Cancelar
             </button>
@@ -159,21 +159,21 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
       ) : (
         <button
           onClick={() => { setMostrarNuevo(true); setEditandoId(null); }}
-          className="px-4 py-2 border border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 w-full text-center"
+          className="px-4 py-2 border border-dashed border-stone-300 rounded-xl text-sm text-stone-500 hover:border-gray-400 hover:text-stone-700 w-full text-center"
         >
           + Agregar campo
         </button>
       )}
 
       {/* Lista */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {campos.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-gray-400">
+          <p className="px-4 py-8 text-center text-sm text-stone-400">
             No hay campos configurados aún
           </p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <thead className="bg-stone-50 text-xs text-stone-500 uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Nombre</th>
                 <th className="px-4 py-3 text-left">Superficie</th>
@@ -183,7 +183,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                 <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {campos.map((c) =>
                 editandoId === c.id ? (
                   <tr key={c.id} className="bg-blue-50">
@@ -192,7 +192,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                         autoFocus
                         value={formEdit.nombre}
                         onChange={(e) => setFormEdit((f) => ({ ...f, nombre: e.target.value }))}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-green-300"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -200,7 +200,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                         type="number"
                         value={formEdit.superficie_ha}
                         onChange={(e) => setFormEdit((f) => ({ ...f, superficie_ha: e.target.value }))}
-                        className="w-24 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+                        className="w-24 border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -208,14 +208,14 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                         type="number"
                         value={formEdit.capacidad_max}
                         onChange={(e) => setFormEdit((f) => ({ ...f, capacidad_max: e.target.value }))}
-                        className="w-24 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+                        className="w-24 border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none"
                       />
                     </td>
                     <td className="px-4 py-2">
                       <input
                         value={formEdit.tipo_pasto}
                         onChange={(e) => setFormEdit((f) => ({ ...f, tipo_pasto: e.target.value }))}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+                        className="w-full border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none"
                       />
                     </td>
                     <td colSpan={2} className="px-4 py-2">
@@ -229,7 +229,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                         </button>
                         <button
                           onClick={() => setEditandoId(null)}
-                          className="px-3 py-1 border border-gray-300 rounded text-xs hover:bg-gray-50"
+                          className="px-3 py-1 border border-stone-300 rounded text-xs hover:bg-stone-50"
                         >
                           Cancelar
                         </button>
@@ -237,15 +237,15 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                     </td>
                   </tr>
                 ) : (
-                  <tr key={c.id} className={`hover:bg-gray-50 ${!c.activo ? "opacity-50" : ""}`}>
-                    <td className="px-4 py-3 font-medium text-gray-800">{c.nombre}</td>
-                    <td className="px-4 py-3 text-gray-500">
+                  <tr key={c.id} className={`hover:bg-stone-50 ${!c.activo ? "opacity-50" : ""}`}>
+                    <td className="px-4 py-3 font-medium text-stone-800">{c.nombre}</td>
+                    <td className="px-4 py-3 text-stone-500">
                       {c.superficie_ha ? `${c.superficie_ha} ha` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{c.capacidad_max ?? "—"}</td>
-                    <td className="px-4 py-3 text-gray-500">{c.tipo_pasto ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-500">{c.capacidad_max ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-500">{c.tipo_pasto ?? "—"}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${c.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${c.activo ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
                         {c.activo ? "Activo" : "Inactivo"}
                       </span>
                     </td>
@@ -253,14 +253,14 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => iniciarEdicion(c)}
-                          className="text-xs text-gray-500 hover:text-gray-800 underline"
+                          className="text-xs text-stone-500 hover:text-stone-800 underline"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => handleToggle(c.id, c.activo)}
                           disabled={guardando}
-                          className="text-xs text-gray-500 hover:text-gray-800 underline disabled:opacity-40"
+                          className="text-xs text-stone-500 hover:text-stone-800 underline disabled:opacity-40"
                         >
                           {c.activo ? "Desactivar" : "Activar"}
                         </button>

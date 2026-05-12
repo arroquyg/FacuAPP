@@ -74,7 +74,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
             onChange={(e) => setNuevoNombre(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleCrear()}
             placeholder="Nombre..."
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 w-64"
+            className="border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 w-64"
           />
           <button
             onClick={handleCrear}
@@ -85,7 +85,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
           </button>
           <button
             onClick={() => { setMostrarNuevo(false); setNuevoNombre(""); }}
-            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+            className="px-3 py-1.5 border border-stone-300 rounded-lg text-sm hover:bg-stone-50"
           >
             Cancelar
           </button>
@@ -93,25 +93,25 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
       ) : (
         <button
           onClick={() => { setMostrarNuevo(true); setEditandoId(null); }}
-          className="px-4 py-2 border border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 w-full text-center"
+          className="px-4 py-2 border border-dashed border-stone-300 rounded-xl text-sm text-stone-500 hover:border-gray-400 hover:text-stone-700 w-full text-center"
         >
           + Agregar
         </button>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {items.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-gray-400">No hay registros aún</p>
+          <p className="px-4 py-8 text-center text-sm text-stone-400">No hay registros aún</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <thead className="bg-stone-50 text-xs text-stone-500 uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Nombre</th>
                 <th className="px-4 py-3 text-left">Estado</th>
                 <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {items.map((item) =>
                 editandoId === item.id ? (
                   <tr key={item.id} className="bg-blue-50">
@@ -121,7 +121,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
                         value={editNombre}
                         onChange={(e) => setEditNombre(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleActualizar(item.id)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-green-300"
                       />
                     </td>
                     <td colSpan={2} className="px-4 py-2">
@@ -135,7 +135,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
                         </button>
                         <button
                           onClick={() => setEditandoId(null)}
-                          className="px-3 py-1 border border-gray-300 rounded text-xs hover:bg-gray-50"
+                          className="px-3 py-1 border border-stone-300 rounded text-xs hover:bg-stone-50"
                         >
                           Cancelar
                         </button>
@@ -143,10 +143,10 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
                     </td>
                   </tr>
                 ) : (
-                  <tr key={item.id} className={`hover:bg-gray-50 ${!item.activo ? "opacity-50" : ""}`}>
-                    <td className="px-4 py-3 text-gray-800">{item.nombre}</td>
+                  <tr key={item.id} className={`hover:bg-stone-50 ${!item.activo ? "opacity-50" : ""}`}>
+                    <td className="px-4 py-3 text-stone-800">{item.nombre}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${item.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${item.activo ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
                         {item.activo ? "Activo" : "Inactivo"}
                       </span>
                     </td>
@@ -154,14 +154,14 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => { setEditandoId(item.id); setEditNombre(item.nombre); setMostrarNuevo(false); }}
-                          className="text-xs text-gray-500 hover:text-gray-800 underline"
+                          className="text-xs text-stone-500 hover:text-stone-800 underline"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => handleToggle(item.id, item.activo)}
                           disabled={guardando}
-                          className="text-xs text-gray-500 hover:text-gray-800 underline disabled:opacity-40"
+                          className="text-xs text-stone-500 hover:text-stone-800 underline disabled:opacity-40"
                         >
                           {item.activo ? "Desactivar" : "Activar"}
                         </button>

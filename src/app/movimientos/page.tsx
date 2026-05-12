@@ -33,7 +33,10 @@ export default async function MovimientosPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800">Movimientos</h1>
+      <div className="border-b border-stone-200 pb-5">
+        <h1 className="text-3xl font-bold text-stone-800">Movimientos</h1>
+        <p className="text-stone-500 mt-1 text-sm">Registro de traslados entre campos</p>
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">

@@ -67,70 +67,70 @@ export default function NuevoTrabajo() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
-        <p className="font-medium text-gray-800">Datos del trabajo</p>
+      <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-5">
+        <p className="font-medium text-stone-800">Datos del trabajo</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de trabajo <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Tipo de trabajo <span className="text-red-500">*</span></label>
             <input
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
               placeholder="Ej: Vacunación Brucelosis"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Veterinario a cargo <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Veterinario a cargo <span className="text-red-500">*</span></label>
             <input
               value={veterinario}
               onChange={(e) => setVeterinario(e.target.value)}
               placeholder="Nombre del veterinario"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Campo donde se realizó <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Campo donde se realizó <span className="text-red-500">*</span></label>
             <input
               value={campo}
               onChange={(e) => setCampo(e.target.value)}
               placeholder="Ej: Manga Norte"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del trabajo <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Fecha del trabajo <span className="text-red-500">*</span></label>
             <input
               type="date"
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+      <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <div>
-          <p className="font-medium text-gray-800">Campos a registrar por animal</p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="font-medium text-stone-800">Campos a registrar por animal</p>
+          <p className="text-sm text-stone-500 mt-1">
             El chip (EID) se registra siempre. Agregá hasta 10 observaciones adicionales.
           </p>
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-lg border border-gray-200">
-            <span className="text-xs font-semibold text-gray-400 w-16">Fijo</span>
-            <span className="text-sm font-medium text-gray-600">EID — Chip electrónico</span>
+          <div className="flex items-center gap-3 py-2 px-3 bg-stone-50 rounded-lg border border-stone-200">
+            <span className="text-xs font-semibold text-stone-400 w-16">Fijo</span>
+            <span className="text-sm font-medium text-stone-600">EID — Chip electrónico</span>
           </div>
 
           {columnas.map((col, i) => (
             <div key={i} className="flex items-center gap-3">
-              <span className="text-xs text-gray-400 w-16 shrink-0">Obs {i + 1}</span>
+              <span className="text-xs text-stone-400 w-16 shrink-0">Obs {i + 1}</span>
               <input
                 value={col}
                 onChange={(e) => updateColumna(i, e.target.value)}
                 placeholder="Ej: Peso, Estado sanitario, Dosis aplicada..."
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
               />
               {columnas.length > 1 && (
                 <button
@@ -161,7 +161,7 @@ export default function NuevoTrabajo() {
         >
           {guardando ? "Creando..." : "Crear trabajo y descargar template"}
         </button>
-        <a href="/trabajos" className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+        <a href="/trabajos" className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
           Cancelar
         </a>
       </div>

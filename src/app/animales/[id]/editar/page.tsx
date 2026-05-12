@@ -39,7 +39,7 @@ export default async function EditarAnimalPage({
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-gray-400 mb-1">
+        <p className="text-sm text-stone-400 mb-1">
           <a href="/animales" className="hover:underline">Animales</a>{" "}
           /{" "}
           <a href={`/animales/${params.id}`} className="hover:underline">
@@ -47,7 +47,7 @@ export default async function EditarAnimalPage({
           </a>{" "}
           / Editar
         </p>
-        <h1 className="text-2xl font-bold text-gray-800">Editar animal</h1>
+        <h1 className="text-2xl font-bold text-stone-800">Editar animal</h1>
       </div>
       <FormAnimal
         modo="editar"

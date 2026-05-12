@@ -22,10 +22,13 @@ export default async function TrabajosPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Trabajos</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-stone-800">Trabajos</h1>
+          <p className="text-stone-500 mt-1 text-sm">Registro de actividades veterinarias y de campo</p>
+        </div>
         <Link
           href="/trabajos/nuevo"
-          className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700"
+          className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
         >
           Nuevo trabajo
         </Link>
@@ -38,9 +41,9 @@ export default async function TrabajosPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
+          <thead className="bg-stone-50 text-stone-400 uppercase text-xs border-b border-stone-100">
             <tr>
               <th className="px-4 py-3 text-left">Fecha</th>
               <th className="px-4 py-3 text-left">Tipo de trabajo</th>
@@ -50,21 +53,21 @@ export default async function TrabajosPage() {
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-stone-100">
             {(trabajos ?? []).length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-stone-400">
                   No hay trabajos registrados todavía. Importá el CSV del bastón para comenzar.
                 </td>
               </tr>
             ) : (
               (trabajos ?? []).map((t) => (
-                <tr key={t.id} className="hover:bg-gray-50">
+                <tr key={t.id} className="hover:bg-stone-50">
                   <td className="px-4 py-3">{formatDate(t.fecha)}</td>
                   <td className="px-4 py-3 font-medium">{t.tipo}</td>
-                  <td className="px-4 py-3 text-gray-600">{t.veterinario}</td>
-                  <td className="px-4 py-3 text-gray-600">{t.campo}</td>
-                  <td className="px-4 py-3 text-center font-mono text-gray-700">{t.total_chips}</td>
+                  <td className="px-4 py-3 text-stone-600">{t.veterinario}</td>
+                  <td className="px-4 py-3 text-stone-600">{t.campo}</td>
+                  <td className="px-4 py-3 text-center font-mono text-stone-700">{t.total_chips}</td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/trabajos/${t.id}`}

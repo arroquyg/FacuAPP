@@ -15,8 +15,8 @@ function formatDate(dateStr: string | null) {
 function Campo({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs text-gray-400 uppercase tracking-wide">{label}</p>
-      <p className="text-sm text-gray-800 mt-0.5">{value ?? "—"}</p>
+      <p className="text-xs text-stone-400 uppercase tracking-wide">{label}</p>
+      <p className="text-sm text-stone-800 mt-0.5">{value ?? "—"}</p>
     </div>
   );
 }
@@ -62,23 +62,28 @@ export default async function AnimalPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between border-b border-stone-200 pb-5">
         <div>
-          <p className="text-sm text-gray-400 mb-1">
-            <a href="/animales" className="hover:underline">Animales</a>{" "}/ {animal.chip_id}
+          <p className="text-sm text-stone-400 mb-1">
+            <a href="/animales" className="hover:text-green-700 transition-colors">Animales</a>
+            <span className="mx-1">/</span>
+            <span className="font-mono">{animal.chip_id}</span>
           </p>
-          <h1 className="text-2xl font-bold text-gray-800">{animal.chip_id}</h1>
+          <h1 className="text-3xl font-bold text-stone-800">{animal.chip_id}</h1>
+          {animal.numero_caravana && (
+            <p className="text-stone-500 mt-1 text-sm">Caravana {animal.numero_caravana}</p>
+          )}
         </div>
         <a
           href={`/animales/${params.id}/editar`}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+          className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"
         >
           Editar
         </a>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+      <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+        <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-5">
           Datos generales
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -99,7 +104,7 @@ export default async function AnimalPage({
           <Campo
             label="Activo"
             value={
-              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${animal.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${animal.activo ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
                 {animal.activo ? "Sí" : "No"}
               </span>
             }

@@ -30,25 +30,28 @@ export default async function AnimalesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Animales</h1>
+      <div className="flex items-start justify-between border-b border-stone-200 pb-5">
+        <div>
+          <h1 className="text-3xl font-bold text-stone-800">Animales</h1>
+          <p className="text-stone-500 mt-1 text-sm">Listado completo del rodeo</p>
+        </div>
         <div className="flex gap-2">
           <a
             href="/api/animales/export"
             download
-            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+            className="px-4 py-2 border border-stone-300 text-stone-600 rounded-lg text-sm hover:bg-stone-50 transition-colors"
           >
             Exportar
           </a>
           <a
             href="/animales/importar"
-            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+            className="px-4 py-2 border border-stone-300 text-stone-600 rounded-lg text-sm hover:bg-stone-50 transition-colors"
           >
             Importar
           </a>
           <a
             href="/animales/nuevo"
-            className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700"
+            className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
           >
             + Nuevo animal
           </a>

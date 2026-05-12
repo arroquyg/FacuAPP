@@ -119,7 +119,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           <a href={`/trabajos/${trabajo.id}`} className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700">
             Ver trabajo
           </a>
-          <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button onClick={reiniciar} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
             Importar otro archivo
           </button>
         </div>
@@ -131,17 +131,17 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
     return (
       <div className="space-y-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold text-gray-800">{filas.length}</span> registros detectados
+          <p className="text-sm text-stone-600">
+            <span className="font-semibold text-stone-800">{filas.length}</span> registros detectados
           </p>
-          <button onClick={reiniciar} className="text-sm text-gray-500 hover:underline">
+          <button onClick={reiniciar} className="text-sm text-stone-500 hover:underline">
             Cargar otro archivo
           </button>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="bg-gray-50 text-gray-500 uppercase">
+            <thead className="bg-stone-50 text-stone-500 uppercase">
               <tr>
                 <th className="px-3 py-2 text-left">EID (Chip)</th>
                 {trabajo.columnas.map((col, i) => (
@@ -149,9 +149,9 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {filas.map((f, i) => (
-                <tr key={i} className="hover:bg-gray-50">
+                <tr key={i} className="hover:bg-stone-50">
                   <td className="px-3 py-2 font-mono">{f.eid}</td>
                   {f.datos.map((d, di) => (
                     <td key={di} className="px-3 py-2">{d ?? "—"}</td>
@@ -170,7 +170,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           >
             {importando ? "Guardando..." : `Importar ${filas.length} animal${filas.length !== 1 ? "es" : ""}`}
           </button>
-          <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button onClick={reiniciar} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
             Cancelar
           </button>
         </div>
@@ -179,13 +179,13 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+    <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-5">
       <div>
-        <p className="font-medium text-gray-800">Columnas que se esperan en el CSV</p>
+        <p className="font-medium text-stone-800">Columnas que se esperan en el CSV</p>
         <div className="flex flex-wrap gap-2 mt-3">
           <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">EID</span>
           {trabajo.columnas.map((col, i) => (
-            <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border border-gray-200">
+            <span key={i} className="px-2 py-1 bg-stone-100 text-stone-700 text-xs rounded border border-stone-200">
               {col}
             </span>
           ))}
@@ -193,7 +193,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
       </div>
 
       <div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-stone-500">
           Subí el CSV completado desde el bastón XRS2i o desde la computadora. Las columnas se detectan automáticamente por nombre.
         </p>
       </div>
@@ -201,7 +201,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
       <input ref={fileRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
       <button
         onClick={() => fileRef.current?.click()}
-        className="px-5 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-gray-400 hover:bg-gray-50 w-full text-center transition-colors"
+        className="px-5 py-3 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center transition-colors"
       >
         Seleccionar archivo CSV (.csv)
       </button>

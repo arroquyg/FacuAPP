@@ -29,7 +29,7 @@ function Tooltip({ texto }: { texto: string }) {
         onMouseLeave={() => setVisible(false)}
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
-        className="w-4 h-4 rounded-full bg-gray-300 text-gray-600 text-xs font-bold flex items-center justify-center hover:bg-gray-400 leading-none"
+        className="w-4 h-4 rounded-full bg-gray-300 text-stone-600 text-xs font-bold flex items-center justify-center hover:bg-gray-400 leading-none"
       >
         ?
       </button>
@@ -216,7 +216,7 @@ export default function FormTransaccion() {
           >
             {guardando ? "Guardando..." : "Confirmar definitivamente"}
           </button>
-          <button onClick={() => setPaso("form")} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button onClick={() => setPaso("form")} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
             Volver
           </button>
         </div>
@@ -227,8 +227,8 @@ export default function FormTransaccion() {
   const puedeConfirmar = contraparte && fecha && seleccionados.length > 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-      <h2 className="font-semibold text-gray-700">Registrar transacción</h2>
+    <div className="bg-white border border-stone-200 rounded-xl p-6 space-y-5">
+      <h2 className="font-semibold text-stone-700">Registrar transacción</h2>
 
       {/* Tipo */}
       <div className="flex gap-3">
@@ -239,7 +239,7 @@ export default function FormTransaccion() {
             className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               tipo === t
                 ? "bg-green-800 text-white border-green-800"
-                : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                : "border-stone-300 text-stone-600 hover:bg-stone-50"
             }`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -250,58 +250,58 @@ export default function FormTransaccion() {
       {/* Datos del encabezado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Contraparte *</label>
+          <label className="block text-xs text-stone-500 mb-1">Contraparte *</label>
           <input type="text" value={contraparte} onChange={(e) => setContraparte(e.target.value)}
             placeholder="Nombre del comprador/vendedor"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">CUIT</label>
+          <label className="block text-xs text-stone-500 mb-1">CUIT</label>
           <input type="text" value={cuit} onChange={(e) => setCuit(e.target.value)}
             placeholder="XX-XXXXXXXX-X"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Fecha *</label>
+          <label className="block text-xs text-stone-500 mb-1">Fecha *</label>
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Número de remito</label>
+          <label className="block text-xs text-stone-500 mb-1">Número de remito</label>
           <input type="text" value={remito} onChange={(e) => setRemito(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Número de transacción</label>
+          <label className="block text-xs text-stone-500 mb-1">Número de transacción</label>
           <input type="text" value={nroTransaccion} onChange={(e) => setNroTransaccion(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Observaciones</label>
+          <label className="block text-xs text-stone-500 mb-1">Observaciones</label>
           <input type="text" value={observaciones} onChange={(e) => setObservaciones(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
       </div>
 
       {/* Buscador de animales */}
       <div className="relative">
-        <label className="block text-xs text-gray-500 mb-1">Buscar animales por chip o caravana</label>
+        <label className="block text-xs text-stone-500 mb-1">Buscar animales por chip o caravana</label>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Ej: CHK-001"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         />
         {(resultados.length > 0 || buscando) && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-            {buscando && <div className="px-3 py-2 text-sm text-gray-400">Buscando...</div>}
+          <div className="absolute z-10 mt-1 w-full bg-white border border-stone-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            {buscando && <div className="px-3 py-2 text-sm text-stone-400">Buscando...</div>}
             {resultados.map((a) => (
               <button key={a.id} onClick={() => agregarAnimal(a)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                className="w-full text-left px-3 py-2 text-sm hover:bg-stone-50 border-b border-gray-100 last:border-0">
                 <span className="font-mono font-medium">{a.chip_id}</span>
-                {a.numero_caravana && <span className="text-gray-500 ml-2">— {a.numero_caravana}</span>}
-                <span className="text-gray-400 ml-2 text-xs">
+                {a.numero_caravana && <span className="text-stone-500 ml-2">— {a.numero_caravana}</span>}
+                <span className="text-stone-400 ml-2 text-xs">
                   {(a.campo as { nombre: string } | null)?.nombre ?? "sin campo"}
                 </span>
               </button>
@@ -312,7 +312,7 @@ export default function FormTransaccion() {
 
       {/* Carga masiva */}
       <div>
-        <label className="block text-xs text-gray-500 mb-1 flex items-center">
+        <label className="block text-xs text-stone-500 mb-1 flex items-center">
           Carga masiva por chip
           <Tooltip texto={"Pegá los chips separados por coma.\nEjemplo:\nCHK-001, CHK-002, CHK-003\n\nSe agregan con precio vacío — completá el precio de cada uno después."} />
         </label>
@@ -322,13 +322,13 @@ export default function FormTransaccion() {
             onChange={(e) => { setTextMasivo(e.target.value); setAvisoMasivo(null); }}
             placeholder="CHK-001, CHK-002, CHK-003..."
             rows={2}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-300 resize-none"
+            className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-300 resize-none"
           />
           <button
             type="button"
             onClick={cargarMasivo}
             disabled={cargandoMasivo || !textMasivo.trim()}
-            className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed self-end"
+            className="px-4 py-2 bg-stone-100 border border-stone-300 rounded-lg text-sm text-stone-700 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed self-end"
           >
             {cargandoMasivo ? "Cargando..." : "Cargar"}
           </button>
@@ -343,16 +343,16 @@ export default function FormTransaccion() {
       {/* Animales seleccionados con precio */}
       {seleccionados.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs text-gray-500">{seleccionados.length} animal{seleccionados.length !== 1 ? "es" : ""} seleccionado{seleccionados.length !== 1 ? "s" : ""}</p>
+          <p className="text-xs text-stone-500">{seleccionados.length} animal{seleccionados.length !== 1 ? "es" : ""} seleccionado{seleccionados.length !== 1 ? "s" : ""}</p>
           <div className="space-y-1 max-h-52 overflow-y-auto">
             {seleccionados.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 text-sm">
+              <div key={a.id} className="flex items-center gap-3 bg-stone-50 rounded-lg px-3 py-2 text-sm">
                 <span className="font-mono font-medium w-28 shrink-0">{a.chip_id}</span>
-                <span className="text-gray-400 text-xs flex-1">
+                <span className="text-stone-400 text-xs flex-1">
                   {(a.campo as { nombre: string } | null)?.nombre ?? "—"}
                 </span>
                 <div className="flex items-center gap-1 shrink-0">
-                  <span className="text-gray-500 text-xs">$</span>
+                  <span className="text-stone-500 text-xs">$</span>
                   <input
                     type="number"
                     min="0"
@@ -360,17 +360,17 @@ export default function FormTransaccion() {
                     value={a.precio}
                     onChange={(e) => setPrecio(a.id, e.target.value)}
                     placeholder="0.00"
-                    className="w-24 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+                    className="w-24 border border-stone-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-green-300"
                   />
                 </div>
-                <button onClick={() => quitarAnimal(a.id)} className="text-gray-400 hover:text-red-500 text-xs">✕</button>
+                <button onClick={() => quitarAnimal(a.id)} className="text-stone-400 hover:text-red-500 text-xs">✕</button>
               </div>
             ))}
           </div>
 
           {/* Total */}
           <div className="flex justify-end pt-1">
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-sm font-semibold text-stone-700">
               Total: <span className="text-gray-900">${formatPeso(precioTotal)}</span>
             </span>
           </div>

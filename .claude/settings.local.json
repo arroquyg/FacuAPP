@@ -13,7 +13,18 @@
       "Bash(git init *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(gh repo *)",
+      "Bash(git checkout *)",
+      "Bash(git merge feature/carga-masiva-movimientos --no-ff -m ' *)",
+      "Bash(git push *)",
+      "Bash(git merge feature/importar-animales-excel --no-ff -m ' *)",
+      "Bash(git merge feature/exportar-animales-excel --no-ff -m ' *)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(git merge *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(xargs sed -i '' -e s/bg-gray-50/bg-stone-50/g -e s/bg-gray-100/bg-stone-100/g -e s/border-gray-200/border-stone-200/g -e s/border-gray-300/border-stone-300/g -e s/text-gray-400/text-stone-400/g -e s/text-gray-500/text-stone-500/g -e s/text-gray-600/text-stone-600/g -e s/text-gray-700/text-stone-700/g -e s/text-gray-800/text-stone-800/g -e s/hover:bg-gray-50/hover:bg-stone-50/g -e s/divide-gray-100/divide-stone-100/g -e s/focus:ring-gray-300/focus:ring-green-300/g -e s/focus:ring-gray-400/focus:ring-green-400/g)"
     ]
   }
 }

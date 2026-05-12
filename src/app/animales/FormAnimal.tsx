@@ -113,7 +113,7 @@ export default function FormAnimal({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+    <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-6">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">
           {error}
@@ -122,32 +122,32 @@ export default function FormAnimal({
 
       {/* Identificación */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
           Identificación
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Chip ID *</label>
+            <label className="block text-xs text-stone-500 mb-1">Chip ID *</label>
             <input
               value={valores.chip_id}
               onChange={(e) => set("chip_id", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 font-mono"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 font-mono"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Número de caravana *</label>
+            <label className="block text-xs text-stone-500 mb-1">Número de caravana *</label>
             <input
               value={valores.numero_caravana}
               onChange={(e) => set("numero_caravana", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Campo actual</label>
+            <label className="block text-xs text-stone-500 mb-1">Campo actual</label>
             <select
               value={valores.campo_actual_id}
               onChange={(e) => set("campo_actual_id", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             >
               <option value="">Sin campo asignado</option>
               {campos.map((c) => (
@@ -160,16 +160,16 @@ export default function FormAnimal({
 
       {/* Características */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
           Características
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Sexo *</label>
+            <label className="block text-xs text-stone-500 mb-1">Sexo *</label>
             <select
               value={valores.sexo}
               onChange={(e) => set("sexo", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             >
               <option value="">Seleccionar</option>
               <option value="macho">Macho</option>
@@ -177,11 +177,11 @@ export default function FormAnimal({
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Categoría *</label>
+            <label className="block text-xs text-stone-500 mb-1">Categoría *</label>
             <select
               value={valores.categoria}
               onChange={(e) => set("categoria", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             >
               <option value="">Seleccionar</option>
               {categorias.map((c) => (
@@ -196,11 +196,11 @@ export default function FormAnimal({
             )}
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Raza *</label>
+            <label className="block text-xs text-stone-500 mb-1">Raza *</label>
             <select
               value={valores.raza}
               onChange={(e) => set("raza", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             >
               <option value="">Seleccionar</option>
               {razas.map((r) => (
@@ -215,29 +215,29 @@ export default function FormAnimal({
             )}
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Color / pelaje</label>
+            <label className="block text-xs text-stone-500 mb-1">Color / pelaje</label>
             <input
               value={valores.color_pelaje}
               onChange={(e) => set("color_pelaje", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Fecha de nacimiento</label>
+            <label className="block text-xs text-stone-500 mb-1">Fecha de nacimiento</label>
             <input
               type="date"
               value={valores.fecha_nacimiento}
               onChange={(e) => set("fecha_nacimiento", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Estado sanitario</label>
+            <label className="block text-xs text-stone-500 mb-1">Estado sanitario</label>
             <input
               value={valores.estado_sanitario}
               onChange={(e) => set("estado_sanitario", e.target.value)}
               placeholder="Ej: Al día"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
         </div>
@@ -245,27 +245,27 @@ export default function FormAnimal({
 
       {/* Datos comerciales */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
           Datos comerciales
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Procedencia</label>
+            <label className="block text-xs text-stone-500 mb-1">Procedencia</label>
             <input
               value={valores.procedencia}
               onChange={(e) => set("procedencia", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Valor comercial ($)</label>
+            <label className="block text-xs text-stone-500 mb-1">Valor comercial ($)</label>
             <input
               type="number"
               min="0"
               step="0.01"
               value={valores.valor_comercial}
               onChange={(e) => set("valor_comercial", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
           {modo === "editar" && (
@@ -276,9 +276,9 @@ export default function FormAnimal({
                   type="checkbox"
                   checked={valores.activo}
                   onChange={(e) => set("activo", e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300"
+                  className="w-4 h-4 rounded border-stone-300"
                 />
-                <label htmlFor="activo" className="text-sm text-gray-700">
+                <label htmlFor="activo" className="text-sm text-stone-700">
                   Animal activo (pertenece a la empresa)
                 </label>
               </div>
@@ -288,9 +288,9 @@ export default function FormAnimal({
                   type="checkbox"
                   checked={valores.vivo}
                   onChange={(e) => set("vivo", e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300"
+                  className="w-4 h-4 rounded border-stone-300"
                 />
-                <label htmlFor="vivo" className="text-sm text-gray-700">
+                <label htmlFor="vivo" className="text-sm text-stone-700">
                   Animal vivo
                 </label>
               </div>
@@ -315,7 +315,7 @@ export default function FormAnimal({
         </button>
         <button
           onClick={() => router.back()}
-          className="px-5 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          className="px-5 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50"
         >
           Cancelar
         </button>

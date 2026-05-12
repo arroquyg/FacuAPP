@@ -42,7 +42,7 @@ export default async function TransaccionesPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800">Transacciones</h1>
+      <h1 className="text-2xl font-bold text-stone-800">Transacciones</h1>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">

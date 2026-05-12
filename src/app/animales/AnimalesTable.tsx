@@ -59,18 +59,18 @@ export default function AnimalesTable({
   return (
     <div className="space-y-4">
       {/* Filtros */}
-      <div className="flex flex-wrap gap-3">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-4 flex flex-wrap gap-3">
         <input
           type="text"
           placeholder="Buscar por chip o caravana..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-300"
         />
         <select
           value={campoFiltro}
           onChange={(e) => setCampoFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="">Todos los campos</option>
           {campos.map((c) => (
@@ -80,7 +80,7 @@ export default function AnimalesTable({
         <select
           value={categoriaFiltro}
           onChange={(e) => setCategoriaFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="">Todas las categorías</option>
           {categorias.map((c) => (
@@ -90,7 +90,7 @@ export default function AnimalesTable({
         <select
           value={razaFiltro}
           onChange={(e) => setRazaFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="">Todas las razas</option>
           {razas.map((r) => (
@@ -100,7 +100,7 @@ export default function AnimalesTable({
         <select
           value={sanitarioFiltro}
           onChange={(e) => setSanitarioFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="">Todos los estados san.</option>
           {estadosSanitarios.map((e) => (
@@ -110,7 +110,7 @@ export default function AnimalesTable({
         <select
           value={vivoFiltro}
           onChange={(e) => setVivoFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="todos">Todos</option>
           <option value="vivos">Vivos</option>
@@ -119,14 +119,14 @@ export default function AnimalesTable({
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
         {filtrados.length === 0 ? (
-          <p className="px-4 py-8 text-gray-400 text-sm text-center">
+          <p className="px-4 py-8 text-stone-400 text-sm text-center">
             No se encontraron animales con esos filtros
           </p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+            <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
               <tr>
                 <th className="px-4 py-3 text-left">Chip ID</th>
                 <th className="px-4 py-3 text-left">Caravana</th>
@@ -137,22 +137,22 @@ export default function AnimalesTable({
                 <th className="px-4 py-3 text-left">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {filtrados.map((a) => (
-                <tr key={a.id} className="hover:bg-gray-50 cursor-pointer">
+                <tr key={a.id} className="hover:bg-stone-50 cursor-pointer">
                   <td className="px-4 py-3">
                     <Link
                       href={`/animales/${a.id}`}
-                      className="font-mono text-blue-600 hover:underline"
+                      className="font-mono text-green-700 hover:underline font-medium"
                     >
                       {a.chip_id}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{a.numero_caravana ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-600 capitalize">{a.categoria ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-600">{a.raza ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-600">{a.campo?.nombre ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-600">{a.estado_sanitario ?? "—"}</td>
+                  <td className="px-4 py-3 text-stone-600">{a.numero_caravana ?? "—"}</td>
+                  <td className="px-4 py-3 text-stone-600 capitalize">{a.categoria ?? "—"}</td>
+                  <td className="px-4 py-3 text-stone-600">{a.raza ?? "—"}</td>
+                  <td className="px-4 py-3 text-stone-600">{a.campo?.nombre ?? "—"}</td>
+                  <td className="px-4 py-3 text-stone-600">{a.estado_sanitario ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${a.vivo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                       {a.vivo ? "Vivo" : "Muerto"}
@@ -164,7 +164,7 @@ export default function AnimalesTable({
           </table>
         )}
       </div>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-stone-400">
         {filtrados.length} de {animales.length} animales
       </p>
     </div>

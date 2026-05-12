@@ -164,7 +164,7 @@ export default function ImportarAnimales({
           <button onClick={reiniciar} className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700">
             Nueva importación
           </button>
-          <a href="/animales" className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <a href="/animales" className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
             Ver animales
           </a>
         </div>
@@ -177,21 +177,21 @@ export default function ImportarAnimales({
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-stone-600">
               <span className="text-green-600 font-semibold">{validas.length} listas para importar</span>
               {invalidas.length > 0 && (
                 <span className="text-red-500 font-semibold ml-3">{invalidas.length} con errores (se omiten)</span>
               )}
             </p>
           </div>
-          <button onClick={reiniciar} className="text-sm text-gray-500 hover:underline">
+          <button onClick={reiniciar} className="text-sm text-stone-500 hover:underline">
             Cargar otro archivo
           </button>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="bg-gray-50 text-gray-500 uppercase">
+            <thead className="bg-stone-50 text-stone-500 uppercase">
               <tr>
                 <th className="px-3 py-2 text-left">#</th>
                 <th className="px-3 py-2 text-left">Chip</th>
@@ -203,10 +203,10 @@ export default function ImportarAnimales({
                 <th className="px-3 py-2 text-left">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {filas.map((f, i) => (
-                <tr key={i} className={f.errores.length > 0 ? "bg-red-50" : "hover:bg-gray-50"}>
-                  <td className="px-3 py-2 text-gray-400">{i + 1}</td>
+                <tr key={i} className={f.errores.length > 0 ? "bg-red-50" : "hover:bg-stone-50"}>
+                  <td className="px-3 py-2 text-stone-400">{i + 1}</td>
                   <td className="px-3 py-2 font-mono">{f.chip_id || "—"}</td>
                   <td className="px-3 py-2">{f.numero_caravana || "—"}</td>
                   <td className="px-3 py-2 capitalize">{f.sexo || "—"}</td>
@@ -236,7 +236,7 @@ export default function ImportarAnimales({
           >
             {importando ? "Importando..." : `Importar ${validas.length} animal${validas.length !== 1 ? "es" : ""}`}
           </button>
-          <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button onClick={reiniciar} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
             Cancelar
           </button>
         </div>
@@ -247,10 +247,10 @@ export default function ImportarAnimales({
   return (
     <div className="space-y-6">
       {/* Paso 1: Descargar base */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-5">
+      <div className="bg-white rounded-xl border border-stone-200 p-6 flex items-start gap-5">
         <div className="flex-1">
-          <p className="font-medium text-gray-800">Paso 1 — Descargar base</p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="font-medium text-stone-800">Paso 1 — Descargar base</p>
+          <p className="text-sm text-stone-500 mt-1">
             Descargá el archivo Excel con el formato correcto. Incluye una hoja de referencia con los campos, categorías y razas válidas.
           </p>
         </div>
@@ -264,10 +264,10 @@ export default function ImportarAnimales({
       </div>
 
       {/* Paso 2: Completar y subir */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+      <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
         <div>
-          <p className="font-medium text-gray-800">Paso 2 — Completar y subir el archivo</p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="font-medium text-stone-800">Paso 2 — Completar y subir el archivo</p>
+          <p className="text-sm text-stone-500 mt-1">
             Completá la hoja <strong>Animales</strong> y subí el archivo. Se validará cada fila antes de importar.
           </p>
         </div>
@@ -280,7 +280,7 @@ export default function ImportarAnimales({
         />
         <button
           onClick={() => inputRef.current?.click()}
-          className="px-5 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-gray-400 hover:bg-gray-50 w-full text-center"
+          className="px-5 py-2 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center"
         >
           Seleccionar archivo Excel (.xlsx)
         </button>

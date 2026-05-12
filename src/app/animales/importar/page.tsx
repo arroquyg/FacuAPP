@@ -15,10 +15,10 @@ export default async function ImportarAnimalesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-gray-400 mb-1">
+        <p className="text-sm text-stone-400 mb-1">
           <a href="/animales" className="hover:underline">Animales</a> / Importar
         </p>
-        <h1 className="text-2xl font-bold text-gray-800">Importar animales</h1>
+        <h1 className="text-2xl font-bold text-stone-800">Importar animales</h1>
       </div>
       <ImportarAnimales
         campos={campos ?? []}

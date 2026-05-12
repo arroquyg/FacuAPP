@@ -54,43 +54,43 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-700">Historial de transacciones</h2>
+      <h2 className="text-lg font-semibold text-stone-700">Historial de transacciones</h2>
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3">
         <select
           value={tipoFiltro}
           onChange={(e) => setTipoFiltro(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         >
           <option value="">Compras y ventas</option>
           <option value="compra">Solo compras</option>
           <option value="venta">Solo ventas</option>
         </select>
         <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">Desde</label>
+          <label className="text-xs text-stone-500">Desde</label>
           <input type="date" value={desde} onChange={(e) => setDesde(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">Hasta</label>
+          <label className="text-xs text-stone-500">Hasta</label>
           <input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" />
+            className="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
         </div>
         {(tipoFiltro || desde || hasta) && (
           <button onClick={() => { setTipoFiltro(""); setDesde(""); setHasta(""); }}
-            className="text-xs text-gray-400 hover:text-gray-600 underline">
+            className="text-xs text-stone-400 hover:text-stone-600 underline">
             Limpiar filtros
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {filtradas.length === 0 ? (
-          <p className="px-4 py-8 text-gray-400 text-sm text-center">Sin transacciones para mostrar</p>
+          <p className="px-4 py-8 text-stone-400 text-sm text-center">Sin transacciones para mostrar</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+            <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Fecha</th>
                 <th className="px-4 py-3 text-left">Tipo</th>
@@ -100,15 +100,15 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
                 <th className="px-4 py-3 text-left">Remito</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-stone-100">
               {filtradas.map((t) => (
                 <>
                   <tr
                     key={t.id}
                     onClick={() => toggleDetalle(t.id)}
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-stone-50 cursor-pointer"
                   >
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{t.fecha}</td>
+                    <td className="px-4 py-3 text-stone-600 whitespace-nowrap">{t.fecha}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
                         t.tipo === "compra" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
@@ -116,20 +116,20 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
                         {t.tipo}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{t.contraparte}</td>
-                    <td className="px-4 py-3 text-gray-600">{t.cantidad_animales}</td>
-                    <td className="px-4 py-3 text-gray-700 font-medium">{formatPeso(t.precio_total)}</td>
-                    <td className="px-4 py-3 text-gray-500">{t.numero_remito ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-700">{t.contraparte}</td>
+                    <td className="px-4 py-3 text-stone-600">{t.cantidad_animales}</td>
+                    <td className="px-4 py-3 text-stone-700 font-medium">{formatPeso(t.precio_total)}</td>
+                    <td className="px-4 py-3 text-stone-500">{t.numero_remito ?? "—"}</td>
                   </tr>
                   {expandido === t.id && (
                     <tr key={`${t.id}-detalle`}>
-                      <td colSpan={6} className="bg-gray-50 px-6 py-3">
+                      <td colSpan={6} className="bg-stone-50 px-6 py-3">
                         {cargandoDetalle === t.id ? (
-                          <p className="text-xs text-gray-400">Cargando animales...</p>
+                          <p className="text-xs text-stone-400">Cargando animales...</p>
                         ) : detalle[t.id] ? (
                           <table className="w-full text-xs">
                             <thead>
-                              <tr className="text-gray-400 uppercase">
+                              <tr className="text-stone-400 uppercase">
                                 <th className="pb-1 text-left">Chip ID</th>
                                 <th className="pb-1 text-left">Caravana</th>
                                 <th className="pb-1 text-left">Categoría</th>
@@ -141,16 +141,16 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
                               {detalle[t.id].map((item) => (
                                 <tr key={item.id}>
                                   <td className="py-1 font-mono pr-4">{item.animal?.chip_id ?? "—"}</td>
-                                  <td className="py-1 pr-4 text-gray-500">{item.animal?.numero_caravana ?? "—"}</td>
-                                  <td className="py-1 pr-4 text-gray-500 capitalize">{item.animal?.categoria ?? "—"}</td>
-                                  <td className="py-1 pr-4 text-gray-500">{item.animal?.raza ?? "—"}</td>
-                                  <td className="py-1 text-gray-600">{formatPeso(item.precio_unitario)}</td>
+                                  <td className="py-1 pr-4 text-stone-500">{item.animal?.numero_caravana ?? "—"}</td>
+                                  <td className="py-1 pr-4 text-stone-500 capitalize">{item.animal?.categoria ?? "—"}</td>
+                                  <td className="py-1 pr-4 text-stone-500">{item.animal?.raza ?? "—"}</td>
+                                  <td className="py-1 text-stone-600">{formatPeso(item.precio_unitario)}</td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
                         ) : (
-                          <p className="text-xs text-gray-400">Sin datos</p>
+                          <p className="text-xs text-stone-400">Sin datos</p>
                         )}
                       </td>
                     </tr>
@@ -161,7 +161,7 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
           </table>
         )}
       </div>
-      <p className="text-xs text-gray-400">{filtradas.length} de {transacciones.length} transacciones</p>
+      <p className="text-xs text-stone-400">{filtradas.length} de {transacciones.length} transacciones</p>
     </div>
   );
 }

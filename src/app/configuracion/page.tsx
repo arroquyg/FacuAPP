@@ -44,18 +44,21 @@ export default async function ConfiguracionPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Configuración</h1>
+      <div className="border-b border-stone-200 pb-5">
+        <h1 className="text-3xl font-bold text-stone-800">Configuración</h1>
+        <p className="text-stone-500 mt-1 text-sm">Campos, categorías y razas del establecimiento</p>
+      </div>
 
       {/* Pestañas */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-stone-200 bg-white rounded-t-xl border border-stone-200 px-2 shadow-sm">
         {tabs.map((t) => (
           <a
             key={t.key}
             href={`/configuracion?tab=${t.key}`}
             className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
               tab === t.key
-                ? "border-green-800 text-gray-800"
-                : "border-transparent text-gray-400 hover:text-gray-600"
+                ? "border-green-800 text-stone-800"
+                : "border-transparent text-stone-400 hover:text-stone-600"
             }`}
           >
             {t.label}
