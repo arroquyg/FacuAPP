@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 type AnimalTransaccion = { animal_id: string; precio_unitario: number };
@@ -19,12 +20,12 @@ export async function registrarTransaccion(params: {
   if (params.animales.length === 0)
     return { ok: false, error: "No hay animales seleccionados." };
 
-  const empresaId = process.env.EMPRESA_ID;
-  if (!empresaId) return { ok: false, error: "EMPRESA_ID no configurado." };
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "No autenticado." };
 
   const supabase = createAdminClient();
   const { data, error } = await supabase.rpc("registrar_transaccion", {
-    p_empresa_id: empresaId,
+    p_empresa_id: user.empresa_id,
     p_tipo: params.tipo,
     p_fecha: params.fecha,
     p_contraparte: params.contraparte,

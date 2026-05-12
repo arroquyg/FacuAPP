@@ -1,9 +1,8 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-
-const EID = () => process.env.EMPRESA_ID!;
 
 type AnimalData = {
   chip_id: string;
@@ -21,13 +20,14 @@ type AnimalData = {
   vivo: boolean;
 };
 
-export async function crearAnimal(
-  data: AnimalData
-): Promise<{ ok: boolean; id?: string; error?: string }> {
+export async function crearAnimal(data: AnimalData): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+
   const sb = createAdminClient();
   const { data: inserted, error } = await sb
     .from("animales")
-    .insert({ ...data, empresa_id: EID() })
+    .insert({ ...data, empresa_id: user.empresa_id })
     .select("id")
     .single();
 
@@ -37,16 +37,16 @@ export async function crearAnimal(
   return { ok: true, id: inserted.id };
 }
 
-export async function actualizarAnimal(
-  id: string,
-  data: AnimalData
-): Promise<{ ok: boolean; error?: string }> {
+export async function actualizarAnimal(id: string, data: AnimalData): Promise<{ ok: boolean; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+
   const sb = createAdminClient();
   const { error } = await sb
     .from("animales")
     .update(data)
     .eq("id", id)
-    .eq("empresa_id", EID());
+    .eq("empresa_id", user.empresa_id);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/animales");

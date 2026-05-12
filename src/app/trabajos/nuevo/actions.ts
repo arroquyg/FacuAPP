@@ -1,9 +1,8 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-
-const EMPRESA_ID = () => process.env.EMPRESA_ID!;
 
 export async function crearTrabajo(data: {
   tipo: string;
@@ -12,11 +11,14 @@ export async function crearTrabajo(data: {
   fecha: string;
   columnas: string[];
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+
   const sb = createAdminClient();
   const { data: nuevo, error } = await sb
     .from("trabajos")
     .insert({
-      empresa_id: EMPRESA_ID(),
+      empresa_id: user.empresa_id,
       tipo: data.tipo,
       veterinario: data.veterinario,
       campo: data.campo,

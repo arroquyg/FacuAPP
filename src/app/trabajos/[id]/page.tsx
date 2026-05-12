@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { formatearValor, getTipoColumna } from "@/lib/columnas-clinicas";
 
 function formatDate(d: string) {
@@ -12,8 +13,11 @@ function formatDate(d: string) {
 }
 
 export default async function TrabajoDetallePage({ params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const [{ data: trabajo }, { data: registros }] = await Promise.all([
     sb.from("trabajos").select("*").eq("id", params.id).eq("empresa_id", empresaId).single(),

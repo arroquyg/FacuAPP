@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import CamposConfig from "./CamposConfig";
 import SimpleListConfig from "./SimpleListConfig";
 import {
@@ -13,8 +15,11 @@ export default async function ConfiguracionPage({
 }: {
   searchParams: { tab?: string };
 }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
   const tab = searchParams.tab ?? "campos";
 
   const [{ data: campos }, { data: categorias }, { data: razas }] =

@@ -1,10 +1,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 
 export async function GET() {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const [{ data: campos }, { data: categorias }, { data: razas }] =
     await Promise.all([

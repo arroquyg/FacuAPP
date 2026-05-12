@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,8 +11,11 @@ export async function GET(req: NextRequest) {
 
   if (lista.length === 0) return NextResponse.json([]);
 
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+
   const supabase = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const { data, error } = await supabase
     .from("animales")

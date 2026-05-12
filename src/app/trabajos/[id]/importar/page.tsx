@@ -1,11 +1,15 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ImportarDatos from "./ImportarDatos";
 
 export default async function ImportarDatosPage({ params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const { data: trabajo } = await sb
     .from("trabajos")

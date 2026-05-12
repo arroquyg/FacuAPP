@@ -1,9 +1,8 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-
-const EMPRESA_ID = () => process.env.EMPRESA_ID!;
 
 type RegistroInput = {
   eid: string;
@@ -23,8 +22,11 @@ export async function importarDatos(
   if (registros.length === 0)
     return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: "El CSV no tiene registros." };
 
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: "No autenticado." };
+
   const sb = createAdminClient();
-  const empresaId = EMPRESA_ID();
+  const empresaId = user.empresa_id;
 
   const eids = registros.map((r) => r.eid);
   const eidsNorm = eids.map((e) => e.replace(/\s+/g, ""));

@@ -1,9 +1,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import ImportarAnimales from "./ImportarAnimales";
 
 export default async function ImportarAnimalesPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const [{ data: campos }, { data: categorias }, { data: razas }] =
     await Promise.all([

@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import FormTransaccion from "./FormTransaccion";
 import HistorialTransacciones from "./HistorialTransacciones";
 
@@ -9,8 +11,11 @@ function formatDate(dateStr: string | null) {
 }
 
 export default async function TransaccionesPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const supabase = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const { data: transacciones, error } = await supabase
     .from("transacciones")

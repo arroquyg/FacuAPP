@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { notFound } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { notFound, redirect } from "next/navigation";
 import FormAnimal from "../../FormAnimal";
 
 export default async function EditarAnimalPage({
@@ -7,8 +8,11 @@ export default async function EditarAnimalPage({
 }: {
   params: { id: string };
 }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const sb = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const empresaId = user.empresa_id;
 
   const [{ data: animal }, { data: categorias }, { data: razas }, { data: campos }] =
     await Promise.all([
