@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { formatearValor, getTipoColumna } from "@/lib/columnas-clinicas";
 
 function formatDate(d: string) {
   return new Date(d + "T00:00:00").toLocaleDateString("es-AR", {
@@ -80,7 +81,12 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
             <tr>
               <th className="px-4 py-3 text-left">Caravana</th>
               {columnas.map((col, i) => (
-                <th key={i} className="px-4 py-3 text-left">{col}</th>
+                <th key={i} className={`px-4 py-3 ${getTipoColumna(col) === "number" ? "text-right" : "text-left"}`}>
+                  {col}
+                  {getTipoColumna(col) === "number" && (
+                    <span className="ml-1 text-blue-400 font-normal normal-case">#</span>
+                  )}
+                </th>
               ))}
               <th className="px-4 py-3 text-left">Estado</th>
             </tr>
@@ -98,9 +104,14 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
                 return (
                   <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-stone-50"}>
                     <td className="px-4 py-3 font-medium">{r.eid}</td>
-                    {datoKeys.slice(0, columnas.length).map((key, i) => (
-                      <td key={i} className="px-4 py-3">{(r[key] as string | null) ?? "—"}</td>
-                    ))}
+                    {datoKeys.slice(0, columnas.length).map((key, i) => {
+                      const isNum = getTipoColumna(columnas[i]) === "number";
+                      return (
+                        <td key={i} className={`px-4 py-3 ${isNum ? "text-right font-mono text-stone-700" : "text-stone-600"}`}>
+                          {formatearValor(columnas[i], r[key] as string | null)}
+                        </td>
+                      );
+                    })}
                     <td className="px-4 py-3">
                       {r.encontrado ? (
                         <span className="text-xs font-medium text-green-600">OK</span>
