@@ -79,7 +79,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
           <button
             onClick={handleCrear}
             disabled={guardando || !nuevoNombre.trim()}
-            className="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40"
+            className="px-3 py-1.5 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40"
           >
             {guardando ? "..." : "Guardar"}
           </button>
@@ -129,7 +129,7 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
                         <button
                           onClick={() => handleActualizar(item.id)}
                           disabled={guardando}
-                          className="px-3 py-1 bg-gray-800 text-white rounded text-xs hover:bg-gray-700 disabled:opacity-40"
+                          className="px-3 py-1 bg-green-800 text-white rounded text-xs hover:bg-green-700 disabled:opacity-40"
                         >
                           {guardando ? "..." : "Guardar"}
                         </button>

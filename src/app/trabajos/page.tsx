@@ -25,7 +25,7 @@ export default async function TrabajosPage() {
         <h1 className="text-2xl font-bold text-gray-800">Trabajos</h1>
         <Link
           href="/trabajos/nuevo"
-          className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700"
+          className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700"
         >
           Nuevo trabajo
         </Link>

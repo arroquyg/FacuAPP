@@ -1,9 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import Link from "next/link";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export default async function DashboardPage() {
@@ -16,18 +20,17 @@ export default async function DashboardPage() {
     { data: animalesSexo },
     { data: campos, error: errCampos },
     { data: movimientos, error: errMovimientos },
+    { count: totalTrabajos },
   ] = await Promise.all([
-    supabase.from("animales").select("*", { count: "exact", head: true })
-      .eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
-    supabase.from("animales").select("*", { count: "exact", head: true })
-      .eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false),
-    supabase.from("animales").select("sexo")
-      .eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
-    supabase.from("campos").select("id, nombre, capacidad_max, activo")
-      .eq("empresa_id", empresaId).eq("activo", true),
+    supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
+    supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false),
+    supabase.from("animales").select("sexo").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true),
+    supabase.from("campos").select("id, nombre, capacidad_max, activo").eq("empresa_id", empresaId).eq("activo", true),
     supabase.from("movimientos_campo")
       .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
-      .order("fecha_movimiento", { ascending: false }).limit(10),
+      .order("fecha_movimiento", { ascending: false })
+      .limit(10),
+    supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId),
   ]);
 
   const machos = animalesSexo?.filter((a) => a.sexo === "macho").length ?? 0;
@@ -45,106 +48,145 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800">Panel General</h1>
+      {/* Header */}
+      <div className="border-b border-stone-200 pb-5">
+        <h1 className="text-3xl font-bold text-stone-800">Resumen del establecimiento</h1>
+        <p className="text-stone-500 mt-1 text-sm">Estado actual del rodeo y actividad reciente</p>
+      </div>
 
       {(errCampos || errMovimientos) && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <p className="text-red-700 font-semibold">Error al cargar datos</p>
-          <p className="text-red-600 text-sm font-mono">
-            {(errCampos || errMovimientos)?.message}
-          </p>
+          <p className="text-red-600 text-sm font-mono mt-1">{(errCampos || errMovimientos)?.message}</p>
         </div>
       )}
 
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Animales vivos</p>
-          <p className="text-4xl font-bold text-gray-800 mt-1">{totalVivos ?? 0}</p>
+        <div className="bg-white rounded-xl border border-stone-200 p-5 border-l-4 border-l-green-600 shadow-sm">
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Animales vivos</p>
+          <p className="text-4xl font-bold text-stone-800 mt-2">{totalVivos ?? 0}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Machos / Hembras</p>
-          <p className="text-4xl font-bold text-gray-800 mt-1">
-            {machos} <span className="text-2xl font-normal text-gray-400">/</span> {hembras}
+
+        <div className="bg-white rounded-xl border border-stone-200 p-5 border-l-4 border-l-green-400 shadow-sm">
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Machos / Hembras</p>
+          <p className="text-3xl font-bold text-stone-800 mt-2">
+            {machos} <span className="text-xl font-normal text-stone-300">/</span> {hembras}
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Campos activos</p>
-          <p className="text-4xl font-bold text-gray-800 mt-1">{campos?.length ?? 0}</p>
+
+        <div className="bg-white rounded-xl border border-stone-200 p-5 border-l-4 border-l-amber-500 shadow-sm">
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Campos activos</p>
+          <p className="text-4xl font-bold text-stone-800 mt-2">{campos?.length ?? 0}</p>
         </div>
-        <div className={`rounded-xl border p-6 ${(totalMuertos ?? 0) > 0 ? "bg-red-50 border-red-200" : "bg-white border-gray-200"}`}>
-          <p className="text-sm text-gray-500">Animales muertos</p>
-          <p className={`text-4xl font-bold mt-1 ${(totalMuertos ?? 0) > 0 ? "text-red-700" : "text-gray-300"}`}>
-            {totalMuertos ?? 0}
-          </p>
+
+        <div className="bg-white rounded-xl border border-stone-200 p-5 border-l-4 border-l-emerald-600 shadow-sm">
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Trabajos realizados</p>
+          <p className="text-4xl font-bold text-stone-800 mt-2">{totalTrabajos ?? 0}</p>
         </div>
       </div>
 
-      {/* Sección campos */}
+      {/* Alerta muertos */}
+      {(totalMuertos ?? 0) > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-red-700">{totalMuertos} animal{(totalMuertos ?? 0) !== 1 ? "es" : ""} registrado{(totalMuertos ?? 0) !== 1 ? "s" : ""} como muerto</p>
+            <p className="text-red-500 text-sm mt-0.5">Revisar el listado de animales para más detalles</p>
+          </div>
+          <Link href="/animales" className="text-red-600 text-sm font-medium hover:underline shrink-0">
+            Ver animales →
+          </Link>
+        </div>
+      )}
+
+      {/* Campos */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">Campos</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-stone-700">Campos</h2>
+          <Link href="/configuracion" className="text-sm text-green-700 hover:underline font-medium">
+            Administrar →
+          </Link>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {campos?.map((campo) => {
-            const cantidad = conteoPorCampo[campo.id] ?? 0;
-            const pct = campo.capacidad_max && campo.capacidad_max > 0
-              ? Math.min(100, Math.round((cantidad / campo.capacidad_max) * 100))
-              : null;
-            return (
-              <div key={campo.id} className="bg-white rounded-xl border border-gray-200 p-5">
-                <p className="font-semibold text-gray-800">{campo.nombre}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {cantidad} animales{campo.capacidad_max ? ` de ${campo.capacidad_max}` : ""}
-                </p>
-                {pct !== null && (
-                  <div className="mt-3">
-                    <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>Ocupación</span><span>{pct}%</span>
+          {(campos ?? []).length === 0 ? (
+            <p className="text-stone-400 text-sm col-span-3">No hay campos configurados.</p>
+          ) : (
+            campos!.map((campo) => {
+              const cantidad = conteoPorCampo[campo.id] ?? 0;
+              const pct =
+                campo.capacidad_max && campo.capacidad_max > 0
+                  ? Math.min(100, Math.round((cantidad / campo.capacidad_max) * 100))
+                  : null;
+              return (
+                <div key={campo.id} className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <p className="font-semibold text-stone-800 text-base">{campo.nombre}</p>
+                  <p className="text-sm text-stone-500 mt-1">
+                    <span className="font-medium text-stone-700">{cantidad}</span>
+                    {campo.capacidad_max ? ` de ${campo.capacidad_max} animales` : " animales"}
+                  </p>
+                  {pct !== null && (
+                    <div className="mt-4">
+                      <div className="flex justify-between text-xs text-stone-400 mb-1.5">
+                        <span>Ocupación</span>
+                        <span className={pct >= 90 ? "text-red-500 font-medium" : pct >= 70 ? "text-amber-500 font-medium" : "text-green-600 font-medium"}>
+                          {pct}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            pct >= 90 ? "bg-red-400" : pct >= 70 ? "bg-amber-400" : "bg-green-500"
+                          }`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${pct >= 90 ? "bg-red-400" : pct >= 70 ? "bg-yellow-400" : "bg-green-400"}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* Últimos movimientos */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">Últimos movimientos</h2>
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-stone-700">Últimos movimientos</h2>
+          <Link href="/movimientos" className="text-sm text-green-700 hover:underline font-medium">
+            Ver todos →
+          </Link>
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
           {movimientos && movimientos.length > 0 ? (
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
                 <tr>
-                  <th className="px-4 py-3 text-left">Fecha</th>
-                  <th className="px-4 py-3 text-left">Animal (chip)</th>
-                  <th className="px-4 py-3 text-left">Origen</th>
-                  <th className="px-4 py-3 text-left">Destino</th>
-                  <th className="px-4 py-3 text-left">Motivo</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Fecha</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Chip</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Origen</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Destino</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Motivo</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-stone-50">
                 {movimientos.map((m) => (
-                  <tr key={m.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
-                    <td className="px-4 py-3 font-mono text-gray-700">
+                  <tr key={m.id} className="hover:bg-stone-50 transition-colors">
+                    <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
+                    <td className="px-4 py-3 font-mono text-stone-700 text-xs">
                       {(m.animal as { chip_id: string } | null)?.chip_id ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{(m.origen as { nombre: string } | null)?.nombre ?? "—"}</td>
-                    <td className="px-4 py-3 text-gray-600">{(m.destino as { nombre: string } | null)?.nombre ?? "—"}</td>
-                    <td className="px-4 py-3 text-gray-500">{m.motivo ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-600">{(m.origen as { nombre: string } | null)?.nombre ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-600">{(m.destino as { nombre: string } | null)?.nombre ?? "—"}</td>
+                    <td className="px-4 py-3 text-stone-400">{m.motivo ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <p className="px-4 py-6 text-gray-400 text-sm">Sin movimientos registrados</p>
+            <div className="px-4 py-10 text-center">
+              <p className="text-stone-400 text-sm">Sin movimientos registrados</p>
+            </div>
           )}
         </div>
       </div>

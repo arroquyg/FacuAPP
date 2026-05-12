@@ -161,7 +161,7 @@ export default function ImportarAnimales({
           </>
         )}
         <div className="flex gap-3 mt-4">
-          <button onClick={reiniciar} className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700">
+          <button onClick={reiniciar} className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700">
             Nueva importación
           </button>
           <a href="/animales" className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
@@ -232,7 +232,7 @@ export default function ImportarAnimales({
           <button
             onClick={handleImportar}
             disabled={importando || validas.length === 0}
-            className="px-5 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {importando ? "Importando..." : `Importar ${validas.length} animal${validas.length !== 1 ? "es" : ""}`}
           </button>
@@ -257,7 +257,7 @@ export default function ImportarAnimales({
         <a
           href="/api/animales/template"
           download
-          className="shrink-0 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 flex items-center gap-2"
+          className="shrink-0 px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 flex items-center gap-2"
         >
           Descargar base
         </a>

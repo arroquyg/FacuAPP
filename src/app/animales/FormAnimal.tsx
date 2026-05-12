@@ -309,7 +309,7 @@ export default function FormAnimal({
         <button
           onClick={handleSubmit}
           disabled={guardando || !camposRequeridos}
-          className="px-5 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-5 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {guardando ? "Guardando..." : modo === "nuevo" ? "Registrar animal" : "Guardar cambios"}
         </button>

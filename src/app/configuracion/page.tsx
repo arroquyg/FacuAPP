@@ -54,7 +54,7 @@ export default async function ConfiguracionPage({
             href={`/configuracion?tab=${t.key}`}
             className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
               tab === t.key
-                ? "border-gray-800 text-gray-800"
+                ? "border-green-800 text-gray-800"
                 : "border-transparent text-gray-400 hover:text-gray-600"
             }`}
           >

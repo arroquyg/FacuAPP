@@ -116,7 +116,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           </>
         )}
         <div className="flex gap-3 mt-5">
-          <a href={`/trabajos/${trabajo.id}`} className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700">
+          <a href={`/trabajos/${trabajo.id}`} className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700">
             Ver trabajo
           </a>
           <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
@@ -166,7 +166,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           <button
             onClick={handleImportar}
             disabled={importando}
-            className="px-5 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {importando ? "Guardando..." : `Importar ${filas.length} animal${filas.length !== 1 ? "es" : ""}`}
           </button>
@@ -183,7 +183,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
       <div>
         <p className="font-medium text-gray-800">Columnas que se esperan en el CSV</p>
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-gray-800 text-white text-xs rounded font-medium">EID</span>
+          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">EID</span>
           {trabajo.columnas.map((col, i) => (
             <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border border-gray-200">
               {col}

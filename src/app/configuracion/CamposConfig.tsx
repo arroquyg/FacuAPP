@@ -144,7 +144,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
             <button
               onClick={handleCrear}
               disabled={guardando || !formNuevo.nombre.trim()}
-              className="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40"
+              className="px-3 py-1.5 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40"
             >
               {guardando ? "Guardando..." : "Guardar"}
             </button>
@@ -223,7 +223,7 @@ export default function CamposConfig({ campos }: { campos: Campo[] }) {
                         <button
                           onClick={() => handleActualizar(c.id)}
                           disabled={guardando}
-                          className="px-3 py-1 bg-gray-800 text-white rounded text-xs hover:bg-gray-700 disabled:opacity-40"
+                          className="px-3 py-1 bg-green-800 text-white rounded text-xs hover:bg-green-700 disabled:opacity-40"
                         >
                           {guardando ? "..." : "Guardar"}
                         </button>

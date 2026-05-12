@@ -34,7 +34,7 @@ function Tooltip({ texto }: { texto: string }) {
         ?
       </button>
       {visible && (
-        <span className="absolute left-6 top-0 z-20 w-64 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-pre-line">
+        <span className="absolute left-6 top-0 z-20 w-64 bg-green-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-pre-line">
           {texto}
         </span>
       )}
@@ -186,7 +186,7 @@ export default function FormTransaccion() {
             <p className="text-red-600 text-sm font-mono mt-1">{resultado?.error}</p>
           </>
         )}
-        <button onClick={reiniciar} className="mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700">
+        <button onClick={reiniciar} className="mt-4 px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700">
           Nueva transacción
         </button>
       </div>
@@ -212,7 +212,7 @@ export default function FormTransaccion() {
           <button
             onClick={confirmar}
             disabled={guardando}
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50"
+            className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
           >
             {guardando ? "Guardando..." : "Confirmar definitivamente"}
           </button>
@@ -238,7 +238,7 @@ export default function FormTransaccion() {
             onClick={() => setTipo(t)}
             className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               tipo === t
-                ? "bg-gray-800 text-white border-gray-800"
+                ? "bg-green-800 text-white border-green-800"
                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -380,7 +380,7 @@ export default function FormTransaccion() {
       <button
         onClick={() => setPaso("confirmar")}
         disabled={!puedeConfirmar}
-        className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Confirmar transacción
       </button>
