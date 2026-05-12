@@ -30,12 +30,12 @@ export default async function AnimalesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between border-b border-stone-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <h1 className="text-3xl font-bold text-stone-800">Animales</h1>
           <p className="text-stone-500 mt-1 text-sm">Listado completo del rodeo</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <a
             href="/api/animales/export"
             download

@@ -157,38 +157,63 @@ export default async function DashboardPage() {
             Ver todos →
           </Link>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
-          {movimientos && movimientos.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
-                <tr>
-                  <th className="px-4 py-3 text-left tracking-wider">Fecha</th>
-                  <th className="px-4 py-3 text-left tracking-wider">Caravana</th>
-                  <th className="px-4 py-3 text-left tracking-wider">Origen</th>
-                  <th className="px-4 py-3 text-left tracking-wider">Destino</th>
-                  <th className="px-4 py-3 text-left tracking-wider">Motivo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-50">
-                {movimientos.map((m) => (
-                  <tr key={m.id} className="hover:bg-stone-50 transition-colors">
-                    <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
-                    <td className="px-4 py-3 font-mono text-stone-700 text-xs">
-                      {(m.animal as { chip_id: string } | null)?.chip_id ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-stone-600">{(m.origen as { nombre: string } | null)?.nombre ?? "—"}</td>
-                    <td className="px-4 py-3 text-stone-600">{(m.destino as { nombre: string } | null)?.nombre ?? "—"}</td>
-                    <td className="px-4 py-3 text-stone-400">{m.motivo ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="px-4 py-10 text-center">
-              <p className="text-stone-400 text-sm">Sin movimientos registrados</p>
+        {movimientos && movimientos.length > 0 ? (
+          <>
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-2">
+              {movimientos.map((m) => {
+                const chip = (m.animal as { chip_id: string } | null)?.chip_id ?? "—";
+                const origen = (m.origen as { nombre: string } | null)?.nombre ?? "—";
+                const destino = (m.destino as { nombre: string } | null)?.nombre ?? "—";
+                return (
+                  <div key={m.id} className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-mono text-sm font-semibold text-stone-700">{chip}</span>
+                      <span className="text-xs text-stone-400 shrink-0">{formatDate(m.fecha_movimiento)}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-stone-500">
+                      <span className="font-medium text-stone-600">{origen}</span>
+                      <span>→</span>
+                      <span className="font-medium text-stone-600">{destino}</span>
+                    </div>
+                    {m.motivo && <p className="mt-1 text-xs text-stone-400">{m.motivo}</p>}
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
+                  <tr>
+                    <th className="px-4 py-3 text-left tracking-wider">Fecha</th>
+                    <th className="px-4 py-3 text-left tracking-wider">Caravana</th>
+                    <th className="px-4 py-3 text-left tracking-wider">Origen</th>
+                    <th className="px-4 py-3 text-left tracking-wider">Destino</th>
+                    <th className="px-4 py-3 text-left tracking-wider">Motivo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-50">
+                  {movimientos.map((m) => (
+                    <tr key={m.id} className="hover:bg-stone-50 transition-colors">
+                      <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
+                      <td className="px-4 py-3 font-mono text-stone-700 text-xs">
+                        {(m.animal as { chip_id: string } | null)?.chip_id ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-stone-600">{(m.origen as { nombre: string } | null)?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-600">{(m.destino as { nombre: string } | null)?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-400">{m.motivo ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="bg-white rounded-xl border border-stone-200 px-4 py-10 text-center shadow-sm">
+            <p className="text-stone-400 text-sm">Sin movimientos registrados</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ export default function TabsAnimal({
   return (
     <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
       {/* Pestañas */}
-      <div className="flex border-b border-stone-200 bg-stone-50">
+      <div className="flex overflow-x-auto border-b border-stone-200 bg-stone-50">
         {TABS.map((t) => (
           <button
             key={t}
@@ -62,14 +62,14 @@ export default function TabsAnimal({
         ))}
       </div>
 
-      <div className="p-4">
+      <div className="p-4 overflow-x-auto">
         {tab === "Movimientos" &&
           (movimientos.length === 0 ? (
             <p className="text-stone-400 text-sm py-4 text-center">
               Sin registros
             </p>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[500px]">
               <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>
@@ -103,7 +103,7 @@ export default function TabsAnimal({
               Sin registros
             </p>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[400px]">
               <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>
@@ -137,7 +137,7 @@ export default function TabsAnimal({
               Sin registros
             </p>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[500px]">
               <thead className="text-xs text-stone-400 uppercase">
                 <tr>
                   <th className="pb-2 text-left">Fecha</th>

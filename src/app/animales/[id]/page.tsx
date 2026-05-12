@@ -62,7 +62,7 @@ export default async function AnimalPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between border-b border-stone-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <p className="text-sm text-stone-400 mb-1">
             <a href="/animales" className="hover:text-green-700 transition-colors">Animales</a>

@@ -55,7 +55,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
         ))}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-start sm:justify-end">
         <Link
           href={`/trabajos/${params.id}/importar`}
           className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50"
