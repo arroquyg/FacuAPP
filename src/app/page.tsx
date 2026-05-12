@@ -155,9 +155,11 @@ export default async function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-stone-700">Campos</h2>
-          <Link href="/configuracion" className="text-sm text-green-700 hover:underline font-medium">
-            Administrar →
-          </Link>
+          {user.rol === "administrador" && (
+            <Link href="/configuracion" className="text-sm text-green-700 hover:underline font-medium">
+              Administrar →
+            </Link>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(campos ?? []).length === 0 ? (
