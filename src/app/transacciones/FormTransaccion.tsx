@@ -95,7 +95,7 @@ export default function FormTransaccion() {
 
   async function cargarMasivo() {
     const chips = textMasivo
-      .split(",")
+      .split(/[\n,]/)
       .map((c) => c.trim().toUpperCase())
       .filter(Boolean);
     if (chips.length === 0) return;
@@ -314,14 +314,14 @@ export default function FormTransaccion() {
       <div>
         <label className="block text-xs text-stone-500 mb-1 flex items-center">
           Carga masiva por chip
-          <Tooltip texto={"Pegá los chips separados por coma.\nEjemplo:\nCHK-001, CHK-002, CHK-003\n\nSe agregan con precio vacío — completá el precio de cada uno después."} />
+          <Tooltip texto={"Pegá los chips uno por línea (o separados por coma).\n\nSe agregan con precio vacío — completá el precio de cada uno después."} />
         </label>
         <div className="flex gap-2">
           <textarea
             value={textMasivo}
             onChange={(e) => { setTextMasivo(e.target.value); setAvisoMasivo(null); }}
-            placeholder="CHK-001, CHK-002, CHK-003..."
-            rows={2}
+            placeholder={"032010010158200\n032010010158201\n032010010158202"}
+            rows={5}
             className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-300 resize-none"
           />
           <button
