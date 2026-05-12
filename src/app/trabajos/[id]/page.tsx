@@ -75,8 +75,8 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto shadow-sm">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+        <table className="w-full min-w-max text-sm">
           <thead className="bg-stone-50 text-stone-400 uppercase text-xs border-b border-stone-100">
             <tr>
               <th className="px-4 py-3 text-left">Caravana</th>

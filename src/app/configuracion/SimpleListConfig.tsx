@@ -99,11 +99,11 @@ export default function SimpleListConfig({ tabla, items, onCrear, onActualizar }
         </button>
       )}
 
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
         {items.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-stone-400">No hay registros aún</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-max text-sm">
             <thead className="bg-stone-50 text-xs text-stone-500 uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Nombre</th>

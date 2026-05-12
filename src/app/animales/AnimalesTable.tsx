@@ -133,8 +133,8 @@ export default function AnimalesTable({
           </div>
 
           {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
-            <table className="w-full text-sm">
+          <div className="hidden md:block bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+            <table className="w-full min-w-max text-sm">
               <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
                 <tr>
                   <th className="px-4 py-3 text-left">Caravana</th>

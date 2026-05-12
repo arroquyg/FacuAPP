@@ -85,11 +85,11 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
         {filtradas.length === 0 ? (
           <p className="px-4 py-8 text-stone-400 text-sm text-center">Sin transacciones para mostrar</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-max text-sm">
             <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Fecha</th>

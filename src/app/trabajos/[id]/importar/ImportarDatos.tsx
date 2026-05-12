@@ -139,8 +139,8 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
-          <table className="w-full text-xs">
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+          <table className="w-full min-w-max text-xs">
             <thead className="bg-stone-50 text-stone-500 uppercase">
               <tr>
                 <th className="px-3 py-2 text-left">Caravana</th>
