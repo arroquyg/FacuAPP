@@ -38,9 +38,10 @@ const valoresVacios: Valores = {
 };
 
 function parsear(v: Valores) {
+  const chip = v.chip_id.trim().toUpperCase();
   return {
-    chip_id: v.chip_id.trim(),
-    numero_caravana: v.chip_id.trim(),
+    chip_id: chip,
+    numero_caravana: chip,
     sexo: v.sexo,
     categoria: v.categoria,
     raza: v.raza,
@@ -76,13 +77,25 @@ export default function FormAnimal({
   const [valores, setValores] = useState<Valores>({ ...valoresVacios, ...inicial });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chipError, setChipError] = useState<string | null>(null);
 
   function set(campo: keyof Valores, valor: string | boolean) {
     setValores((v) => ({ ...v, [campo]: valor }));
   }
 
+  function handleChipChange(raw: string) {
+    const valor = raw.toUpperCase().replace(/\s/g, "");
+    set("chip_id", valor);
+    if (valor && !/^[A-Z0-9-]+$/.test(valor)) {
+      setChipError("Solo letras, números y guiones. Sin espacios ni símbolos.");
+    } else {
+      setChipError(null);
+    }
+  }
+
   const camposRequeridos =
     valores.chip_id.trim() &&
+    !chipError &&
     valores.sexo &&
     valores.categoria &&
     valores.raza;
@@ -127,10 +140,19 @@ export default function FormAnimal({
             <label className="block text-xs text-stone-500 mb-1">Caravana *</label>
             <input
               value={valores.chip_id}
-              onChange={(e) => set("chip_id", e.target.value)}
-              placeholder="Número de caravana / chip"
-              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+              onChange={(e) => handleChipChange(e.target.value)}
+              placeholder="Ej: ARG000123456789"
+              className={`w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 ${
+                chipError
+                  ? "border-red-400 focus:ring-red-200"
+                  : "border-stone-300 focus:ring-green-300"
+              }`}
             />
+            {chipError ? (
+              <p className="text-xs text-red-500 mt-1">{chipError}</p>
+            ) : (
+              <p className="text-xs text-stone-400 mt-1">Letras y números, se guarda en mayúsculas</p>
+            )}
           </div>
           <div>
             <label className="block text-xs text-stone-500 mb-1">Campo actual</label>
