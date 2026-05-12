@@ -22,11 +22,13 @@ export default function AnimalesTable({
   campos,
   categorias,
   razas,
+  soloLectura = false,
 }: {
   animales: Animal[];
   campos: Campo[];
   categorias: Lookup[];
   razas: Lookup[];
+  soloLectura?: boolean;
 }) {
   const [busqueda, setBusqueda] = useState("");
   const [campoFiltro, setCampoFiltro] = useState("");

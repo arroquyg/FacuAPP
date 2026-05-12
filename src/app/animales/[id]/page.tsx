@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { notFound } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { notFound, redirect } from "next/navigation";
 import TabsAnimal from "./TabsAnimal";
 
 function formatDate(dateStr: string | null) {
@@ -26,6 +27,9 @@ export default async function AnimalPage({
 }: {
   params: { id: string };
 }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const supabase = createAdminClient();
 
   const [
@@ -71,12 +75,14 @@ export default async function AnimalPage({
           </p>
           <h1 className="text-3xl font-bold text-stone-800">Caravana {animal.chip_id}</h1>
         </div>
-        <a
-          href={`/animales/${params.id}/editar`}
-          className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"
-        >
-          Editar
-        </a>
+        {user.rol === "admin" && (
+          <a
+            href={`/animales/${params.id}/editar`}
+            className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"
+          >
+            Editar
+          </a>
+        )}
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">

@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser, getCamposOperario } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import FormMovimiento from "./FormMovimiento";
 import HistorialMovimientos from "./HistorialMovimientos";
 
@@ -9,16 +11,37 @@ function formatDate(dateStr: string | null) {
 }
 
 export default async function MovimientosPage() {
-  const supabase = createAdminClient();
-  const empresaId = process.env.EMPRESA_ID!;
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const sb = createAdminClient();
+  const empresaId = user.empresa_id;
+  const esAdmin = user.rol === "admin";
+
+  let campoIds: string[] | null = null;
+  if (!esAdmin) {
+    campoIds = await getCamposOperario(user.id);
+  }
+
+  const camposQuery = campoIds !== null
+    ? sb.from("campos").select("id, nombre").in("id", campoIds.length > 0 ? campoIds : ["_"]).order("nombre")
+    : sb.from("campos").select("id, nombre").eq("empresa_id", empresaId).eq("activo", true).order("nombre");
+
+  let movQuery = sb
+    .from("movimientos_campo")
+    .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
+    .order("fecha_movimiento", { ascending: false })
+    .limit(500);
+
+  if (campoIds !== null && campoIds.length > 0) {
+    movQuery = movQuery.or(`campo_origen_id.in.(${campoIds.join(",")}),campo_destino_id.in.(${campoIds.join(",")})`);
+  }
 
   const [{ data: campos }, { data: movimientos, error }] = await Promise.all([
-    supabase.from("campos").select("id, nombre").eq("empresa_id", empresaId).eq("activo", true).order("nombre"),
-    supabase
-      .from("movimientos_campo")
-      .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
-      .order("fecha_movimiento", { ascending: false })
-      .limit(500),
+    camposQuery,
+    campoIds !== null && campoIds.length === 0
+      ? Promise.resolve({ data: [], error: null })
+      : movQuery,
   ]);
 
   const historial = (movimientos ?? []).map((m) => ({
@@ -41,11 +64,11 @@ export default async function MovimientosPage() {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-700 font-semibold">Error al cargar historial</p>
-          <p className="text-red-600 text-sm font-mono">{error.message}</p>
+          <p className="text-red-600 text-sm font-mono">{(error as { message: string }).message}</p>
         </div>
       )}
 
-      <FormMovimiento campos={campos ?? []} />
+      {esAdmin && <FormMovimiento campos={campos ?? []} />}
       <HistorialMovimientos movimientos={historial} campos={campos ?? []} />
     </div>
   );
