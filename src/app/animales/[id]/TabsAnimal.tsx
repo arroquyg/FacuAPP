@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatearValor } from "@/lib/columnas-clinicas";
 
 type Movimiento = {
   id: string;
@@ -29,19 +30,33 @@ type Evento = {
   descripcion: string | null;
 };
 
-const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios"] as const;
+type HistorialClinico = {
+  id: string;
+  trabajoId: string;
+  fecha: string;
+  tipo: string;
+  veterinario: string;
+  campo: string;
+  columnas: string[];
+  datos: (string | null)[];
+};
+
+const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios", "Historia clínica"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function TabsAnimal({
   movimientos,
   pesajes,
   eventos,
+  historialClinico,
 }: {
   movimientos: Movimiento[];
   pesajes: Pesaje[];
   eventos: Evento[];
+  historialClinico: HistorialClinico[];
 }) {
   const [tab, setTab] = useState<Tab>("Movimientos");
+  const [expandido, setExpandido] = useState<string | null>(null);
 
   return (
     <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
@@ -154,6 +169,53 @@ export default function TabsAnimal({
                   ))}
                 </tbody>
               </table>
+            </div>
+          ))}
+
+        {tab === "Historia clínica" &&
+          (historialClinico.length === 0 ? (
+            <p className="text-stone-400 text-sm py-4 text-center">
+              Sin registros de trabajos para este animal
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {historialClinico.map((h) => (
+                <div key={h.id} className="border border-stone-200 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setExpandido(expandido === h.id ? null : h.id)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-stone-50 hover:bg-stone-100 transition-colors text-left"
+                  >
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 min-w-0">
+                      <span className="text-xs text-stone-400 whitespace-nowrap">{h.fecha}</span>
+                      <span className="text-sm font-medium text-stone-800 whitespace-nowrap">{h.tipo}</span>
+                      <span className="text-xs text-stone-500 whitespace-nowrap">Vet: {h.veterinario}</span>
+                      <span className="text-xs text-stone-500 whitespace-nowrap">Campo: {h.campo}</span>
+                    </div>
+                    <span className="text-stone-400 text-sm ml-3 shrink-0">
+                      {expandido === h.id ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {expandido === h.id && (
+                    <div className="px-4 py-3 bg-white">
+                      {h.columnas.length === 0 ? (
+                        <p className="text-stone-400 text-sm">Sin datos registrados</p>
+                      ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {h.columnas.map((col, i) => (
+                            <div key={i}>
+                              <p className="text-xs text-stone-400 uppercase tracking-wide">{col}</p>
+                              <p className="text-sm font-medium text-stone-800 mt-0.5">
+                                {formatearValor(col, h.datos[i] ?? null)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           ))}
       </div>
