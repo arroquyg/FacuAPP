@@ -34,6 +34,9 @@ export default function RootLayout({
                 <Link href="/transacciones" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
                   Transacciones
                 </Link>
+                <Link href="/trabajos" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                  Trabajos
+                </Link>
                 <Link href="/configuracion" className="text-sm text-gray-600 hover:text-gray-900 font-medium">
                   Configuración
                 </Link>

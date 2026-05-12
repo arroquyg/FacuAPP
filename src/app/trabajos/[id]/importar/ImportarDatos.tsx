@@ -1,0 +1,210 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { importarDatos } from "./actions";
+
+type RegistroFila = {
+  eid: string;
+  datos: (string | null)[];
+};
+
+type Trabajo = {
+  id: string;
+  tipo: string;
+  columnas: string[];
+};
+
+const SKIP_COLS = new Set(["VID", "Date", "Time"]);
+
+function parsearCSV(text: string, columnasTrabajo: string[]): RegistroFila[] {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+
+  const headers = lines[0].split(";").map((h) => h.trim());
+  const eidIdx = headers.findIndex((h) => h === "EID");
+  if (eidIdx === -1) return [];
+
+  // Try matching by column name first; fall back to positional order
+  const colIndices = columnasTrabajo.map((col) => headers.indexOf(col));
+  const customByPosition = headers
+    .map((h, i) => ({ h, i }))
+    .filter(({ h }) => h !== "EID" && !SKIP_COLS.has(h))
+    .map(({ i }) => i);
+
+  const filas: RegistroFila[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(";");
+    const eid = vals[eidIdx]?.trim();
+    if (!eid) continue;
+
+    const datos = columnasTrabajo.map((_, ci) => {
+      const idx = colIndices[ci] !== -1 ? colIndices[ci] : customByPosition[ci];
+      return idx !== undefined ? vals[idx]?.trim() || null : null;
+    });
+
+    filas.push({ eid, datos });
+  }
+  return filas;
+}
+
+type Resultado = {
+  ok: boolean;
+  total: number;
+  encontrados: number;
+  noEncontrados: string[];
+  error?: string;
+};
+
+export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
+  const [paso, setPaso] = useState<"upload" | "preview" | "resultado">("upload");
+  const [filas, setFilas] = useState<RegistroFila[]>([]);
+  const [importando, setImportando] = useState(false);
+  const [resultado, setResultado] = useState<Resultado | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function handleCSV(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const parsed = parsearCSV(ev.target?.result as string, trabajo.columnas);
+      setFilas(parsed);
+      if (parsed.length > 0) setPaso("preview");
+    };
+    reader.readAsText(file, "utf-8");
+    e.target.value = "";
+  }
+
+  async function handleImportar() {
+    setImportando(true);
+    const res = await importarDatos(trabajo.id, filas);
+    setResultado(res);
+    setPaso("resultado");
+    setImportando(false);
+  }
+
+  function reiniciar() {
+    setPaso("upload");
+    setFilas([]);
+    setResultado(null);
+  }
+
+  if (paso === "resultado" && resultado) {
+    return (
+      <div className={`rounded-xl border p-6 ${resultado.ok ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
+        {resultado.ok ? (
+          <>
+            <p className="font-semibold text-green-700 text-lg">Datos importados correctamente</p>
+            <p className="text-green-600 mt-1">
+              {resultado.total} chips procesados — {resultado.encontrados} encontrados en la base de datos.
+            </p>
+            {resultado.noEncontrados.length > 0 && (
+              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-800 text-sm font-medium">
+                  {resultado.noEncontrados.length} chip(s) no encontrados en la base de datos:
+                </p>
+                <p className="text-yellow-700 text-xs mt-1 font-mono break-all">
+                  {resultado.noEncontrados.join(", ")}
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="font-semibold text-red-700">Error al importar</p>
+            <p className="text-red-600 text-sm font-mono mt-1">{resultado.error}</p>
+          </>
+        )}
+        <div className="flex gap-3 mt-5">
+          <a href={`/trabajos/${trabajo.id}`} className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700">
+            Ver trabajo
+          </a>
+          <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+            Importar otro archivo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (paso === "preview") {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold text-gray-800">{filas.length}</span> registros detectados
+          </p>
+          <button onClick={reiniciar} className="text-sm text-gray-500 hover:underline">
+            Cargar otro archivo
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead className="bg-gray-50 text-gray-500 uppercase">
+              <tr>
+                <th className="px-3 py-2 text-left">EID (Chip)</th>
+                {trabajo.columnas.map((col, i) => (
+                  <th key={i} className="px-3 py-2 text-left">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filas.map((f, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="px-3 py-2 font-mono">{f.eid}</td>
+                  {f.datos.map((d, di) => (
+                    <td key={di} className="px-3 py-2">{d ?? "—"}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={handleImportar}
+            disabled={importando}
+            className="px-5 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {importando ? "Guardando..." : `Importar ${filas.length} animal${filas.length !== 1 ? "es" : ""}`}
+          </button>
+          <button onClick={reiniciar} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+      <div>
+        <p className="font-medium text-gray-800">Columnas que se esperan en el CSV</p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <span className="px-2 py-1 bg-gray-800 text-white text-xs rounded font-medium">EID</span>
+          {trabajo.columnas.map((col, i) => (
+            <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border border-gray-200">
+              {col}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-500">
+          Subí el CSV completado desde el bastón XRS2i o desde la computadora. Las columnas se detectan automáticamente por nombre.
+        </p>
+      </div>
+
+      <input ref={fileRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
+      <button
+        onClick={() => fileRef.current?.click()}
+        className="px-5 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-gray-400 hover:bg-gray-50 w-full text-center transition-colors"
+      >
+        Seleccionar archivo CSV (.csv)
+      </button>
+    </div>
+  );
+}
