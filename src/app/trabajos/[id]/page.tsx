@@ -78,7 +78,6 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
         <table className="w-full text-sm">
           <thead className="bg-stone-50 text-stone-400 uppercase text-xs border-b border-stone-100">
             <tr>
-              <th className="px-4 py-3 text-left">EID (Chip)</th>
               <th className="px-4 py-3 text-left">Caravana</th>
               {columnas.map((col, i) => (
                 <th key={i} className="px-4 py-3 text-left">{col}</th>
@@ -89,7 +88,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
           <tbody className="divide-y divide-stone-100">
             {todos.length === 0 ? (
               <tr>
-                <td colSpan={3 + columnas.length} className="px-4 py-8 text-center text-stone-400">
+                <td colSpan={2 + columnas.length} className="px-4 py-8 text-center text-stone-400">
                   Sin registros
                 </td>
               </tr>
@@ -98,8 +97,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
                 const animal = r.animal as { chip_id: string; numero_caravana: string } | null;
                 return (
                   <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-stone-50"}>
-                    <td className="px-4 py-3 font-mono text-xs">{r.eid}</td>
-                    <td className="px-4 py-3">{animal?.numero_caravana ?? "—"}</td>
+                    <td className="px-4 py-3 font-medium">{r.eid}</td>
                     {datoKeys.slice(0, columnas.length).map((key, i) => (
                       <td key={i} className="px-4 py-3">{(r[key] as string | null) ?? "—"}</td>
                     ))}

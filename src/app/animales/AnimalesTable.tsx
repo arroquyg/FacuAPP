@@ -128,7 +128,6 @@ export default function AnimalesTable({
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
               <tr>
-                <th className="px-4 py-3 text-left">Chip ID</th>
                 <th className="px-4 py-3 text-left">Caravana</th>
                 <th className="px-4 py-3 text-left">Categoría</th>
                 <th className="px-4 py-3 text-left">Raza</th>
@@ -143,12 +142,11 @@ export default function AnimalesTable({
                   <td className="px-4 py-3">
                     <Link
                       href={`/animales/${a.id}`}
-                      className="font-mono text-green-700 hover:underline font-medium"
+                      className="text-green-700 hover:underline font-medium"
                     >
                       {a.chip_id}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-stone-600">{a.numero_caravana ?? "—"}</td>
                   <td className="px-4 py-3 text-stone-600 capitalize">{a.categoria ?? "—"}</td>
                   <td className="px-4 py-3 text-stone-600">{a.raza ?? "—"}</td>
                   <td className="px-4 py-3 text-stone-600">{a.campo?.nombre ?? "—"}</td>

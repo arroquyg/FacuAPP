@@ -67,12 +67,9 @@ export default async function AnimalPage({
           <p className="text-sm text-stone-400 mb-1">
             <a href="/animales" className="hover:text-green-700 transition-colors">Animales</a>
             <span className="mx-1">/</span>
-            <span className="font-mono">{animal.chip_id}</span>
+            {animal.chip_id}
           </p>
-          <h1 className="text-3xl font-bold text-stone-800">{animal.chip_id}</h1>
-          {animal.numero_caravana && (
-            <p className="text-stone-500 mt-1 text-sm">Caravana {animal.numero_caravana}</p>
-          )}
+          <h1 className="text-3xl font-bold text-stone-800">Caravana {animal.chip_id}</h1>
         </div>
         <a
           href={`/animales/${params.id}/editar`}
@@ -87,8 +84,7 @@ export default async function AnimalPage({
           Datos generales
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          <Campo label="Chip ID" value={animal.chip_id} />
-          <Campo label="Caravana" value={animal.numero_caravana} />
+          <Campo label="Caravana" value={animal.chip_id} />
           <Campo label="Categoría" value={animal.categoria} />
           <Campo label="Raza" value={animal.raza} />
           <Campo label="Sexo" value={animal.sexo} />

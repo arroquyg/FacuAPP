@@ -163,7 +163,7 @@ export default async function DashboardPage() {
               <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
                 <tr>
                   <th className="px-4 py-3 text-left tracking-wider">Fecha</th>
-                  <th className="px-4 py-3 text-left tracking-wider">Chip</th>
+                  <th className="px-4 py-3 text-left tracking-wider">Caravana</th>
                   <th className="px-4 py-3 text-left tracking-wider">Origen</th>
                   <th className="px-4 py-3 text-left tracking-wider">Destino</th>
                   <th className="px-4 py-3 text-left tracking-wider">Motivo</th>

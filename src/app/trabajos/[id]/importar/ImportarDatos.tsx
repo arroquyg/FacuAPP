@@ -143,7 +143,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           <table className="w-full text-xs">
             <thead className="bg-stone-50 text-stone-500 uppercase">
               <tr>
-                <th className="px-3 py-2 text-left">EID (Chip)</th>
+                <th className="px-3 py-2 text-left">Caravana</th>
                 {trabajo.columnas.map((col, i) => (
                   <th key={i} className="px-3 py-2 text-left">{col}</th>
                 ))}
@@ -183,7 +183,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
       <div>
         <p className="font-medium text-stone-800">Columnas que se esperan en el CSV</p>
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">EID</span>
+          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">Caravana</span>
           {trabajo.columnas.map((col, i) => (
             <span key={i} className="px-2 py-1 bg-stone-100 text-stone-700 text-xs rounded border border-stone-200">
               {col}

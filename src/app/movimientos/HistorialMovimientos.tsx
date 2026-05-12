@@ -89,7 +89,7 @@ export default function HistorialMovimientos({
             <thead className="bg-stone-50 text-stone-400 text-xs uppercase border-b border-stone-100">
               <tr>
                 <th className="px-4 py-3 text-left">Fecha</th>
-                <th className="px-4 py-3 text-left">Animal (chip)</th>
+                <th className="px-4 py-3 text-left">Caravana</th>
                 <th className="px-4 py-3 text-left">Origen</th>
                 <th className="px-4 py-3 text-left">Destino</th>
                 <th className="px-4 py-3 text-left">Motivo</th>

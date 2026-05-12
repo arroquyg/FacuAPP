@@ -9,7 +9,6 @@ type Campo = { id: string; nombre: string };
 
 type Valores = {
   chip_id: string;
-  numero_caravana: string;
   sexo: string;
   categoria: string;
   raza: string;
@@ -25,7 +24,6 @@ type Valores = {
 
 const valoresVacios: Valores = {
   chip_id: "",
-  numero_caravana: "",
   sexo: "",
   categoria: "",
   raza: "",
@@ -42,7 +40,7 @@ const valoresVacios: Valores = {
 function parsear(v: Valores) {
   return {
     chip_id: v.chip_id.trim(),
-    numero_caravana: v.numero_caravana.trim(),
+    numero_caravana: v.chip_id.trim(),
     sexo: v.sexo,
     categoria: v.categoria,
     raza: v.raza,
@@ -85,7 +83,6 @@ export default function FormAnimal({
 
   const camposRequeridos =
     valores.chip_id.trim() &&
-    valores.numero_caravana.trim() &&
     valores.sexo &&
     valores.categoria &&
     valores.raza;
@@ -127,18 +124,11 @@ export default function FormAnimal({
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-stone-500 mb-1">Chip ID *</label>
+            <label className="block text-xs text-stone-500 mb-1">Caravana *</label>
             <input
               value={valores.chip_id}
               onChange={(e) => set("chip_id", e.target.value)}
-              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 font-mono"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-stone-500 mb-1">Número de caravana *</label>
-            <input
-              value={valores.numero_caravana}
-              onChange={(e) => set("numero_caravana", e.target.value)}
+              placeholder="Número de caravana / chip"
               className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
