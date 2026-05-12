@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import NavBar from "./NavBar";
+import ProgressBar from "./ProgressBar";
 import { getCurrentUser } from "@/lib/auth";
 import "./globals.css";
 
@@ -23,6 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="es">
       <body className="bg-stone-100 min-h-screen">
+        <ProgressBar />
         <NavBar user={user} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {children}
