@@ -6,7 +6,7 @@ export type UserProfile = {
   id: string;
   nombre: string;
   email: string;
-  rol: "admin" | "operario";
+  rol: "administrador" | "operario" | "veterinario";
   empresa_id: string;
   empresa_nombre: string;
   activo: boolean;
@@ -32,7 +32,7 @@ export const getCurrentUser = cache(async (): Promise<UserProfile | null> => {
       id: perfil.id,
       nombre: perfil.nombre,
       email: perfil.email,
-      rol: perfil.rol as "admin" | "operario",
+      rol: perfil.rol as "administrador" | "operario" | "veterinario",
       empresa_id: perfil.empresa_id,
       empresa_nombre: (perfil.empresa as unknown as { nombre: string } | null)?.nombre ?? "",
       activo: perfil.activo ?? true,

@@ -16,7 +16,7 @@ export default async function MovimientosPage() {
 
   const sb = createAdminClient();
   const empresaId = user.empresa_id;
-  const esAdmin = user.rol === "admin";
+  const esAdmin = user.rol === "administrador";
 
   let campoIds: string[] | null = null;
   if (!esAdmin) {

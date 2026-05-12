@@ -50,7 +50,7 @@ export default async function AnimalesPage() {
     );
   }
 
-  const esAdmin = user.rol === "admin";
+  const esAdmin = user.rol === "administrador";
 
   return (
     <div className="space-y-6">

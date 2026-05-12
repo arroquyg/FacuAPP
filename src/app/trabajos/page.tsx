@@ -51,7 +51,7 @@ export default async function TrabajosPage() {
   }
 
   const { data: trabajos, error } = await query;
-  const esAdmin = user.rol === "admin";
+  const esAdmin = user.rol === "administrador";
 
   return (
     <div className="space-y-6">

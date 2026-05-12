@@ -6,7 +6,7 @@ import UsuariosAdmin from "./UsuariosAdmin";
 export default async function AdminUsuariosPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.rol !== "admin") redirect("/");
+  if (user.rol !== "administrador") redirect("/");
 
   const sb = createAdminClient();
 

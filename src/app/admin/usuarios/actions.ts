@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
   const user = await getCurrentUser();
-  if (!user || user.rol !== "admin") throw new Error("Sin permiso");
+  if (!user || user.rol !== "administrador") throw new Error("Sin permiso");
   return user;
 }
 

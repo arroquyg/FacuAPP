@@ -43,11 +43,11 @@ export default async function PerfilPage() {
             <h2 className="text-xl font-semibold text-stone-800">{user.nombre}</h2>
             <p className="text-sm text-stone-500">{user.email}</p>
             <span className={`inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full font-medium ${
-              user.rol === "admin"
+              user.rol === "administrador"
                 ? "bg-green-100 text-green-700"
                 : "bg-stone-100 text-stone-600"
             }`}>
-              {user.rol === "admin" ? "Administrador" : "Operario"}
+              {user.rol === "administrador" ? "Administrador" : "Operario"}
             </span>
           </div>
         </div>

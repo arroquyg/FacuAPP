@@ -75,7 +75,7 @@ export default async function AnimalPage({
           </p>
           <h1 className="text-3xl font-bold text-stone-800">Caravana {animal.chip_id}</h1>
         </div>
-        {user.rol === "admin" && (
+        {user.rol === "administrador" && (
           <a
             href={`/animales/${params.id}/editar`}
             className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"

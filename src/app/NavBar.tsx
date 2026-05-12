@@ -24,7 +24,7 @@ export default function NavBar({ user }: { user: UserProfile | null }) {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const links = user?.rol === "admin" ? [...baseLinks, ...adminLinks] : baseLinks;
+  const links = user?.rol === "administrador" ? [...baseLinks, ...adminLinks] : baseLinks;
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -80,11 +80,11 @@ export default function NavBar({ user }: { user: UserProfile | null }) {
                       <p className="text-xs font-semibold text-stone-700">{user.nombre}</p>
                       <p className="text-xs text-stone-400">{user.email}</p>
                       <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
-                        user.rol === "admin"
+                        user.rol === "administrador"
                           ? "bg-green-100 text-green-700"
                           : "bg-stone-100 text-stone-500"
                       }`}>
-                        {user.rol === "admin" ? "Administrador" : "Operario"}
+                        {user.rol === "administrador" ? "Administrador" : "Operario"}
                       </span>
                     </div>
                     <Link
@@ -146,11 +146,11 @@ export default function NavBar({ user }: { user: UserProfile | null }) {
                   <p className="text-sm font-medium text-white">{user.nombre}</p>
                   <p className="text-xs text-green-300">{user.empresa_nombre}</p>
                   <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
-                    user.rol === "admin"
+                    user.rol === "administrador"
                       ? "bg-green-700 text-green-100"
                       : "bg-green-800 text-green-300"
                   }`}>
-                    {user.rol === "admin" ? "Administrador" : "Operario"}
+                    {user.rol === "administrador" ? "Administrador" : "Operario"}
                   </span>
                 </div>
                 <Link

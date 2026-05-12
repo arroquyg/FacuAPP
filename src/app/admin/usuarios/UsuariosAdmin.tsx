@@ -78,7 +78,8 @@ export default function UsuariosAdmin({
               <label className="block text-xs text-stone-500 mb-1">Rol *</label>
               <select name="rol" required className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
                 <option value="operario">Operario</option>
-                <option value="admin">Administrador</option>
+                <option value="veterinario">Veterinario</option>
+                <option value="administrador">Administrador</option>
               </select>
             </div>
           </div>
@@ -110,9 +111,9 @@ export default function UsuariosAdmin({
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-stone-800 text-sm">{u.nombre}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        u.rol === "admin" ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"
+                        u.rol === "administrador" ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"
                       }`}>
-                        {u.rol === "admin" ? "Admin" : "Operario"}
+                        {u.rol === "administrador" ? "Admin" : u.rol === "veterinario" ? "Veterinario" : "Operario"}
                       </span>
                       {!u.activo && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-medium">Inactivo</span>
