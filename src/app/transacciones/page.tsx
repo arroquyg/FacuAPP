@@ -17,12 +17,22 @@ export default async function TransaccionesPage() {
   const supabase = createAdminClient();
   const empresaId = user.empresa_id;
 
-  const { data: transacciones, error } = await supabase
-    .from("transacciones")
-    .select("id, tipo, fecha, contraparte, precio_total, numero_remito")
-    .eq("empresa_id", empresaId)
-    .order("fecha", { ascending: false })
-    .limit(500);
+  const [
+    { data: transacciones, error },
+    { data: empresas },
+  ] = await Promise.all([
+    supabase
+      .from("transacciones")
+      .select("id, tipo, fecha, contraparte, precio_total, numero_remito")
+      .eq("empresa_id", empresaId)
+      .order("fecha", { ascending: false })
+      .limit(500),
+    supabase
+      .from("empresas")
+      .select("id, nombre")
+      .neq("id", empresaId)
+      .order("nombre"),
+  ]);
 
   // Contar animales por transacción
   const { data: conteos } = await supabase
@@ -56,7 +66,7 @@ export default async function TransaccionesPage() {
         </div>
       )}
 
-      <FormTransaccion />
+      <FormTransaccion empresas={empresas ?? []} />
       <HistorialTransacciones transacciones={historial} />
     </div>
   );

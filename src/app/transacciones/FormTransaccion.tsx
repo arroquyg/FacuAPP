@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { registrarTransaccion } from "./actions";
+import { registrarTransaccion, registrarTransferenciaEmpresa } from "./actions";
 
+type Empresa = { id: string; nombre: string };
 type AnimalResultado = {
   id: string;
   chip_id: string;
   numero_caravana: string | null;
   campo: { nombre: string } | null;
 };
-
 type AnimalSeleccionado = AnimalResultado & { precio: string };
-
 type Paso = "form" | "confirmar" | "resultado";
 type Resultado = { ok: boolean; error?: string };
 
@@ -46,9 +45,12 @@ function formatPeso(n: number) {
   return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function FormTransaccion() {
+export default function FormTransaccion({ empresas }: { empresas: Empresa[] }) {
   const tipo = "venta" as const;
-  const [contraparte, setContraparte] = useState("");
+
+  // "no-asociada" o el id de la empresa destino
+  const [contraparteId, setContraparteId] = useState("no-asociada");
+  const [contraparteTexto, setContraparteTexto] = useState("");
   const [cuit, setCuit] = useState("");
   const [fecha, setFecha] = useState(hoy());
   const [remito, setRemito] = useState("");
@@ -67,6 +69,9 @@ export default function FormTransaccion() {
   const [textMasivo, setTextMasivo] = useState("");
   const [cargandoMasivo, setCargandoMasivo] = useState(false);
   const [avisoMasivo, setAvisoMasivo] = useState<string | null>(null);
+
+  const esEmpresaAsociada = contraparteId !== "no-asociada";
+  const empresaDestino = empresas.find((e) => e.id === contraparteId);
 
   useEffect(() => {
     if (query.length < 2) { setResultados([]); return; }
@@ -103,22 +108,13 @@ export default function FormTransaccion() {
     setCargandoMasivo(true);
     setAvisoMasivo(null);
     try {
-      const res = await fetch(
-        `/api/animales/bulk-search?chips=${encodeURIComponent(chips.join(","))}`
-      );
+      const res = await fetch(`/api/animales/bulk-search?chips=${encodeURIComponent(chips.join(","))}`);
       const encontrados: AnimalResultado[] = await res.json();
-      const nuevos = encontrados.filter(
-        (a) => !seleccionados.find((s) => s.id === a.id)
-      );
+      const nuevos = encontrados.filter((a) => !seleccionados.find((s) => s.id === a.id));
       setSeleccionados((prev) => [...prev, ...nuevos.map((a) => ({ ...a, precio: "" }))]);
-
-      const noEncontrados = chips.filter(
-        (c) => !encontrados.find((a) => a.chip_id === c)
-      );
+      const noEncontrados = chips.filter((c) => !encontrados.find((a) => a.chip_id === c));
       if (noEncontrados.length > 0) {
-        setAvisoMasivo(
-          `${nuevos.length} agregado${nuevos.length !== 1 ? "s" : ""}. No encontrados: ${noEncontrados.join(", ")}`
-        );
+        setAvisoMasivo(`${nuevos.length} agregado${nuevos.length !== 1 ? "s" : ""}. No encontrados: ${noEncontrados.join(", ")}`);
       } else {
         setAvisoMasivo(`${nuevos.length} animal${nuevos.length !== 1 ? "es" : ""} agregado${nuevos.length !== 1 ? "s" : ""} correctamente.`);
       }
@@ -131,36 +127,53 @@ export default function FormTransaccion() {
   }
 
   function setPrecio(id: string, valor: string) {
-    setSeleccionados((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, precio: valor } : a))
-    );
+    setSeleccionados((prev) => prev.map((a) => (a.id === id ? { ...a, precio: valor } : a)));
   }
 
   const precioTotal = seleccionados.reduce((acc, a) => acc + (parseFloat(a.precio) || 0), 0);
 
   async function confirmar() {
     setGuardando(true);
-    const res = await registrarTransaccion({
-      tipo,
-      fecha,
-      contraparte,
-      contraparte_cuit: cuit,
-      precio_total: precioTotal,
-      numero_remito: remito,
-      numero_transaccion: nroTransaccion,
-      observaciones,
-      animales: seleccionados.map((a) => ({
-        animal_id: a.id,
-        precio_unitario: parseFloat(a.precio) || 0,
-      })),
-    });
+    let res: { ok: boolean; error?: string };
+
+    if (esEmpresaAsociada) {
+      res = await registrarTransferenciaEmpresa({
+        empresaDestinoId: contraparteId,
+        fecha,
+        precio_total: precioTotal,
+        numero_remito: remito,
+        numero_transaccion: nroTransaccion,
+        observaciones,
+        animales: seleccionados.map((a) => ({
+          animal_id: a.id,
+          precio_unitario: parseFloat(a.precio) || 0,
+        })),
+      });
+    } else {
+      res = await registrarTransaccion({
+        tipo,
+        fecha,
+        contraparte: contraparteTexto,
+        contraparte_cuit: cuit,
+        precio_total: precioTotal,
+        numero_remito: remito,
+        numero_transaccion: nroTransaccion,
+        observaciones,
+        animales: seleccionados.map((a) => ({
+          animal_id: a.id,
+          precio_unitario: parseFloat(a.precio) || 0,
+        })),
+      });
+    }
+
     setResultado(res);
     setPaso("resultado");
     setGuardando(false);
   }
 
   function reiniciar() {
-    setContraparte("");
+    setContraparteId("no-asociada");
+    setContraparteTexto("");
     setCuit("");
     setFecha(hoy());
     setRemito("");
@@ -176,12 +189,21 @@ export default function FormTransaccion() {
     return (
       <div className={`rounded-xl border p-6 ${resultado?.ok ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
         {resultado?.ok ? (
-          <p className="font-semibold text-green-700 text-lg">
-            Transacción registrada exitosamente
-          </p>
+          <div>
+            <p className="font-semibold text-green-700 text-lg">
+              {esEmpresaAsociada
+                ? `Transferencia enviada a ${empresaDestino?.nombre}. El admin debe aceptarla.`
+                : "Venta registrada exitosamente"}
+            </p>
+            {esEmpresaAsociada && (
+              <p className="text-green-600 text-sm mt-1">
+                Los animales quedan bloqueados hasta que la empresa receptora acepte o deniegue la transferencia.
+              </p>
+            )}
+          </div>
         ) : (
           <>
-            <p className="font-semibold text-red-700">Error al registrar transacción</p>
+            <p className="font-semibold text-red-700">Error al registrar</p>
             <p className="text-red-600 text-sm font-mono mt-1">{resultado?.error}</p>
           </>
         )}
@@ -199,12 +221,18 @@ export default function FormTransaccion() {
         <p className="text-amber-700">
           Vas a registrar una <strong>venta</strong> de{" "}
           <strong>{seleccionados.length}</strong> animal{seleccionados.length !== 1 ? "es" : ""}{" "}
-          por <strong>${formatPeso(precioTotal)}</strong> con{" "}
-          <strong>{contraparte}</strong>.
-          <span className="block mt-1 text-amber-600 text-sm">
-            Los animales vendidos quedarán marcados como inactivos.
-          </span>
+          por <strong>${formatPeso(precioTotal)}</strong> a{" "}
+          <strong>{esEmpresaAsociada ? empresaDestino?.nombre : contraparteTexto}</strong>.
         </p>
+        {esEmpresaAsociada ? (
+          <p className="text-amber-600 text-sm">
+            Los animales quedarán en estado <strong>bloqueado</strong> hasta que {empresaDestino?.nombre} acepte la transferencia. Si la deniegan, la transacción se anula automáticamente.
+          </p>
+        ) : (
+          <p className="text-amber-600 text-sm">
+            Los animales vendidos quedarán marcados como inactivos en tu empresa.
+          </p>
+        )}
         <div className="flex gap-3 pt-2">
           <button
             onClick={confirmar}
@@ -221,26 +249,59 @@ export default function FormTransaccion() {
     );
   }
 
-  const puedeConfirmar = contraparte && fecha && seleccionados.length > 0;
+  const puedeConfirmar = fecha && seleccionados.length > 0 &&
+    (esEmpresaAsociada ? true : contraparteTexto.trim().length > 0);
 
   return (
     <div className="bg-white border border-stone-200 rounded-xl p-6 space-y-5">
       <h2 className="font-semibold text-stone-700">Registrar venta</h2>
 
-      {/* Datos del encabezado */}
+      {/* Contraparte */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
+        <div className="sm:col-span-2 lg:col-span-1">
           <label className="block text-xs text-stone-500 mb-1">Contraparte *</label>
-          <input type="text" value={contraparte} onChange={(e) => setContraparte(e.target.value)}
-            placeholder="Nombre del comprador/vendedor"
-            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+          <select
+            value={contraparteId}
+            onChange={(e) => setContraparteId(e.target.value)}
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 bg-white"
+          >
+            <option value="no-asociada">Contraparte no asociada</option>
+            {empresas.map((e) => (
+              <option key={e.id} value={e.id}>{e.nombre}</option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label className="block text-xs text-stone-500 mb-1">CUIT</label>
-          <input type="text" value={cuit} onChange={(e) => setCuit(e.target.value)}
-            placeholder="XX-XXXXXXXX-X"
-            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
-        </div>
+
+        {!esEmpresaAsociada && (
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">Nombre del comprador *</label>
+            <input
+              type="text"
+              value={contraparteTexto}
+              onChange={(e) => setContraparteTexto(e.target.value)}
+              placeholder="Nombre del comprador"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+            />
+          </div>
+        )}
+
+        {!esEmpresaAsociada && (
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">CUIT</label>
+            <input type="text" value={cuit} onChange={(e) => setCuit(e.target.value)}
+              placeholder="XX-XXXXXXXX-X"
+              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+          </div>
+        )}
+
+        {esEmpresaAsociada && (
+          <div className="sm:col-span-1 lg:col-span-2 flex items-end">
+            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-sm text-green-700 w-full">
+              Transferencia a empresa asociada — el historial clínico se transferirá al aceptar.
+            </div>
+          </div>
+        )}
+
         <div>
           <label className="block text-xs text-stone-500 mb-1">Fecha *</label>
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)}
@@ -320,7 +381,7 @@ export default function FormTransaccion() {
         )}
       </div>
 
-      {/* Animales seleccionados con precio */}
+      {/* Animales seleccionados */}
       {seleccionados.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs text-stone-500">{seleccionados.length} animal{seleccionados.length !== 1 ? "es" : ""} seleccionado{seleccionados.length !== 1 ? "s" : ""}</p>
@@ -347,8 +408,6 @@ export default function FormTransaccion() {
               </div>
             ))}
           </div>
-
-          {/* Total */}
           <div className="flex justify-end pt-1">
             <span className="text-sm font-semibold text-stone-700">
               Total: <span className="text-gray-900">${formatPeso(precioTotal)}</span>

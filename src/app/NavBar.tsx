@@ -15,11 +15,12 @@ const baseLinks = [
 ];
 
 const adminLinks = [
+  { href: "/transferencias", label: "Transferencias" },
   { href: "/configuracion", label: "Configuración" },
   { href: "/admin/usuarios", label: "Usuarios" },
 ];
 
-export default function NavBar({ user }: { user: UserProfile | null }) {
+export default function NavBar({ user, transferenciasCount = 0 }: { user: UserProfile | null; transferenciasCount?: number }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -46,13 +47,18 @@ export default function NavBar({ user }: { user: UserProfile | null }) {
               <Link
                 key={href}
                 href={href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive(href)
                     ? "bg-green-700 text-white"
                     : "text-green-100 hover:bg-green-800 hover:text-white"
                 }`}
               >
                 {label}
+                {href === "/transferencias" && transferenciasCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
+                    {transferenciasCount > 9 ? "9+" : transferenciasCount}
+                  </span>
+                )}
               </Link>
             ))}
           </div>
@@ -129,13 +135,18 @@ export default function NavBar({ user }: { user: UserProfile | null }) {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 isActive(href)
                   ? "bg-green-700 text-white"
                   : "text-green-100 hover:bg-green-800"
               }`}
             >
               {label}
+              {href === "/transferencias" && transferenciasCount > 0 && (
+                <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold leading-none">
+                  {transferenciasCount > 9 ? "9+" : transferenciasCount}
+                </span>
+              )}
             </Link>
           ))}
 
