@@ -31,25 +31,18 @@ export default async function DashboardPage() {
     }
   }
 
-  // Queries de animales con filtro de campo si es operario
   const sinCampoFallback = "sin-campo-asignado";
 
   let qVivos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
   let qMuertos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false);
-  let qSexo = supabase.from("animales").select("sexo").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
-  let qConteo = supabase.from("animales").select("campo_actual_id").eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
 
   if (campoIds !== null) {
     if (campoIds.length > 0) {
       qVivos = qVivos.in("campo_actual_id", campoIds);
       qMuertos = qMuertos.in("campo_actual_id", campoIds);
-      qSexo = qSexo.in("campo_actual_id", campoIds);
-      qConteo = qConteo.in("campo_actual_id", campoIds);
     } else {
       qVivos = qVivos.eq("campo_actual_id", sinCampoFallback);
       qMuertos = qMuertos.eq("campo_actual_id", sinCampoFallback);
-      qSexo = qSexo.eq("campo_actual_id", sinCampoFallback);
-      qConteo = qConteo.eq("campo_actual_id", sinCampoFallback);
     }
   }
 
@@ -80,22 +73,41 @@ export default async function DashboardPage() {
   const [
     { count: totalVivos },
     { count: totalMuertos },
-    { data: animalesSexo },
     { data: campos, error: errCampos },
     { data: movimientos, error: errMovimientos },
     { count: totalTrabajos },
-    { data: conteoXCampo },
+    // RPC agrega en la BD — devuelve una fila por campo, sin límite de filas
+    { data: conteoRpc },
+    { data: sexoRpc },
   ] = await Promise.all([
-    qVivos, qMuertos, qSexo, qCampos, qMovimientos, qTrabajos, qConteo,
+    qVivos,
+    qMuertos,
+    qCampos,
+    qMovimientos,
+    qTrabajos,
+    supabase.rpc("contar_animales_por_campo", { p_empresa_id: empresaId }),
+    supabase.rpc("contar_animales_por_sexo", { p_empresa_id: empresaId }),
   ]);
 
-  const machos = animalesSexo?.filter((a) => a.sexo === "macho").length ?? 0;
-  const hembras = animalesSexo?.filter((a) => a.sexo === "hembra").length ?? 0;
+  // Para operario: filtrar los resultados del RPC por sus campos asignados
+  const conteoFiltrado = campoIds !== null
+    ? (conteoRpc ?? []).filter((r: { campo_actual_id: string }) => campoIds.includes(r.campo_actual_id))
+    : (conteoRpc ?? []);
+
+  const sexoFiltrado = campoIds !== null && campoIds.length > 0
+    ? null // para operario usamos los counts filtrados de qVivos (ya filtrado por campo)
+    : (sexoRpc ?? []);
+
+  const machos = sexoFiltrado
+    ? (sexoFiltrado as { sexo: string; cantidad: number }[]).find((s) => s.sexo === "macho")?.cantidad ?? 0
+    : 0;
+  const hembras = sexoFiltrado
+    ? (sexoFiltrado as { sexo: string; cantidad: number }[]).find((s) => s.sexo === "hembra")?.cantidad ?? 0
+    : 0;
 
   const conteoPorCampo: Record<string, number> = {};
-  conteoXCampo?.forEach((a) => {
-    if (a.campo_actual_id)
-      conteoPorCampo[a.campo_actual_id] = (conteoPorCampo[a.campo_actual_id] ?? 0) + 1;
+  conteoFiltrado.forEach((r: { campo_actual_id: string; cantidad: number }) => {
+    conteoPorCampo[r.campo_actual_id] = Number(r.cantidad);
   });
 
   return (
