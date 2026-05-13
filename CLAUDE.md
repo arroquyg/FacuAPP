@@ -4,7 +4,7 @@
 
 - Nunca ejecutar SQL directamente. Si se necesita una query, pasársela al usuario para que la corra en el SQL Editor de Supabase.
 - Nunca usar `process.env.EMPRESA_ID`. Siempre usar `getCurrentUser()` → `user.empresa_id`.
-- No pushear nada al repositorio sin confirmación explícita del usuario.
+- No hacer `git commit` ni `git push` sin confirmación explícita del usuario.
 - Si hay dudas sobre cómo el usuario quiere que funcione algo nuevo, preguntar antes de implementar.
 
 ## Stack
