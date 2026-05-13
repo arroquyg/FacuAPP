@@ -24,7 +24,7 @@ export default function EliminarMasivo() {
   const [resultado, setResultado] = useState<{ ok: boolean; eliminados: number; error?: string } | null>(null);
 
   async function buscar() {
-    const chips = textChips.split(/[\n,]/).map((c) => c.trim().toUpperCase()).filter(Boolean);
+    const chips = textChips.split(/[\n,]/).map((c) => c.trim().replace(/\s+/g, "").toUpperCase()).filter(Boolean);
     if (chips.length === 0) return;
 
     setBuscando(true);

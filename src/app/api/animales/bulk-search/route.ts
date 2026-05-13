@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const lista: string[] = (body.chips ?? []).map((c: string) => c.trim().toUpperCase()).filter(Boolean);
+  const lista: string[] = (body.chips ?? []).map((c: string) => c.trim().replace(/\s+/g, "").toUpperCase()).filter(Boolean);
 
   if (lista.length === 0) return NextResponse.json([]);
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 // GET legacy para compatibilidad
 export async function GET(req: NextRequest) {
   const chips = req.nextUrl.searchParams.get("chips") ?? "";
-  const lista = chips.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean);
+  const lista = chips.split(",").map((c) => c.trim().replace(/\s+/g, "").toUpperCase()).filter(Boolean);
   if (lista.length === 0) return NextResponse.json([]);
 
   const user = await getCurrentUser();

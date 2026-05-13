@@ -69,7 +69,7 @@ export default function ImportarAnimales({
     for (const k of Object.keys(raw)) norm[k.replace(" *", "")] = raw[k];
     const str = (k: string) => String(norm[k] ?? "").trim();
     const fila: FilaParsed = {
-      chip_id: str("chip_id"),
+      chip_id: str("chip_id").replace(/\s+/g, ""),
       numero_caravana: str("numero_caravana"),
       sexo: str("sexo").toLowerCase(),
       categoria: str("categoria"),
