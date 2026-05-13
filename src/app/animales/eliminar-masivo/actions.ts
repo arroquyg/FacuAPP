@@ -14,7 +14,7 @@ export async function eliminarAnimalesMasivo(
   if (user.rol !== "administrador") return { ok: false, eliminados: 0, error: "Sin permisos." };
 
   const sb = createAdminClient();
-  const LOTE = 200;
+  const LOTE = 100;
 
   for (let i = 0; i < animalIds.length; i += LOTE) {
     const lote = animalIds.slice(i, i + LOTE);

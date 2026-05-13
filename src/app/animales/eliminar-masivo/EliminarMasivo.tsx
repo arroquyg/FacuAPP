@@ -33,7 +33,11 @@ export default function EliminarMasivo() {
     setNoEncontrados([]);
 
     try {
-      const res = await fetch(`/api/animales/bulk-search?chips=${encodeURIComponent(chips.join(","))}`);
+      const res = await fetch("/api/animales/bulk-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chips }),
+      });
       const encontrados: AnimalEncontrado[] = await res.json();
       setAnimalesEncontrados(encontrados);
       setNoEncontrados(chips.filter((c) => !encontrados.find((a) => a.chip_id === c)));

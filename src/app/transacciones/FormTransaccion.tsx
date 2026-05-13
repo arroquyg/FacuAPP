@@ -108,7 +108,11 @@ export default function FormTransaccion({ empresas }: { empresas: Empresa[] }) {
     setCargandoMasivo(true);
     setAvisoMasivo(null);
     try {
-      const res = await fetch(`/api/animales/bulk-search?chips=${encodeURIComponent(chips.join(","))}`);
+      const res = await fetch("/api/animales/bulk-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chips }),
+      });
       const encontrados: AnimalResultado[] = await res.json();
       const nuevos = encontrados.filter((a) => !seleccionados.find((s) => s.id === a.id));
       setSeleccionados((prev) => [...prev, ...nuevos.map((a) => ({ ...a, precio: "" }))]);
