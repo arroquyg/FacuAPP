@@ -47,7 +47,7 @@ function formatPeso(n: number) {
 }
 
 export default function FormTransaccion() {
-  const [tipo, setTipo] = useState<"compra" | "venta">("compra");
+  const tipo = "venta" as const;
   const [contraparte, setContraparte] = useState("");
   const [cuit, setCuit] = useState("");
   const [fecha, setFecha] = useState(hoy());
@@ -160,7 +160,6 @@ export default function FormTransaccion() {
   }
 
   function reiniciar() {
-    setTipo("compra");
     setContraparte("");
     setCuit("");
     setFecha(hoy());
@@ -198,15 +197,13 @@ export default function FormTransaccion() {
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 space-y-4">
         <p className="font-semibold text-amber-800">Confirmación</p>
         <p className="text-amber-700">
-          Vas a registrar una <strong>{tipo}</strong> de{" "}
+          Vas a registrar una <strong>venta</strong> de{" "}
           <strong>{seleccionados.length}</strong> animal{seleccionados.length !== 1 ? "es" : ""}{" "}
           por <strong>${formatPeso(precioTotal)}</strong> con{" "}
           <strong>{contraparte}</strong>.
-          {tipo === "venta" && (
-            <span className="block mt-1 text-amber-600 text-sm">
-              Los animales vendidos quedarán marcados como inactivos.
-            </span>
-          )}
+          <span className="block mt-1 text-amber-600 text-sm">
+            Los animales vendidos quedarán marcados como inactivos.
+          </span>
         </p>
         <div className="flex gap-3 pt-2">
           <button
@@ -228,24 +225,7 @@ export default function FormTransaccion() {
 
   return (
     <div className="bg-white border border-stone-200 rounded-xl p-6 space-y-5">
-      <h2 className="font-semibold text-stone-700">Registrar transacción</h2>
-
-      {/* Tipo */}
-      <div className="flex gap-3">
-        {(["compra", "venta"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTipo(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-              tipo === t
-                ? "bg-green-800 text-white border-green-800"
-                : "border-stone-300 text-stone-600 hover:bg-stone-50"
-            }`}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
+      <h2 className="font-semibold text-stone-700">Registrar venta</h2>
 
       {/* Datos del encabezado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
