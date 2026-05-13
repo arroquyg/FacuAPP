@@ -20,11 +20,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+      {/* Video de fondo */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        src="/login-bg-compressed.mp4"
+      />
+      {/* Overlay oscuro */}
+      <div className="absolute inset-0 bg-black/50" />
+
+      <div className="relative z-10 w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-green-900">Sistema Ganadero</h1>
-          <p className="text-stone-500 text-sm mt-1">Ingresá con tu cuenta</p>
+          <h1 className="text-2xl font-bold text-white">Sistema Ganadero</h1>
+          <p className="text-stone-300 text-sm mt-1">Ingresá con tu cuenta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-stone-200 shadow-sm p-6 space-y-4">
