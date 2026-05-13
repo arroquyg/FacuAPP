@@ -14,14 +14,17 @@ export async function eliminarAnimalesMasivo(
   if (user.rol !== "administrador") return { ok: false, eliminados: 0, error: "Sin permisos." };
 
   const sb = createAdminClient();
+  const LOTE = 200;
 
-  const { error } = await sb
-    .from("animales")
-    .update({ activo: false })
-    .eq("empresa_id", user.empresa_id)
-    .in("id", animalIds);
-
-  if (error) return { ok: false, eliminados: 0, error: error.message };
+  for (let i = 0; i < animalIds.length; i += LOTE) {
+    const lote = animalIds.slice(i, i + LOTE);
+    const { error } = await sb
+      .from("animales")
+      .update({ activo: false })
+      .eq("empresa_id", user.empresa_id)
+      .in("id", lote);
+    if (error) return { ok: false, eliminados: i, error: error.message };
+  }
 
   revalidatePath("/animales");
   revalidatePath("/");
