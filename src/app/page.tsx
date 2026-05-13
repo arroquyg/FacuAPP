@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser, getCamposOperario } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import CaravanasCard from "./caravanas/CaravanasCard";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
@@ -90,6 +91,10 @@ export default async function DashboardPage() {
     supabase.rpc("contar_animales_por_sexo", { p_empresa_id: empresaId }),
   ]);
 
+  const { data: empresaData } = user.rol === "administrador"
+    ? await supabase.from("empresas").select("caravanas_compradas, caravanas_bajas").eq("id", empresaId).single()
+    : { data: null };
+
   // Para operario: filtrar los resultados del RPC por sus campos asignados
   const conteoFiltrado = campoIds !== null
     ? (conteoRpc ?? []).filter((r: { campo_actual_id: string }) => campoIds.includes(r.campo_actual_id))
@@ -123,6 +128,17 @@ export default async function DashboardPage() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <p className="text-red-700 font-semibold">Error al cargar datos</p>
           <p className="text-red-600 text-sm font-mono mt-1">{(errCampos || errMovimientos)?.message}</p>
+        </div>
+      )}
+
+      {/* Control de caravanas — solo admin */}
+      {user.rol === "administrador" && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <CaravanasCard
+            compradas={empresaData?.caravanas_compradas ?? 0}
+            bajas={empresaData?.caravanas_bajas ?? 0}
+            activos={totalVivos ?? 0}
+          />
         </div>
       )}
 
