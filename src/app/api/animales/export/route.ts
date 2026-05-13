@@ -10,14 +10,24 @@ export async function GET() {
   const sb = createAdminClient();
   const empresaId = user.empresa_id;
 
-  const { data: animales, error } = await sb
-    .from("animales")
-    .select("chip_id, numero_caravana, sexo, categoria, raza, color_pelaje, fecha_nacimiento, procedencia, valor_comercial, estado_sanitario, vivo, campo:campo_actual_id(nombre)")
-    .eq("empresa_id", empresaId)
-    .eq("activo", true)
-    .order("chip_id");
+  const PAGE = 1000;
+  let animales: Record<string, unknown>[] = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await sb
+      .from("animales")
+      .select("chip_id, numero_caravana, sexo, categoria, raza, color_pelaje, fecha_nacimiento, procedencia, valor_comercial, estado_sanitario, vivo, campo:campo_actual_id(nombre)")
+      .eq("empresa_id", empresaId)
+      .eq("activo", true)
+      .order("chip_id")
+      .range(from, from + PAGE - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data || data.length === 0) break;
+    animales = animales.concat(data);
+    if (data.length < PAGE) break;
+    from += PAGE;
+  }
 
   const headers = [
     "chip_id *",
@@ -34,7 +44,7 @@ export async function GET() {
     "vivo",
   ];
 
-  const filas = (animales ?? []).map((a) => [
+  const filas = animales.map((a) => [
     a.chip_id ?? "",
     a.numero_caravana ?? "",
     a.sexo ?? "",
