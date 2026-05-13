@@ -69,6 +69,9 @@ export default async function AnimalesPage() {
             <a href="/animales/importar" className="px-4 py-2 border border-stone-300 text-stone-600 rounded-lg text-sm hover:bg-stone-50 transition-colors">
               Importar
             </a>
+            <a href="/animales/editar-masivo" className="px-4 py-2 border border-stone-300 text-stone-600 rounded-lg text-sm hover:bg-stone-50 transition-colors">
+              Edición masiva
+            </a>
             <a href="/animales/nuevo" className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 transition-colors">
               + Nuevo animal
             </a>
