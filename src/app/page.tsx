@@ -53,14 +53,25 @@ export default async function DashboardPage() {
     qCampos = qCampos.eq("empresa_id", empresaId);
   }
 
+  // Necesitamos los campo IDs de la empresa para filtrar movimientos correctamente
+  let campoIdsParaMovimientos: string[] = campoIds ?? [];
+  if (campoIds === null) {
+    const { data: camposEmpresa } = await supabase
+      .from("campos")
+      .select("id")
+      .eq("empresa_id", empresaId)
+      .eq("activo", true);
+    campoIdsParaMovimientos = camposEmpresa?.map((c) => c.id) ?? [];
+  }
+
   let qMovimientos = supabase.from("movimientos_campo")
     .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
     .order("fecha_movimiento", { ascending: false })
     .limit(10);
-  if (campoIds !== null) {
-    qMovimientos = campoIds.length > 0
-      ? qMovimientos.in("campo_destino_id", campoIds)
-      : qMovimientos.eq("campo_destino_id", sinCampoFallback);
+  if (campoIdsParaMovimientos.length > 0) {
+    qMovimientos = qMovimientos.or(`campo_origen_id.in.(${campoIdsParaMovimientos.join(",")}),campo_destino_id.in.(${campoIdsParaMovimientos.join(",")})`);
+  } else {
+    qMovimientos = qMovimientos.eq("campo_destino_id", sinCampoFallback);
   }
 
   let qTrabajos = supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId);
