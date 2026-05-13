@@ -22,13 +22,15 @@ export default async function AnimalesPage() {
     .eq("activo", true)
     .order("chip_id");
 
-  if (campoIds !== null) {
-    query = campoIds.length > 0
-      ? query.in("campo_actual_id", campoIds)
-      : query.eq("campo_actual_id", "sin-campo-asignado"); // retorna vacío
+  if (campoIds !== null && campoIds.length > 0) {
+    query = query.in("campo_actual_id", campoIds);
   }
 
-  const { data: animales, error } = await query;
+  const { data: animales, error } = await (
+    campoIds !== null && campoIds.length === 0
+      ? Promise.resolve({ data: [], error: null })
+      : query
+  );
 
   const camposQuery = sb.from("campos").select("id, nombre").eq("empresa_id", empresaId).eq("activo", true).order("nombre");
   const [{ data: campos }, { data: categorias }, { data: razas }] = await Promise.all([

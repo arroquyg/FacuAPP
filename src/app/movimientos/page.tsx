@@ -38,21 +38,16 @@ export default async function MovimientosPage() {
     campoIdsParaMovimientos = camposEmpresa?.map((c) => c.id) ?? [];
   }
 
-  let movQuery = sb
-    .from("movimientos_campo")
-    .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
-    .order("fecha_movimiento", { ascending: false })
-    .limit(500);
-
-  if (campoIdsParaMovimientos.length > 0) {
-    movQuery = movQuery.or(`campo_origen_id.in.(${campoIdsParaMovimientos.join(",")}),campo_destino_id.in.(${campoIdsParaMovimientos.join(",")})`);
-  }
-
   const [{ data: campos }, { data: movimientos, error }] = await Promise.all([
     camposQuery,
-    campoIds !== null && campoIds.length === 0
+    campoIdsParaMovimientos.length === 0
       ? Promise.resolve({ data: [], error: null })
-      : movQuery,
+      : sb
+          .from("movimientos_campo")
+          .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
+          .or(`campo_origen_id.in.(${campoIdsParaMovimientos.join(",")}),campo_destino_id.in.(${campoIdsParaMovimientos.join(",")})`)
+          .order("fecha_movimiento", { ascending: false })
+          .limit(500),
   ]);
 
   const historial = (movimientos ?? []).map((m) => ({

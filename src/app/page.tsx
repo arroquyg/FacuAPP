@@ -31,24 +31,17 @@ export default async function DashboardPage() {
     }
   }
 
-  const sinCampoFallback = "sin-campo-asignado";
-
   let qVivos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", true);
   let qMuertos = supabase.from("animales").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId).eq("activo", true).eq("vivo", false);
 
-  if (campoIds !== null) {
-    if (campoIds.length > 0) {
-      qVivos = qVivos.in("campo_actual_id", campoIds);
-      qMuertos = qMuertos.in("campo_actual_id", campoIds);
-    } else {
-      qVivos = qVivos.eq("campo_actual_id", sinCampoFallback);
-      qMuertos = qMuertos.eq("campo_actual_id", sinCampoFallback);
-    }
+  if (campoIds !== null && campoIds.length > 0) {
+    qVivos = qVivos.in("campo_actual_id", campoIds);
+    qMuertos = qMuertos.in("campo_actual_id", campoIds);
   }
 
   let qCampos = supabase.from("campos").select("id, nombre, capacidad_max, activo").eq("activo", true);
   if (campoIds !== null) {
-    qCampos = campoIds.length > 0 ? qCampos.in("id", campoIds) : qCampos.eq("id", sinCampoFallback);
+    qCampos = campoIds.length > 0 ? qCampos.in("id", campoIds) : qCampos.eq("empresa_id", "_vacio_");
   } else {
     qCampos = qCampos.eq("empresa_id", empresaId);
   }
@@ -64,22 +57,13 @@ export default async function DashboardPage() {
     campoIdsParaMovimientos = camposEmpresa?.map((c) => c.id) ?? [];
   }
 
-  let qMovimientos = supabase.from("movimientos_campo")
-    .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
-    .order("fecha_movimiento", { ascending: false })
-    .limit(10);
-  if (campoIdsParaMovimientos.length > 0) {
-    qMovimientos = qMovimientos.or(`campo_origen_id.in.(${campoIdsParaMovimientos.join(",")}),campo_destino_id.in.(${campoIdsParaMovimientos.join(",")})`);
-  } else {
-    qMovimientos = qMovimientos.eq("campo_destino_id", sinCampoFallback);
+  let qTrabajos = supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId);
+  if (campoNombres !== null && campoNombres.length > 0) {
+    qTrabajos = qTrabajos.in("campo", campoNombres);
   }
 
-  let qTrabajos = supabase.from("trabajos").select("*", { count: "exact", head: true }).eq("empresa_id", empresaId);
-  if (campoNombres !== null) {
-    qTrabajos = campoNombres.length > 0
-      ? qTrabajos.in("campo", campoNombres)
-      : qTrabajos.eq("campo", sinCampoFallback);
-  }
+  const sinMovimientos = Promise.resolve({ data: [], error: null });
+  const sinConteo = Promise.resolve({ count: 0, data: null, error: null });
 
   const [
     { count: totalVivos },
@@ -91,11 +75,17 @@ export default async function DashboardPage() {
     { data: conteoRpc },
     { data: sexoRpc },
   ] = await Promise.all([
-    qVivos,
-    qMuertos,
+    campoIds !== null && campoIds.length === 0 ? sinConteo : qVivos,
+    campoIds !== null && campoIds.length === 0 ? sinConteo : qMuertos,
     qCampos,
-    qMovimientos,
-    qTrabajos,
+    campoIdsParaMovimientos.length > 0
+      ? supabase.from("movimientos_campo")
+          .select("id, fecha_movimiento, motivo, animal:animal_id(chip_id), origen:campo_origen_id(nombre), destino:campo_destino_id(nombre)")
+          .or(`campo_origen_id.in.(${campoIdsParaMovimientos.join(",")}),campo_destino_id.in.(${campoIdsParaMovimientos.join(",")})`)
+          .order("fecha_movimiento", { ascending: false })
+          .limit(10)
+      : sinMovimientos,
+    campoNombres !== null && campoNombres.length === 0 ? sinConteo : qTrabajos,
     supabase.rpc("contar_animales_por_campo", { p_empresa_id: empresaId }),
     supabase.rpc("contar_animales_por_sexo", { p_empresa_id: empresaId }),
   ]);
