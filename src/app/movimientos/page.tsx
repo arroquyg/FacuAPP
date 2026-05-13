@@ -48,9 +48,9 @@ export default async function MovimientosPage() {
     id: m.id,
     fecha: formatDate(m.fecha_movimiento),
     fechaRaw: m.fecha_movimiento ?? "",
-    chip_id: (m.animal as { chip_id: string } | null)?.chip_id ?? "—",
-    origen: (m.origen as { nombre: string } | null)?.nombre ?? "—",
-    destino: (m.destino as { nombre: string } | null)?.nombre ?? "—",
+    chip_id: (m.animal as unknown as { chip_id: string } | null)?.chip_id ?? "—",
+    origen: (m.origen as unknown as { nombre: string } | null)?.nombre ?? "—",
+    destino: (m.destino as unknown as { nombre: string } | null)?.nombre ?? "—",
     motivo: m.motivo ?? null,
   }));
 

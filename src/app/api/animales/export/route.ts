@@ -40,7 +40,7 @@ export async function GET() {
     a.sexo ?? "",
     a.categoria ?? "",
     a.raza ?? "",
-    (a.campo as { nombre: string } | null)?.nombre ?? "",
+    (a.campo as unknown as { nombre: string } | null)?.nombre ?? "",
     a.color_pelaje ?? "",
     a.fecha_nacimiento ?? "",
     a.procedencia ?? "",

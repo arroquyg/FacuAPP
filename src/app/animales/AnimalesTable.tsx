@@ -5,7 +5,7 @@ import { useState } from "react";
 
 type Lookup = { id: string; nombre: string };
 type Campo = { id: string; nombre: string };
-type Animal = {
+export type Animal = {
   id: string;
   chip_id: string;
   numero_caravana: string | null;
@@ -37,9 +37,9 @@ export default function AnimalesTable({
   const [sanitarioFiltro, setSanitarioFiltro] = useState("");
   const [vivoFiltro, setVivoFiltro] = useState("vivos");
 
-  const estadosSanitarios = [
-    ...new Set(animales.map((a) => a.estado_sanitario).filter(Boolean)),
-  ] as string[];
+  const estadosSanitarios = Array.from(
+    new Set(animales.map((a) => a.estado_sanitario).filter(Boolean))
+  ) as string[];
 
   const filtrados = animales.filter((a) => {
     const q = busqueda.toLowerCase();

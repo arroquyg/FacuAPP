@@ -69,7 +69,7 @@ export default async function AnimalPage({
 
   if (error || !animal) return notFound();
 
-  const campo = animal.campo as { nombre: string } | null;
+  const campo = animal.campo as unknown as { nombre: string } | null;
 
   return (
     <div className="space-y-6">
@@ -125,8 +125,8 @@ export default async function AnimalPage({
         movimientos={(movimientos ?? []).map((m) => ({
           id: m.id,
           fecha: formatDate(m.fecha_movimiento),
-          origen: (m.origen as { nombre: string } | null)?.nombre ?? "—",
-          destino: (m.destino as { nombre: string } | null)?.nombre ?? "—",
+          origen: (m.origen as unknown as { nombre: string } | null)?.nombre ?? "—",
+          destino: (m.destino as unknown as { nombre: string } | null)?.nombre ?? "—",
           motivo: m.motivo ?? "—",
           observaciones: m.observaciones ?? null,
         }))}
@@ -134,7 +134,7 @@ export default async function AnimalPage({
           id: p.id,
           fecha: formatDate(p.fecha_pesaje),
           peso: p.peso_kg,
-          campo: (p.campo as { nombre: string } | null)?.nombre ?? "—",
+          campo: (p.campo as unknown as { nombre: string } | null)?.nombre ?? "—",
           observaciones: p.observaciones ?? null,
         }))}
         eventos={(eventos ?? []).map((e) => ({

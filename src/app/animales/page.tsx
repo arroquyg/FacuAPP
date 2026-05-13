@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser, getCamposOperario } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AnimalesTable from "./AnimalesTable";
+import AnimalesTable, { type Animal } from "./AnimalesTable";
 
 export default async function AnimalesPage() {
   const user = await getCurrentUser();
@@ -82,7 +82,7 @@ export default async function AnimalesPage() {
         )}
       </div>
       <AnimalesTable
-        animales={animales ?? []}
+        animales={(animales ?? []) as unknown as Animal[]}
         campos={campos ?? []}
         categorias={categorias ?? []}
         razas={razas ?? []}
