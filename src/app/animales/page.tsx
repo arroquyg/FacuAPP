@@ -15,22 +15,33 @@ export default async function AnimalesPage() {
     campoIds = await getCamposOperario(user.id);
   }
 
-  let query = sb
-    .from("animales")
-    .select("id, chip_id, numero_caravana, categoria, raza, estado_sanitario, activo, vivo, campo:campo_actual_id(id, nombre)")
-    .eq("empresa_id", empresaId)
-    .eq("activo", true)
-    .order("chip_id");
+  let animales: Animal[] = [];
+  let error = null;
 
-  if (campoIds !== null && campoIds.length > 0) {
-    query = query.in("campo_actual_id", campoIds);
+  if (campoIds === null || campoIds.length > 0) {
+    const PAGE = 1000;
+    let from = 0;
+    while (true) {
+      let pageQuery = sb
+        .from("animales")
+        .select("id, chip_id, numero_caravana, categoria, raza, estado_sanitario, activo, vivo, campo:campo_actual_id(id, nombre)")
+        .eq("empresa_id", empresaId)
+        .eq("activo", true)
+        .order("chip_id")
+        .range(from, from + PAGE - 1);
+
+      if (campoIds !== null) {
+        pageQuery = pageQuery.in("campo_actual_id", campoIds);
+      }
+
+      const { data, error: pageError } = await pageQuery;
+      if (pageError) { error = pageError; break; }
+      if (!data || data.length === 0) break;
+      animales = animales.concat(data as unknown as Animal[]);
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
   }
-
-  const { data: animales, error } = await (
-    campoIds !== null && campoIds.length === 0
-      ? Promise.resolve({ data: [], error: null })
-      : query
-  );
 
   const camposQuery = sb.from("campos").select("id, nombre").eq("empresa_id", empresaId).eq("activo", true).order("nombre");
   const [{ data: campos }, { data: categorias }, { data: razas }] = await Promise.all([
