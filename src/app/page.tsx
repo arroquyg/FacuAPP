@@ -3,6 +3,7 @@ import { getCurrentUser, getCamposOperario } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import CaravanasCard from "./caravanas/CaravanasCard";
+import AlertaMuertos from "./AlertaMuertos";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
@@ -168,17 +169,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Alerta muertos */}
-      {(totalMuertos ?? 0) > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-red-700">{totalMuertos} animal{(totalMuertos ?? 0) !== 1 ? "es" : ""} registrado{(totalMuertos ?? 0) !== 1 ? "s" : ""} como muerto</p>
-            <p className="text-red-500 text-sm mt-0.5">Revisar el listado de animales para más detalles</p>
-          </div>
-          <Link href="/animales" className="text-red-600 text-sm font-medium hover:underline shrink-0">
-            Ver animales →
-          </Link>
-        </div>
-      )}
+      <AlertaMuertos totalMuertos={totalMuertos ?? 0} />
 
       {/* Campos */}
       <div>
