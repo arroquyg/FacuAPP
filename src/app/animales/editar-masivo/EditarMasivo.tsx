@@ -13,6 +13,7 @@ type AnimalEncontrado = {
 type Paso = "form" | "editar" | "confirmar" | "resultado";
 
 const CAMPOS: { value: CampoEditable; label: string }[] = [
+  { value: "vivo", label: "Estado (Vivo/Muerto)" },
   { value: "categoria", label: "Categoría" },
   { value: "raza", label: "Raza" },
   { value: "campo_actual_id", label: "Campo actual" },
@@ -90,6 +91,15 @@ export default function EditarMasivo({
   const labelCampo = CAMPOS.find((c) => c.value === campoEditar)?.label ?? "";
 
   function renderSelector() {
+    if (campoEditar === "vivo") {
+      return (
+        <select value={valor} onChange={(e) => setValor(e.target.value)} className={selectClass}>
+          <option value="">— Seleccioná estado —</option>
+          <option value="true">Vivo</option>
+          <option value="false">Muerto</option>
+        </select>
+      );
+    }
     if (campoEditar === "categoria") {
       return (
         <select value={valor} onChange={(e) => setValor(e.target.value)} className={selectClass}>
@@ -156,7 +166,13 @@ export default function EditarMasivo({
         <p className="font-semibold text-amber-800">Confirmación</p>
         <p className="text-amber-700">
           Vas a cambiar <strong>{labelCampo}</strong> a{" "}
-          <strong>{campoEditar === "campo_actual_id" ? (campos.find((c) => c.id === valor)?.nombre ?? "Sin campo") : valor || "vacío"}</strong>{" "}
+          <strong>
+            {campoEditar === "vivo"
+              ? valor === "true" ? "Vivo" : "Muerto"
+              : campoEditar === "campo_actual_id"
+              ? (campos.find((c) => c.id === valor)?.nombre ?? "Sin campo")
+              : valor || "vacío"}
+          </strong>{" "}
           en <strong>{animales.length}</strong> animal{animales.length !== 1 ? "es" : ""}.
         </p>
         <div className="flex gap-3">
@@ -237,7 +253,7 @@ export default function EditarMasivo({
           </div>
           <button
             onClick={() => setPaso("confirmar")}
-            disabled={campoEditar !== "campo_actual_id" && !valor.trim()}
+            disabled={campoEditar !== "campo_actual_id" && campoEditar !== "vivo" && !valor.trim() || campoEditar === "vivo" && !valor}
             className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Continuar

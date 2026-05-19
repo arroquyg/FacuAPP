@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export type CampoEditable = "categoria" | "raza" | "campo_actual_id" | "estado_sanitario" | "color_pelaje" | "procedencia";
+export type CampoEditable = "categoria" | "raza" | "campo_actual_id" | "estado_sanitario" | "color_pelaje" | "procedencia" | "vivo";
 
 export async function editarAnimalesMasivo(
   animalIds: string[],
@@ -18,7 +18,10 @@ export async function editarAnimalesMasivo(
   if (user.rol !== "administrador") return { ok: false, editados: 0, error: "Sin permisos." };
 
   const sb = createAdminClient();
-  const valorFinal = campo === "campo_actual_id" && valor === "" ? null : valor || null;
+  const valorFinal =
+    campo === "vivo" ? valor === "true" :
+    campo === "campo_actual_id" && valor === "" ? null :
+    valor || null;
   const LOTE = 100;
 
   for (let i = 0; i < animalIds.length; i += LOTE) {
