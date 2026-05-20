@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
@@ -12,6 +13,7 @@ async function requireAdmin() {
 
 export async function crearUsuario(formData: FormData) {
   const admin = await requireAdmin();
+  if (isDemoUser(admin)) return { ok: false, error: DEMO_MSG };
   const sb = createAdminClient();
 
   const email = (formData.get("email") as string).trim().toLowerCase();
@@ -45,21 +47,24 @@ export async function crearUsuario(formData: FormData) {
 }
 
 export async function toggleActivo(usuarioId: string, activo: boolean) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  if (isDemoUser(admin)) return;
   const sb = createAdminClient();
   await sb.from("usuarios").update({ activo }).eq("id", usuarioId);
   revalidatePath("/admin/usuarios");
 }
 
 export async function asignarCampo(usuarioId: string, campoId: string) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  if (isDemoUser(admin)) return;
   const sb = createAdminClient();
   await sb.from("usuario_campos").upsert({ usuario_id: usuarioId, campo_id: campoId });
   revalidatePath("/admin/usuarios");
 }
 
 export async function quitarCampo(usuarioId: string, campoId: string) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  if (isDemoUser(admin)) return;
   const sb = createAdminClient();
   await sb
     .from("usuario_campos")

@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 export async function importarAnimalesSanitario(
@@ -19,6 +20,7 @@ export async function importarAnimalesSanitario(
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: "No autenticado." };
+  if (isDemoUser(user)) return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: DEMO_MSG };
 
   const sb = createAdminClient();
   const empresaId = user.empresa_id;

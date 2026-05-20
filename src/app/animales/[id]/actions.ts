@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 export async function crearEventosSanitarios(data: {
@@ -19,6 +20,7 @@ export async function crearEventosSanitarios(data: {
 }): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
   const rows = data.lineas.map((l) => ({

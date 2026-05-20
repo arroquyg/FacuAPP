@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 type AnimalData = {
@@ -23,6 +24,7 @@ type AnimalData = {
 export async function crearAnimal(data: AnimalData): Promise<{ ok: boolean; id?: string; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
   const { data: inserted, error } = await sb
@@ -40,6 +42,7 @@ export async function crearAnimal(data: AnimalData): Promise<{ ok: boolean; id?:
 export async function actualizarAnimal(id: string, data: AnimalData): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
   const { error } = await sb

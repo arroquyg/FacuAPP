@@ -9,7 +9,7 @@
 - Hace tests unitarios y de integración.
 - No te extiendas con explicacion si no te lo pedí antes.
 - antes de hardcodear algo, preguntar si es posible hacerlo de forma dinámica.
-
+- respeta siempre tengamos la base de datos con FN3 en lo posible.
 ## Stack
 
 - Next.js 14 App Router (server components + server actions + client components)

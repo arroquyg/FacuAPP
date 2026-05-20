@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 export type CampoEditable = "categoria" | "raza" | "campo_actual_id" | "estado_sanitario" | "color_pelaje" | "genetica_empresa" | "vivo";
@@ -16,6 +17,7 @@ export async function editarAnimalesMasivo(
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, editados: 0, error: "No autenticado." };
+  if (isDemoUser(user)) return { ok: false, editados: 0, error: DEMO_MSG };
   if (user.rol !== "administrador") return { ok: false, editados: 0, error: "Sin permisos." };
 
   const sb = createAdminClient();

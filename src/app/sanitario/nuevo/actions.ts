@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 export async function crearSanitarioTrabajo(data: {
@@ -18,6 +19,7 @@ export async function crearSanitarioTrabajo(data: {
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
   const primeraLinea = data.lineas[0] ?? {};

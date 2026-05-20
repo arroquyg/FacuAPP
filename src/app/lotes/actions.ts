@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 export async function crearLote(data: {
@@ -13,6 +14,7 @@ export async function crearLote(data: {
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
 
@@ -76,6 +78,7 @@ export async function disolverLote(
 ): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
+  if (isDemoUser(user)) return DEMO_BLOCKED;
 
   const sb = createAdminClient();
 

@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
+import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 
 type FilaAnimal = {
@@ -22,6 +23,7 @@ export async function importarAnimales(filas: FilaAnimal[]): Promise<{ ok: boole
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, insertados: 0, error: "No autenticado" };
+  if (isDemoUser(user)) return { ok: false, insertados: 0, error: DEMO_MSG };
 
   const sb = createAdminClient();
   const registros = filas.map((f) => ({ ...f, empresa_id: user.empresa_id, activo: true, vivo: true }));
