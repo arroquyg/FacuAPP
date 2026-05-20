@@ -37,6 +37,7 @@ export default async function EditarAnimalPage({
     campo_actual_id: animal.campo_actual_id ?? "",
     activo: animal.activo ?? true,
     vivo: animal.vivo ?? true,
+    fecha_muerte: animal.fecha_muerte ?? "",
   };
 
   return (

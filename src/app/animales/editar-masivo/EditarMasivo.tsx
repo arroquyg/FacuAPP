@@ -38,6 +38,7 @@ export default function EditarMasivo({
 
   const [campoEditar, setCampoEditar] = useState<CampoEditable>("categoria");
   const [valor, setValor] = useState("");
+  const [fechaMuerte, setFechaMuerte] = useState("");
 
   const [paso, setPaso] = useState<Paso>("form");
   const [guardando, setGuardando] = useState(false);
@@ -70,7 +71,7 @@ export default function EditarMasivo({
 
   async function confirmar() {
     setGuardando(true);
-    const res = await editarAnimalesMasivo(animales.map((a) => a.id), campoEditar, valor);
+    const res = await editarAnimalesMasivo(animales.map((a) => a.id), campoEditar, valor, fechaMuerte || undefined);
     setResultado(res);
     setPaso("resultado");
     setGuardando(false);
@@ -83,6 +84,7 @@ export default function EditarMasivo({
     setBuscado(false);
     setCampoEditar("categoria");
     setValor("");
+    setFechaMuerte("");
     setPaso("form");
     setResultado(null);
   }
@@ -92,11 +94,24 @@ export default function EditarMasivo({
   function renderSelector() {
     if (campoEditar === "vivo") {
       return (
-        <select value={valor} onChange={(e) => setValor(e.target.value)} className={selectClass}>
-          <option value="">— Seleccioná estado —</option>
-          <option value="true">Vivo</option>
-          <option value="false">Muerto</option>
-        </select>
+        <div className="space-y-2">
+          <select value={valor} onChange={(e) => { setValor(e.target.value); setFechaMuerte(""); }} className={selectClass}>
+            <option value="">— Seleccioná estado —</option>
+            <option value="true">Vivo</option>
+            <option value="false">Muerto</option>
+          </select>
+          {valor === "false" && (
+            <div className="space-y-1">
+              <label className="block text-xs text-stone-500">Fecha de muerte *</label>
+              <input
+                type="date"
+                value={fechaMuerte}
+                onChange={(e) => setFechaMuerte(e.target.value)}
+                className="w-full border border-red-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200"
+              />
+            </div>
+          )}
+        </div>
       );
     }
     if (campoEditar === "categoria") {
@@ -174,6 +189,11 @@ export default function EditarMasivo({
           </strong>{" "}
           en <strong>{animales.length}</strong> animal{animales.length !== 1 ? "es" : ""}.
         </p>
+        {campoEditar === "vivo" && valor === "false" && (
+          <p className="text-amber-700 text-sm">
+            Fecha de muerte: <strong>{fechaMuerte}</strong>
+          </p>
+        )}
         <div className="flex gap-3">
           <button onClick={confirmar} disabled={guardando} className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">
             {guardando ? "Guardando..." : "Confirmar"}
@@ -252,7 +272,11 @@ export default function EditarMasivo({
           </div>
           <button
             onClick={() => setPaso("confirmar")}
-            disabled={campoEditar !== "campo_actual_id" && campoEditar !== "vivo" && !valor.trim() || campoEditar === "vivo" && !valor}
+            disabled={
+              (campoEditar !== "campo_actual_id" && campoEditar !== "vivo" && !valor.trim()) ||
+              (campoEditar === "vivo" && !valor) ||
+              (campoEditar === "vivo" && valor === "false" && !fechaMuerte)
+            }
             className="px-4 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Continuar

@@ -20,6 +20,7 @@ type Valores = {
   campo_actual_id: string;
   activo: boolean;
   vivo: boolean;
+  fecha_muerte: string;
 };
 
 const valoresVacios: Valores = {
@@ -35,6 +36,7 @@ const valoresVacios: Valores = {
   campo_actual_id: "",
   activo: true,
   vivo: true,
+  fecha_muerte: "",
 };
 
 function parsear(v: Valores) {
@@ -52,6 +54,7 @@ function parsear(v: Valores) {
     campo_actual_id: v.campo_actual_id || null,
     activo: v.activo,
     vivo: v.vivo,
+    fecha_muerte: v.vivo ? null : (v.fecha_muerte || null),
   };
 }
 
@@ -77,6 +80,8 @@ export default function FormAnimal({
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chipError, setChipError] = useState<string | null>(null);
+  const [confirmandoMuerte, setConfirmandoMuerte] = useState(false);
+  const [fechaMuerteTmp, setFechaMuerteTmp] = useState("");
 
   function set(campo: keyof Valores, valor: string | boolean) {
     setValores((v) => ({ ...v, [campo]: valor }));
@@ -97,7 +102,9 @@ export default function FormAnimal({
     !chipError &&
     valores.sexo &&
     valores.categoria &&
-    valores.raza;
+    valores.raza &&
+    !confirmandoMuerte &&
+    (valores.vivo || valores.fecha_muerte);
 
   async function handleSubmit() {
     if (!camposRequeridos) return;
@@ -297,17 +304,61 @@ export default function FormAnimal({
                 <input
                   id="vivo"
                   type="checkbox"
-                  checked={valores.vivo}
-                  onChange={(e) => set("vivo", e.target.checked)}
+                  checked={valores.vivo && !confirmandoMuerte}
+                  onChange={(e) => {
+                    if (!e.target.checked && valores.vivo) {
+                      setFechaMuerteTmp("");
+                      setConfirmandoMuerte(true);
+                    } else if (e.target.checked) {
+                      set("vivo", true);
+                      set("fecha_muerte", "");
+                      setConfirmandoMuerte(false);
+                    }
+                  }}
                   className="w-4 h-4 rounded border-stone-300"
                 />
                 <label htmlFor="vivo" className="text-sm text-stone-700">
                   Animal vivo
                 </label>
               </div>
-              {!valores.vivo && (
+              {confirmandoMuerte && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 space-y-2">
+                  <p className="text-xs font-medium text-red-700">Registrar como muerto</p>
+                  <div className="space-y-1">
+                    <label className="block text-xs text-stone-500">Fecha de muerte *</label>
+                    <input
+                      type="date"
+                      value={fechaMuerteTmp}
+                      onChange={(e) => setFechaMuerteTmp(e.target.value)}
+                      className="w-full border border-red-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 bg-white"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      disabled={!fechaMuerteTmp}
+                      onClick={() => {
+                        set("vivo", false);
+                        set("fecha_muerte", fechaMuerteTmp);
+                        setConfirmandoMuerte(false);
+                      }}
+                      className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Confirmar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmandoMuerte(false)}
+                      className="px-3 py-1.5 border border-stone-300 rounded-lg text-xs hover:bg-stone-50"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+              {!valores.vivo && !confirmandoMuerte && (
                 <p className="text-xs text-red-500">
-                  Al desmarcar &quot;Animal vivo&quot; el animal quedará registrado como muerto.
+                  Registrado como muerto el {valores.fecha_muerte || "—"}.
                 </p>
               )}
             </div>

@@ -17,6 +17,7 @@ type AnimalData = {
   campo_actual_id: string | null;
   activo: boolean;
   vivo: boolean;
+  fecha_muerte: string | null;
 };
 
 export async function crearAnimal(data: AnimalData): Promise<{ ok: boolean; id?: string; error?: string }> {
