@@ -14,7 +14,7 @@ type Valores = {
   raza: string;
   fecha_nacimiento: string;
   color_pelaje: string;
-  procedencia: string;
+  genetica_empresa: string;
   valor_comercial: string;
   estado_sanitario: string;
   campo_actual_id: string;
@@ -29,7 +29,7 @@ const valoresVacios: Valores = {
   raza: "",
   fecha_nacimiento: "",
   color_pelaje: "",
-  procedencia: "",
+  genetica_empresa: "",
   valor_comercial: "",
   estado_sanitario: "",
   campo_actual_id: "",
@@ -41,13 +41,12 @@ function parsear(v: Valores) {
   const chip = v.chip_id.trim().toUpperCase();
   return {
     chip_id: chip,
-    numero_caravana: chip,
     sexo: v.sexo,
     categoria: v.categoria,
     raza: v.raza,
     fecha_nacimiento: v.fecha_nacimiento || null,
     color_pelaje: v.color_pelaje.trim() || null,
-    procedencia: v.procedencia.trim() || null,
+    genetica_empresa: v.genetica_empresa.trim() || null,
     valor_comercial: v.valor_comercial ? parseFloat(v.valor_comercial) : null,
     estado_sanitario: v.estado_sanitario.trim() || null,
     campo_actual_id: v.campo_actual_id || null,
@@ -262,10 +261,10 @@ export default function FormAnimal({
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-stone-500 mb-1">Procedencia</label>
+            <label className="block text-xs text-stone-500 mb-1">Genética/Empresa</label>
             <input
-              value={valores.procedencia}
-              onChange={(e) => set("procedencia", e.target.value)}
+              value={valores.genetica_empresa}
+              onChange={(e) => set("genetica_empresa", e.target.value)}
               className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>

@@ -9,14 +9,13 @@ type Campo = { id: string; nombre: string };
 
 type FilaParsed = {
   chip_id: string;
-  numero_caravana: string;
   sexo: string;
   categoria: string;
   raza: string;
   campo: string;
   color_pelaje: string;
   fecha_nacimiento: string;
-  procedencia: string;
+  genetica_empresa: string;
   valor_comercial: string;
   estado_sanitario: string;
   errores: string[];
@@ -70,21 +69,19 @@ export default function ImportarAnimales({
     const str = (k: string) => String(norm[k] ?? "").trim();
     const fila: FilaParsed = {
       chip_id: str("chip_id").replace(/\s+/g, ""),
-      numero_caravana: str("numero_caravana"),
       sexo: str("sexo").toLowerCase(),
       categoria: str("categoria"),
       raza: str("raza"),
       campo: str("campo"),
       color_pelaje: str("color_pelaje"),
       fecha_nacimiento: parsearFecha(norm["fecha_nacimiento"]),
-      procedencia: str("procedencia"),
+      genetica_empresa: str("genetica_empresa"),
       valor_comercial: str("valor_comercial"),
       estado_sanitario: str("estado_sanitario"),
       errores: [],
     };
 
     if (!fila.chip_id) fila.errores.push("chip_id requerido");
-    if (!fila.numero_caravana) fila.errores.push("caravana requerida");
     if (!["macho", "hembra"].includes(fila.sexo)) fila.errores.push("sexo debe ser macho o hembra");
     if (!fila.categoria) fila.errores.push("categoría requerida");
     else if (!categoriaSet.has(fila.categoria.toLowerCase())) fila.errores.push(`categoría "${fila.categoria}" no existe`);
@@ -119,14 +116,13 @@ export default function ImportarAnimales({
 
     const payload = validas.map((f) => ({
       chip_id: f.chip_id,
-      numero_caravana: f.numero_caravana,
       sexo: f.sexo,
       categoria: f.categoria,
       raza: f.raza,
       campo_actual_id: f.campo ? (camposPorNombre[f.campo.toLowerCase()] ?? null) : null,
       color_pelaje: f.color_pelaje || null,
       fecha_nacimiento: f.fecha_nacimiento || null,
-      procedencia: f.procedencia || null,
+      genetica_empresa: f.genetica_empresa || null,
       valor_comercial: f.valor_comercial ? parseFloat(f.valor_comercial) : null,
       estado_sanitario: f.estado_sanitario || null,
     }));
@@ -195,7 +191,6 @@ export default function ImportarAnimales({
               <tr>
                 <th className="px-3 py-2 text-left">#</th>
                 <th className="px-3 py-2 text-left">Chip</th>
-                <th className="px-3 py-2 text-left">Caravana</th>
                 <th className="px-3 py-2 text-left">Sexo</th>
                 <th className="px-3 py-2 text-left">Categoría</th>
                 <th className="px-3 py-2 text-left">Raza</th>
@@ -208,7 +203,6 @@ export default function ImportarAnimales({
                 <tr key={i} className={f.errores.length > 0 ? "bg-red-50" : "hover:bg-stone-50"}>
                   <td className="px-3 py-2 text-stone-400">{i + 1}</td>
                   <td className="px-3 py-2 font-mono">{f.chip_id || "—"}</td>
-                  <td className="px-3 py-2">{f.numero_caravana || "—"}</td>
                   <td className="px-3 py-2 capitalize">{f.sexo || "—"}</td>
                   <td className="px-3 py-2">{f.categoria || "—"}</td>
                   <td className="px-3 py-2">{f.raza || "—"}</td>

@@ -14,10 +14,10 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("animales")
-    .select("id, chip_id, numero_caravana, campo:campo_actual_id(nombre)")
+    .select("id, chip_id, campo:campo_actual_id(nombre)")
     .eq("empresa_id", empresaId)
     .eq("activo", true)
-    .or(`chip_id.ilike.%${q}%,numero_caravana.ilike.%${q}%`)
+    .ilike("chip_id", `%${q}%`)
     .limit(10);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -7,7 +7,6 @@ type Empresa = { id: string; nombre: string };
 type AnimalResultado = {
   id: string;
   chip_id: string;
-  numero_caravana: string | null;
   campo: { nombre: string } | null;
 };
 type AnimalSeleccionado = AnimalResultado & { precio: string };
@@ -345,7 +344,6 @@ export default function FormTransaccion({ empresas }: { empresas: Empresa[] }) {
               <button key={a.id} onClick={() => agregarAnimal(a)}
                 className="w-full text-left px-3 py-2 text-sm hover:bg-stone-50 border-b border-gray-100 last:border-0">
                 <span className="font-mono font-medium">{a.chip_id}</span>
-                {a.numero_caravana && <span className="text-stone-500 ml-2">— {a.numero_caravana}</span>}
                 <span className="text-stone-400 ml-2 text-xs">
                   {(a.campo as { nombre: string } | null)?.nombre ?? "sin campo"}
                 </span>

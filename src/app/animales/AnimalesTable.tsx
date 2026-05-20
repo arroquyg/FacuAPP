@@ -8,7 +8,6 @@ type Campo = { id: string; nombre: string };
 export type Animal = {
   id: string;
   chip_id: string;
-  numero_caravana: string | null;
   categoria: string | null;
   raza: string | null;
   estado_sanitario: string | null;
@@ -43,12 +42,7 @@ export default function AnimalesTable({
 
   const filtrados = animales.filter((a) => {
     const q = busqueda.toLowerCase();
-    if (
-      q &&
-      !a.chip_id.toLowerCase().includes(q) &&
-      !(a.numero_caravana ?? "").toLowerCase().includes(q)
-    )
-      return false;
+    if (q && !a.chip_id.toLowerCase().includes(q)) return false;
     if (campoFiltro && a.campo?.id !== campoFiltro) return false;
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false;
     if (razaFiltro && a.raza !== razaFiltro) return false;

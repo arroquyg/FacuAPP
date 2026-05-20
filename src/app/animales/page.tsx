@@ -24,7 +24,7 @@ export default async function AnimalesPage() {
     while (true) {
       let pageQuery = sb
         .from("animales")
-        .select("id, chip_id, numero_caravana, categoria, raza, estado_sanitario, activo, vivo, campo:campo_actual_id(id, nombre)")
+        .select("id, chip_id, categoria, raza, estado_sanitario, activo, vivo, campo:campo_actual_id(id, nombre)")
         .eq("empresa_id", empresaId)
         .eq("activo", true)
         .order("chip_id")

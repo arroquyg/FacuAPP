@@ -6,7 +6,6 @@ import { eliminarAnimalesMasivo } from "./actions";
 type AnimalEncontrado = {
   id: string;
   chip_id: string;
-  numero_caravana: string | null;
   campo: { nombre: string } | null;
 };
 

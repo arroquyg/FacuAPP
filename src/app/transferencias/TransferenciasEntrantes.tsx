@@ -9,7 +9,7 @@ type Transferencia = {
   estado: string;
   precio_total: number | null;
   creado_en: string;
-  animal: { id: string; chip_id: string; numero_caravana: string | null; categoria: string | null; raza: string | null } | null;
+  animal: { id: string; chip_id: string; categoria: string | null; raza: string | null } | null;
   empresa_origen: { nombre: string } | null;
 };
 
@@ -195,7 +195,7 @@ export default function TransferenciasEntrantes({
                     <div className="mt-2 space-y-0.5">
                       <p className="font-mono font-semibold text-green-700">{animal.chip_id}</p>
                       <p className="text-xs text-stone-500">
-                        {[animal.numero_caravana, animal.categoria, animal.raza].filter(Boolean).join(" · ")}
+                        {[animal.categoria, animal.raza].filter(Boolean).join(" · ")}
                       </p>
                     </div>
                   )}

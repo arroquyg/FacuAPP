@@ -7,7 +7,6 @@ type Lookup = { id: string; nombre: string };
 type AnimalEncontrado = {
   id: string;
   chip_id: string;
-  numero_caravana: string | null;
   campo: { nombre: string } | null;
 };
 type Paso = "form" | "editar" | "confirmar" | "resultado";
@@ -19,7 +18,7 @@ const CAMPOS: { value: CampoEditable; label: string }[] = [
   { value: "campo_actual_id", label: "Campo actual" },
   { value: "estado_sanitario", label: "Estado sanitario" },
   { value: "color_pelaje", label: "Color de pelaje" },
-  { value: "procedencia", label: "Procedencia" },
+  { value: "genetica_empresa", label: "Procedencia" },
 ];
 
 export default function EditarMasivo({

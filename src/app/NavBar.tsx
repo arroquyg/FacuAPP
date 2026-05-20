@@ -18,6 +18,7 @@ function buildSections(isAdmin: boolean, transferenciasCount: number): NavSectio
       children: [
         { href: "/trabajos", label: "Trabajos" },
         { href: "/movimientos", label: "Movimientos" },
+        { href: "/lotes", label: "Lotes" },
       ],
     },
     {

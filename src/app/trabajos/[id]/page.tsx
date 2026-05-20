@@ -23,7 +23,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
     sb.from("trabajos").select("*").eq("id", params.id).eq("empresa_id", empresaId).single(),
     sb
       .from("trabajo_registros")
-      .select("*, animal:animal_id(chip_id, numero_caravana)")
+      .select("*, animal:animal_id(chip_id)")
       .eq("trabajo_id", params.id)
       .order("created_at"),
   ]);
@@ -104,7 +104,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
               </tr>
             ) : (
               todos.map((r) => {
-                const animal = r.animal as { chip_id: string; numero_caravana: string } | null;
+                const animal = r.animal as { chip_id: string } | null;
                 return (
                   <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-stone-50"}>
                     <td className="px-4 py-3 font-medium">{r.eid}</td>

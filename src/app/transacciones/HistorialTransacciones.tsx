@@ -16,7 +16,7 @@ type Transaccion = {
 type AnimalDetalle = {
   id: string;
   precio_unitario: number | null;
-  animal: { chip_id: string; numero_caravana: string | null; categoria: string | null; raza: string | null } | null;
+  animal: { chip_id: string; categoria: string | null; raza: string | null } | null;
 };
 
 function formatPeso(n: number | null) {
@@ -131,7 +131,6 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
                             <thead>
                               <tr className="text-stone-400 uppercase">
                                 <th className="pb-1 text-left">Chip ID</th>
-                                <th className="pb-1 text-left">Caravana</th>
                                 <th className="pb-1 text-left">Categoría</th>
                                 <th className="pb-1 text-left">Raza</th>
                                 <th className="pb-1 text-left">Precio unit.</th>
@@ -141,7 +140,6 @@ export default function HistorialTransacciones({ transacciones }: { transaccione
                               {detalle[t.id].map((item) => (
                                 <tr key={item.id}>
                                   <td className="py-1 font-mono pr-4">{item.animal?.chip_id ?? "—"}</td>
-                                  <td className="py-1 pr-4 text-stone-500">{item.animal?.numero_caravana ?? "—"}</td>
                                   <td className="py-1 pr-4 text-stone-500 capitalize">{item.animal?.categoria ?? "—"}</td>
                                   <td className="py-1 pr-4 text-stone-500">{item.animal?.raza ?? "—"}</td>
                                   <td className="py-1 text-stone-600">{formatPeso(item.precio_unitario)}</td>

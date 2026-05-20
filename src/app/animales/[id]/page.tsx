@@ -38,6 +38,7 @@ export default async function AnimalPage({
     { data: pesajes },
     { data: eventos },
     { data: trabajosRegistros },
+    { data: lotesAnimal },
   ] = await Promise.all([
     supabase
       .from("animales")
@@ -65,6 +66,12 @@ export default async function AnimalPage({
       .eq("animal_id", params.id)
       .eq("encontrado", true)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("lote_animales")
+      .select("id, fecha_entrada, peso_entrada_kg, fecha_salida, peso_salida_kg, lote:lote_id(id, nombre, campo:campo_id(nombre), lote_alimentos(kg_por_dia, precio_por_tonelada))")
+      .eq("animal_id", params.id)
+      .not("fecha_salida", "is", null)
+      .order("fecha_salida", { ascending: false }),
   ]);
 
   // Resolución de nombres de empresa por separado para evitar dependencia de FK
@@ -116,7 +123,7 @@ export default async function AnimalPage({
           <Campo label="Sexo" value={animal.sexo} />
           <Campo label="Color / pelaje" value={animal.color_pelaje} />
           <Campo label="Fecha de nacimiento" value={formatDate(animal.fecha_nacimiento)} />
-          <Campo label="Procedencia" value={animal.procedencia} />
+          <Campo label="Genética/Empresa" value={animal.genetica_empresa} />
           <Campo
             label="Valor comercial"
             value={animal.valor_comercial ? `$${Number(animal.valor_comercial).toLocaleString("es-AR")}` : null}
@@ -172,6 +179,36 @@ export default async function AnimalPage({
             columnas: trabajo?.columnas ?? [],
             empresa: empresaMap.get(trabajo?.empresa_id ?? "") ?? "—",
             datos,
+          };
+        })}
+        nutricion={(lotesAnimal ?? []).map((la) => {
+          type LoteData = { id: string; nombre: string; campo: { nombre: string } | null; lote_alimentos: { kg_por_dia: number; precio_por_tonelada: number }[] };
+          const lote = la.lote as unknown as LoteData | null;
+          const dias = la.fecha_entrada && la.fecha_salida
+            ? Math.max(0, Math.floor((new Date(la.fecha_salida).getTime() - new Date(la.fecha_entrada).getTime()) / 86400000))
+            : 0;
+          const kgGanados = la.peso_salida_kg != null ? la.peso_salida_kg - la.peso_entrada_kg : null;
+          const pctGanado = kgGanados != null && la.peso_entrada_kg > 0
+            ? parseFloat(((kgGanados / la.peso_entrada_kg) * 100).toFixed(1))
+            : null;
+          // Costo: se calcula sobre el costo diario total del lote dividido por la cantidad de animales del lote
+          // En este contexto no tenemos el headcount, así que mostramos costo basado en proporcional de alimentos
+          const costoDiarioLote = (lote?.lote_alimentos ?? []).reduce(
+            (sum, a) => sum + (a.kg_por_dia * a.precio_por_tonelada) / 1000, 0
+          );
+          return {
+            id: la.id,
+            loteId: lote?.id ?? "",
+            loteNombre: lote?.nombre ?? "—",
+            campo: (lote?.campo as unknown as { nombre: string } | null)?.nombre ?? "—",
+            fechaEntrada: formatDate(la.fecha_entrada),
+            fechaSalida: formatDate(la.fecha_salida),
+            dias,
+            pesoEntrada: la.peso_entrada_kg,
+            pesoSalida: la.peso_salida_kg,
+            kgGanados,
+            pctGanado,
+            costoDiarioLote,
           };
         })}
       />

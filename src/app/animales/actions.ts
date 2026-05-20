@@ -6,13 +6,12 @@ import { revalidatePath } from "next/cache";
 
 type AnimalData = {
   chip_id: string;
-  numero_caravana: string;
   sexo: string;
   categoria: string;
   raza: string;
   fecha_nacimiento: string | null;
   color_pelaje: string | null;
-  procedencia: string | null;
+  genetica_empresa: string | null;
   valor_comercial: number | null;
   estado_sanitario: string | null;
   campo_actual_id: string | null;

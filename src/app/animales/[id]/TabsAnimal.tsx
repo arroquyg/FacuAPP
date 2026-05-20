@@ -30,6 +30,21 @@ type Evento = {
   descripcion: string | null;
 };
 
+type Nutricion = {
+  id: string;
+  loteId: string;
+  loteNombre: string;
+  campo: string;
+  fechaEntrada: string;
+  fechaSalida: string;
+  dias: number;
+  pesoEntrada: number;
+  pesoSalida: number | null;
+  kgGanados: number | null;
+  pctGanado: number | null;
+  costoDiarioLote: number;
+};
+
 type HistorialClinico = {
   id: string;
   trabajoId: string;
@@ -42,7 +57,7 @@ type HistorialClinico = {
   datos: (string | null)[];
 };
 
-const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios", "Historia clínica"] as const;
+const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios", "Historia clínica", "Nutrición"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function TabsAnimal({
@@ -50,11 +65,13 @@ export default function TabsAnimal({
   pesajes,
   eventos,
   historialClinico,
+  nutricion,
 }: {
   movimientos: Movimiento[];
   pesajes: Pesaje[];
   eventos: Evento[];
   historialClinico: HistorialClinico[];
+  nutricion: Nutricion[];
 }) {
   const [tab, setTab] = useState<Tab>("Movimientos");
   const [expandido, setExpandido] = useState<string | null>(null);
@@ -218,6 +235,57 @@ export default function TabsAnimal({
                   )}
                 </div>
               ))}
+            </div>
+          ))}
+
+        {tab === "Nutrición" &&
+          (nutricion.length === 0 ? (
+            <p className="text-stone-400 text-sm py-4 text-center">
+              Sin registros de lotes para este animal
+            </p>
+          ) : (
+            <div className="overflow-x-auto -mx-4 px-4">
+              <table className="text-sm min-w-max w-full">
+                <thead className="text-xs text-stone-400 uppercase">
+                  <tr>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Lote</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Campo</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Entrada</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Salida</th>
+                    <th className="pb-2 pr-4 text-right whitespace-nowrap">Días</th>
+                    <th className="pb-2 pr-4 text-right whitespace-nowrap">Peso entrada</th>
+                    <th className="pb-2 pr-4 text-right whitespace-nowrap">Peso salida</th>
+                    <th className="pb-2 text-right whitespace-nowrap">Kg ganados</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {nutricion.map((n) => (
+                    <tr key={n.id}>
+                      <td className="py-2 pr-4 text-stone-700 font-medium whitespace-nowrap">
+                        <a href={`/lotes/${n.loteId}`} className="text-green-800 hover:underline">{n.loteNombre}</a>
+                      </td>
+                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.campo}</td>
+                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.fechaEntrada}</td>
+                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.fechaSalida}</td>
+                      <td className="py-2 pr-4 text-stone-600 text-right">{n.dias}</td>
+                      <td className="py-2 pr-4 text-stone-600 text-right whitespace-nowrap">{n.pesoEntrada} kg</td>
+                      <td className="py-2 pr-4 text-stone-600 text-right whitespace-nowrap">
+                        {n.pesoSalida != null ? `${n.pesoSalida} kg` : "—"}
+                      </td>
+                      <td className="py-2 text-right whitespace-nowrap">
+                        {n.kgGanados != null ? (
+                          <span className={`font-medium ${n.kgGanados >= 0 ? "text-green-700" : "text-red-600"}`}>
+                            {n.kgGanados > 0 ? "+" : ""}{n.kgGanados} kg
+                            {n.pctGanado != null && (
+                              <span className="text-xs ml-1 opacity-70">({n.pctGanado}%)</span>
+                            )}
+                          </span>
+                        ) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ))}
       </div>

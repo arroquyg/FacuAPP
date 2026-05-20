@@ -9,7 +9,7 @@ export async function GET(
   const { data, error } = await supabase
     .from("transaccion_animales")
     .select(
-      "id, precio_unitario, animal:animal_id(chip_id, numero_caravana, categoria, raza)"
+      "id, precio_unitario, animal:animal_id(chip_id, categoria, raza)"
     )
     .eq("transaccion_id", params.id);
 

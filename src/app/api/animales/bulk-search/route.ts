@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const lote = lista.slice(i, i + LOTE);
     const { data, error } = await supabase
       .from("animales")
-      .select("id, chip_id, numero_caravana, campo:campo_actual_id(nombre)")
+      .select("id, chip_id, campo:campo_actual_id(nombre)")
       .eq("empresa_id", user.empresa_id)
       .eq("activo", true)
       .in("chip_id", lote);
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     const lote = lista.slice(i, i + LOTE);
     const { data, error } = await supabase
       .from("animales")
-      .select("id, chip_id, numero_caravana, campo:campo_actual_id(nombre)")
+      .select("id, chip_id, campo:campo_actual_id(nombre)")
       .eq("empresa_id", user.empresa_id)
       .eq("activo", true)
       .in("chip_id", lote);

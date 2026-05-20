@@ -22,14 +22,13 @@ export async function GET() {
   // Hoja principal con headers + fila de ejemplo
   const headers = [
     "chip_id *",
-    "numero_caravana *",
     "sexo *",
     "categoria *",
     "raza *",
     "campo",
     "color_pelaje",
     "fecha_nacimiento",
-    "procedencia",
+    "genetica_empresa",
     "valor_comercial",
     "estado_sanitario",
   ];

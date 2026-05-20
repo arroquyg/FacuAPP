@@ -18,7 +18,7 @@ export default async function TransferenciasPage() {
         estado,
         precio_total,
         creado_en,
-        animal:animal_id(id, chip_id, numero_caravana, categoria, raza),
+        animal:animal_id(id, chip_id, categoria, raza),
         empresa_origen:empresa_origen_id(nombre)
       `)
       .eq("empresa_destino_id", user.empresa_id)

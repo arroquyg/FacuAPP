@@ -26,13 +26,12 @@ export default async function EditarAnimalPage({
 
   const inicial = {
     chip_id: animal.chip_id ?? "",
-    numero_caravana: animal.numero_caravana ?? "",
     sexo: animal.sexo ?? "",
     categoria: animal.categoria ?? "",
     raza: animal.raza ?? "",
     fecha_nacimiento: animal.fecha_nacimiento ?? "",
     color_pelaje: animal.color_pelaje ?? "",
-    procedencia: animal.procedencia ?? "",
+    genetica_empresa: animal.genetica_empresa ?? "",
     valor_comercial: animal.valor_comercial?.toString() ?? "",
     estado_sanitario: animal.estado_sanitario ?? "",
     campo_actual_id: animal.campo_actual_id ?? "",
