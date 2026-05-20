@@ -97,7 +97,7 @@ export async function actualizarRaza(id: string, nombre: string): Promise<{ ok: 
   return { ok: true };
 }
 
-export async function toggleActivo(tabla: "campos" | "categorias" | "razas" | "alimentos", id: string, activo: boolean): Promise<{ ok: boolean; error?: string }> {
+export async function toggleActivo(tabla: "campos" | "categorias" | "razas" | "alimentos" | "productos_sanitarios", id: string, activo: boolean): Promise<{ ok: boolean; error?: string }> {
   const empresaId = await getEmpresaId();
   const sb = createAdminClient();
   const { error } = await sb.from(tabla).update({ activo }).eq("id", id).eq("empresa_id", empresaId);
@@ -126,6 +126,34 @@ export async function actualizarAlimento(id: string, data: { nombre: string; pre
   const { error } = await sb.from("alimentos").update({
     nombre: data.nombre.trim(),
     precio_por_tonelada: data.precio_por_tonelada,
+  }).eq("id", id).eq("empresa_id", empresaId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/configuracion");
+  return { ok: true };
+}
+
+export async function crearProductoSanitario(data: { nombre: string; precio_por_unidad: number; unidad: string }): Promise<{ ok: boolean; error?: string }> {
+  const empresaId = await getEmpresaId();
+  const sb = createAdminClient();
+  const { error } = await sb.from("productos_sanitarios").insert({
+    empresa_id: empresaId,
+    nombre: data.nombre.trim(),
+    precio_por_unidad: data.precio_por_unidad,
+    unidad: data.unidad.trim() || "ml",
+    activo: true,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/configuracion");
+  return { ok: true };
+}
+
+export async function actualizarProductoSanitario(id: string, data: { nombre: string; precio_por_unidad: number; unidad: string }): Promise<{ ok: boolean; error?: string }> {
+  const empresaId = await getEmpresaId();
+  const sb = createAdminClient();
+  const { error } = await sb.from("productos_sanitarios").update({
+    nombre: data.nombre.trim(),
+    precio_por_unidad: data.precio_por_unidad,
+    unidad: data.unidad.trim() || "ml",
   }).eq("id", id).eq("empresa_id", empresaId);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/configuracion");

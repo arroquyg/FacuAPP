@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import CamposConfig from "./CamposConfig";
 import SimpleListConfig from "./SimpleListConfig";
 import AlimentosConfig from "./AlimentosConfig";
+import ProductosSanitariosConfig from "./ProductosSanitariosConfig";
 import {
   actualizarCategoria,
   actualizarRaza,
@@ -23,7 +24,7 @@ export default async function ConfiguracionPage({
   const empresaId = user.empresa_id;
   const tab = searchParams.tab ?? "campos";
 
-  const [{ data: campos }, { data: categorias }, { data: razas }, { data: alimentos }] =
+  const [{ data: campos }, { data: categorias }, { data: razas }, { data: alimentos }, { data: productosSanitarios }] =
     await Promise.all([
       sb
         .from("campos")
@@ -45,6 +46,11 @@ export default async function ConfiguracionPage({
         .select("id, nombre, precio_por_tonelada, activo")
         .eq("empresa_id", empresaId)
         .order("nombre"),
+      sb
+        .from("productos_sanitarios")
+        .select("id, nombre, precio_por_unidad, unidad, activo")
+        .eq("empresa_id", empresaId)
+        .order("nombre"),
     ]);
 
   const tabs = [
@@ -52,6 +58,7 @@ export default async function ConfiguracionPage({
     { key: "categorias", label: "Categorías" },
     { key: "razas", label: "Razas" },
     ...(user.rol === "administrador" ? [{ key: "alimentos", label: "Alimentos" }] : []),
+    ...(user.rol === "administrador" ? [{ key: "productos_sanitarios", label: "Productos sanitarios" }] : []),
   ];
 
   return (
@@ -101,6 +108,10 @@ export default async function ConfiguracionPage({
 
       {tab === "alimentos" && user.rol === "administrador" && (
         <AlimentosConfig items={alimentos ?? []} />
+      )}
+
+      {tab === "productos_sanitarios" && user.rol === "administrador" && (
+        <ProductosSanitariosConfig items={productosSanitarios ?? []} />
       )}
     </div>
   );

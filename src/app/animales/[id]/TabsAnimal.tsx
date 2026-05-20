@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
 import { formatearValor } from "@/lib/columnas-clinicas";
 
 type Movimiento = {
@@ -26,6 +27,8 @@ type Evento = {
   tipo: string;
   producto: string;
   dosis: number | null;
+  precioUnitario: number | null;
+  unidad: string | null;
   veterinario: string;
   descripcion: string | null;
 };
@@ -67,12 +70,14 @@ export default function TabsAnimal({
   eventos,
   historialClinico,
   nutricion,
+  formEventoSanitario,
 }: {
   movimientos: Movimiento[];
   pesajes: Pesaje[];
   eventos: Evento[];
   historialClinico: HistorialClinico[];
   nutricion: Nutricion[];
+  formEventoSanitario?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>("Movimientos");
   const [expandido, setExpandido] = useState<string | null>(null);
@@ -159,37 +164,66 @@ export default function TabsAnimal({
             </div>
           ))}
 
-        {tab === "Eventos sanitarios" &&
-          (eventos.length === 0 ? (
-            <p className="text-stone-400 text-sm py-4 text-center">
-              Sin registros
-            </p>
-          ) : (
-            <div className="overflow-x-auto -mx-4 px-4">
-              <table className="text-sm min-w-max w-full">
-                <thead className="text-xs text-stone-400 uppercase">
-                  <tr>
-                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Fecha</th>
-                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Tipo</th>
-                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Producto</th>
-                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Dosis</th>
-                    <th className="pb-2 text-left whitespace-nowrap">Veterinario</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {eventos.map((e) => (
-                    <tr key={e.id}>
-                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{e.fecha}</td>
-                      <td className="py-2 pr-4 text-stone-600 capitalize whitespace-nowrap">{e.tipo}</td>
-                      <td className="py-2 pr-4 text-stone-600">{e.producto}</td>
-                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{e.dosis !== null ? `${e.dosis} ml` : "—"}</td>
-                      <td className="py-2 text-stone-600">{e.veterinario}</td>
+        {tab === "Eventos sanitarios" && (
+          <div className="space-y-4">
+            {formEventoSanitario}
+            {eventos.length === 0 ? (
+              <p className="text-stone-400 text-sm py-4 text-center">Sin registros</p>
+            ) : (
+              <div className="overflow-x-auto -mx-4 px-4">
+                <table className="text-sm min-w-max w-full">
+                  <thead className="text-xs text-stone-400 uppercase">
+                    <tr>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Fecha</th>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Tipo</th>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Producto</th>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Dosis</th>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Veterinario</th>
+                      <th className="pb-2 text-right whitespace-nowrap">Costo</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {eventos.map((e) => {
+                      const costo = e.dosis != null && e.precioUnitario != null
+                        ? e.dosis * e.precioUnitario
+                        : null;
+                      return (
+                        <tr key={e.id}>
+                          <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{e.fecha}</td>
+                          <td className="py-2 pr-4 text-stone-600 capitalize whitespace-nowrap">{e.tipo}</td>
+                          <td className="py-2 pr-4 text-stone-600">{e.producto}</td>
+                          <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{e.dosis !== null ? `${e.dosis} ${e.unidad || "ud"}` : "—"}</td>
+                          <td className="py-2 pr-4 text-stone-600">{e.veterinario}</td>
+                          <td className="py-2 text-right whitespace-nowrap text-stone-700">
+                            {costo != null
+                              ? `$${costo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  {eventos.length > 1 && (() => {
+                    const total = eventos.reduce((sum, e) => {
+                      if (e.dosis != null && e.precioUnitario != null) return sum + e.dosis * e.precioUnitario;
+                      return sum;
+                    }, 0);
+                    return total > 0 ? (
+                      <tfoot>
+                        <tr className="border-t-2 border-stone-200 bg-stone-50">
+                          <td colSpan={5} className="py-2 pr-4 text-right text-xs font-semibold text-stone-500 uppercase tracking-wide">Total</td>
+                          <td className="py-2 text-right whitespace-nowrap font-bold text-stone-800">
+                            ${total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    ) : null;
+                  })()}
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {tab === "Historia clínica" &&
           (historialClinico.length === 0 ? (

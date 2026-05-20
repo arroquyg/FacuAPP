@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import TabsAnimal from "./TabsAnimal";
+import FormEventoSanitario from "./FormEventoSanitario";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
@@ -39,6 +40,7 @@ export default async function AnimalPage({
     { data: eventos },
     { data: trabajosRegistros },
     { data: lotesAnimal },
+    { data: productosSanitarios },
   ] = await Promise.all([
     supabase
       .from("animales")
@@ -57,7 +59,7 @@ export default async function AnimalPage({
       .order("fecha_pesaje", { ascending: false }),
     supabase
       .from("eventos_sanitarios")
-      .select("id, tipo_evento, fecha_evento, producto, dosis, veterinario, descripcion")
+      .select("id, tipo_evento, fecha_evento, producto, dosis, precio_unitario, unidad, veterinario, descripcion")
       .eq("animal_id", params.id)
       .order("fecha_evento", { ascending: false }),
     supabase
@@ -71,6 +73,12 @@ export default async function AnimalPage({
       .select("id, fecha_entrada, peso_entrada_kg, fecha_salida, peso_salida_kg, lote:lote_id(id, nombre, campo:campo_id(nombre), lote_alimentos(kg_por_dia, precio_por_tonelada))")
       .eq("animal_id", params.id)
       .order("fecha_entrada", { ascending: false }),
+    supabase
+      .from("productos_sanitarios")
+      .select("id, nombre, precio_por_unidad, unidad")
+      .eq("empresa_id", user.empresa_id)
+      .eq("activo", true)
+      .order("nombre"),
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -131,6 +139,15 @@ export default async function AnimalPage({
       ? Math.max(0, Math.floor((new Date(fechaRef).getTime() - new Date(la.fecha_entrada).getTime()) / 86400000))
       : 0;
     return sum + (costoDiarioLote / headcount) * dias;
+  }, 0);
+
+  // Costo sanitario total del animal
+  const costoTotalSanitario = (eventos ?? []).reduce((sum, e) => {
+    const ev = e as unknown as { dosis: number | null; precio_unitario: number | null };
+    if (ev.dosis != null && ev.precio_unitario != null) {
+      return sum + ev.dosis * ev.precio_unitario;
+    }
+    return sum;
   }, 0);
 
   // Resolución de nombres de empresa por separado para evitar dependencia de FK
@@ -201,6 +218,12 @@ export default async function AnimalPage({
               value={`$${costoTotalNutricion.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             />
           )}
+          {costoTotalSanitario > 0 && (
+            <Campo
+              label="Costo sanitario"
+              value={`$${costoTotalSanitario.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            />
+          )}
           <Campo
             label="Activo"
             value={
@@ -213,6 +236,12 @@ export default async function AnimalPage({
       </div>
 
       <TabsAnimal
+        formEventoSanitario={
+          <FormEventoSanitario
+            animalId={params.id}
+            productos={productosSanitarios ?? []}
+          />
+        }
         movimientos={(movimientos ?? []).map((m) => ({
           id: m.id,
           fecha: formatDate(m.fecha_movimiento),
@@ -234,6 +263,8 @@ export default async function AnimalPage({
           tipo: e.tipo_evento ?? "—",
           producto: e.producto ?? "—",
           dosis: e.dosis,
+          precioUnitario: (e as unknown as { precio_unitario: number | null }).precio_unitario,
+          unidad: (e as unknown as { unidad: string | null }).unidad,
           veterinario: e.veterinario ?? "—",
           descripcion: e.descripcion ?? null,
         }))}
