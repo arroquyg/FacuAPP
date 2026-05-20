@@ -17,6 +17,7 @@ function buildSections(isAdmin: boolean, transferenciasCount: number): NavSectio
       label: "Stock Animal",
       children: [
         { href: "/trabajos", label: "Trabajos" },
+        { href: "/sanitario", label: "Sanitario masivo" },
         { href: "/movimientos", label: "Movimientos" },
         { href: "/lotes", label: "Lotes" },
       ],
