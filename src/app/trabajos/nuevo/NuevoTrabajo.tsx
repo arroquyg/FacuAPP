@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";
 import { crearTrabajo } from "./actions";
-import { COLUMNAS_PREDEFINIDAS } from "@/lib/columnas-clinicas";
+import { COLUMNAS_PREDEFINIDAS, getTipoColumna } from "@/lib/columnas-clinicas";
 
 const MAX_COLUMNAS = 10;
 
@@ -46,14 +47,82 @@ export default function NuevoTrabajo() {
   }
 
   function descargarTemplate(cols: string[]) {
-    const header = ["EID", ...cols].join(";");
-    const blob = new Blob([header + "\n"], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `template_${tipo.trim().replace(/\s+/g, "_")}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const wb = XLSX.utils.book_new();
+
+    // ── Hoja 1: Datos ──────────────────────────────────────────────────────
+    const headerRow = ["EID (Caravana)", ...cols];
+
+    // Fila de ejemplo con valores del tipo correcto
+    const ejemploRow: (string | number)[] = ["Ej: 982000123456789"];
+    for (const col of cols) {
+      const def = COLUMNAS_PREDEFINIDAS.find((c) => c.nombre === col);
+      if (getTipoColumna(col) === "number") {
+        // Valor numérico real para que Excel lo reconozca como número
+        ejemploRow.push(def?.nombre.includes("Dosis") ? 5 : 320.5);
+      } else {
+        ejemploRow.push(def?.placeholder ?? "Texto");
+      }
+    }
+
+    const wsDatos = XLSX.utils.aoa_to_sheet([headerRow, ejemploRow]);
+
+    // Anchos de columna
+    wsDatos["!cols"] = [{ wch: 22 }, ...cols.map(() => ({ wch: 18 }))];
+
+    // Forzar tipo número en celdas de la fila ejemplo para columnas numéricas
+    cols.forEach((col, i) => {
+      if (getTipoColumna(col) === "number") {
+        const cellRef = XLSX.utils.encode_cell({ r: 1, c: i + 1 });
+        if (wsDatos[cellRef]) {
+          wsDatos[cellRef].t = "n";
+          wsDatos[cellRef].z = "#,##0.00";
+        }
+      }
+    });
+
+    XLSX.utils.book_append_sheet(wb, wsDatos, "Datos");
+
+    // ── Hoja 2: Ayuda ──────────────────────────────────────────────────────
+    const ayudaData: (string | number)[][] = [
+      [`Template: ${tipo.trim()}`],
+      [],
+      ["REGLAS GENERALES"],
+      ["1. No modificar los nombres de las columnas de la hoja 'Datos'."],
+      ["2. Eliminar la fila de ejemplo antes de importar."],
+      ["3. La columna EID debe contener el número de caravana electrónica completo."],
+      ["4. Las columnas de tipo NÚMERO deben contener solo dígitos (punto o coma decimal). No escribir letras ni unidades."],
+      ["5. Las columnas de tipo TEXTO aceptan cualquier valor libre."],
+      ["6. Dejar la celda vacía si no se tiene el dato (no escribir guiones ni N/A)."],
+      [],
+      ["COLUMNAS DEL TEMPLATE"],
+      ["Columna", "Tipo", "Formato esperado", "Ejemplo", "Notas"],
+      ["EID (Caravana)", "Texto", "Número de caravana electrónica", "982000123456789", "Obligatorio. Debe existir en el sistema."],
+    ];
+
+    for (const col of cols) {
+      const def = COLUMNAS_PREDEFINIDAS.find((c) => c.nombre === col);
+      const tipo = getTipoColumna(col);
+      if (def) {
+        ayudaData.push([
+          def.nombre,
+          tipo === "number" ? "Número" : "Texto",
+          tipo === "number" ? "Número decimal. Usar punto o coma como separador." : "Texto libre",
+          def.placeholder,
+          tipo === "number" ? "No incluir unidades ni letras." : "",
+        ]);
+      } else {
+        // Columna Obs libre
+        ayudaData.push([col, "Texto", "Texto libre", "Cualquier observación", "Campo de uso libre."]);
+      }
+    }
+
+    const wsAyuda = XLSX.utils.aoa_to_sheet(ayudaData);
+    wsAyuda["!cols"] = [{ wch: 22 }, { wch: 10 }, { wch: 36 }, { wch: 28 }, { wch: 42 }];
+
+    XLSX.utils.book_append_sheet(wb, wsAyuda, "Ayuda");
+
+    // ── Descarga ───────────────────────────────────────────────────────────
+    XLSX.writeFile(wb, `template_${tipo.trim().replace(/\s+/g, "_")}.xlsx`);
   }
 
   async function handleCrear() {

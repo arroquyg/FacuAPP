@@ -37,6 +37,7 @@ type HistorialClinico = {
   tipo: string;
   veterinario: string;
   campo: string;
+  empresa: string;
   columnas: string[];
   datos: (string | null)[];
 };
@@ -188,6 +189,7 @@ export default function TabsAnimal({
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 min-w-0">
                       <span className="text-xs text-stone-400 whitespace-nowrap">{h.fecha}</span>
                       <span className="text-sm font-medium text-stone-800 whitespace-nowrap">{h.tipo}</span>
+                      <span className="text-xs text-stone-500 whitespace-nowrap">Empresa: {h.empresa}</span>
                       <span className="text-xs text-stone-500 whitespace-nowrap">Vet: {h.veterinario}</span>
                       <span className="text-xs text-stone-500 whitespace-nowrap">Campo: {h.campo}</span>
                     </div>

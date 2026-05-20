@@ -61,7 +61,7 @@ export default async function AnimalPage({
       .order("fecha_evento", { ascending: false }),
     supabase
       .from("trabajo_registros")
-      .select("id, dato1, dato2, dato3, dato4, dato5, dato6, dato7, dato8, dato9, dato10, trabajo:trabajo_id(id, tipo, fecha, veterinario, campo, columnas)")
+      .select("id, dato1, dato2, dato3, dato4, dato5, dato6, dato7, dato8, dato9, dato10, trabajo:trabajo_id(id, tipo, fecha, veterinario, campo, columnas, empresa:empresa_id(nombre))")
       .eq("animal_id", params.id)
       .eq("encontrado", true)
       .order("created_at", { ascending: false }),
@@ -147,7 +147,7 @@ export default async function AnimalPage({
           descripcion: e.descripcion ?? null,
         }))}
         historialClinico={(trabajosRegistros ?? []).map((r) => {
-          const trabajo = r.trabajo as unknown as { id: string; tipo: string; fecha: string; veterinario: string; campo: string; columnas: string[] } | null;
+          const trabajo = r.trabajo as unknown as { id: string; tipo: string; fecha: string; veterinario: string; campo: string; columnas: string[]; empresa: { nombre: string } | null } | null;
           const datos: (string | null)[] = [r.dato1, r.dato2, r.dato3, r.dato4, r.dato5, r.dato6, r.dato7, r.dato8, r.dato9, r.dato10];
           return {
             id: r.id,
@@ -157,6 +157,7 @@ export default async function AnimalPage({
             veterinario: trabajo?.veterinario ?? "—",
             campo: trabajo?.campo ?? "—",
             columnas: trabajo?.columnas ?? [],
+            empresa: trabajo?.empresa?.nombre ?? "—",
             datos,
           };
         })}
