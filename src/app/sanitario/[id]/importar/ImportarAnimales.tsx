@@ -11,14 +11,24 @@ type Resultado = {
   error?: string;
 };
 
-function parsearEIDs(text: string): string[] {
+/** Extrae EIDs de texto libre: soporta una por línea, CSV con ";", coma o espacio */
+function parsearTextoLibre(text: string): string[] {
+  // Reemplazar separadores comunes por saltos de línea
+  const normalizado = text.replace(/[,;\t]+/g, "\n");
+  return normalizado
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !/^eid/i.test(l)); // filtrar cabeceras de CSV
+}
+
+/** Extrae EIDs de un CSV con header */
+function parsearCSV(text: string): string[] {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 1) return [];
 
   const headers = lines[0].split(";").map((h) => h.trim());
-  // Find EID column index (first col named EID or EID (Caravana) or just take first col)
-  let eidIdx = headers.findIndex((h) => h === "EID" || h === "EID (Caravana)");
-  if (eidIdx === -1) eidIdx = 0; // fallback to first column
+  let eidIdx = headers.findIndex((h) => /^eid/i.test(h));
+  if (eidIdx === -1) eidIdx = 0;
 
   const eids: string[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -29,19 +39,30 @@ function parsearEIDs(text: string): string[] {
   return eids;
 }
 
+type Metodo = "pegar" | "csv";
+
 export default function ImportarAnimales({ sanitarioTrabajoId }: { sanitarioTrabajoId: string }) {
-  const [paso, setPaso] = useState<"upload" | "preview" | "resultado">("upload");
+  const [metodo, setMetodo] = useState<Metodo>("pegar");
+  const [paso, setPaso] = useState<"input" | "preview" | "resultado">("input");
+  const [texto, setTexto] = useState("");
   const [eids, setEids] = useState<string[]>([]);
   const [importando, setImportando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  function procesarTexto() {
+    const parsed = parsearTextoLibre(texto);
+    if (parsed.length === 0) return;
+    setEids(parsed);
+    setPaso("preview");
+  }
 
   function handleCSV(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const parsed = parsearEIDs(ev.target?.result as string);
+      const parsed = parsearCSV(ev.target?.result as string);
       setEids(parsed);
       if (parsed.length > 0) setPaso("preview");
     };
@@ -58,17 +79,19 @@ export default function ImportarAnimales({ sanitarioTrabajoId }: { sanitarioTrab
   }
 
   function reiniciar() {
-    setPaso("upload");
+    setPaso("input");
     setEids([]);
+    setTexto("");
     setResultado(null);
   }
 
+  /* ── Resultado ─────────────────────────────────────────────────── */
   if (paso === "resultado" && resultado) {
     return (
       <div className={`rounded-xl border p-6 ${resultado.ok ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
         {resultado.ok ? (
           <>
-            <p className="font-semibold text-green-700 text-lg">Animales importados correctamente</p>
+            <p className="font-semibold text-green-700 text-lg">Animales registrados correctamente</p>
             <p className="text-green-600 mt-1">
               {resultado.total} caravanas procesadas — {resultado.encontrados} eventos creados.
             </p>
@@ -97,13 +120,14 @@ export default function ImportarAnimales({ sanitarioTrabajoId }: { sanitarioTrab
             Ver evento
           </a>
           <button onClick={reiniciar} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
-            Importar otro archivo
+            Cargar más
           </button>
         </div>
       </div>
     );
   }
 
+  /* ── Preview ───────────────────────────────────────────────────── */
   if (paso === "preview") {
     return (
       <div className="space-y-5">
@@ -112,7 +136,7 @@ export default function ImportarAnimales({ sanitarioTrabajoId }: { sanitarioTrab
             <span className="font-semibold text-stone-800">{eids.length}</span> caravanas detectadas
           </p>
           <button onClick={reiniciar} className="text-sm text-stone-500 hover:underline">
-            Cargar otro archivo
+            Volver
           </button>
         </div>
 
@@ -158,25 +182,76 @@ export default function ImportarAnimales({ sanitarioTrabajoId }: { sanitarioTrab
     );
   }
 
+  /* ── Input ─────────────────────────────────────────────────────── */
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-5">
-      <div>
-        <p className="font-medium text-stone-800">Formato esperado del CSV</p>
-        <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">EID (Caravana)</span>
-        </div>
-        <p className="text-xs text-stone-500 mt-2">
-          Una caravana por fila. Separador de columnas: punto y coma (;). Compatible con el bastón XRS2i.
-        </p>
+    <div className="space-y-4">
+      {/* Toggle método */}
+      <div className="flex gap-1 bg-stone-100 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => setMetodo("pegar")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            metodo === "pegar" ? "bg-white text-stone-800 shadow-sm" : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          Pegar caravanas
+        </button>
+        <button
+          onClick={() => setMetodo("csv")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            metodo === "csv" ? "bg-white text-stone-800 shadow-sm" : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          Subir CSV
+        </button>
       </div>
 
-      <input ref={fileRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
-      <button
-        onClick={() => fileRef.current?.click()}
-        className="px-5 py-3 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center transition-colors"
-      >
-        Seleccionar archivo CSV (.csv)
-      </button>
+      {metodo === "pegar" ? (
+        <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-4">
+          <div>
+            <p className="font-medium text-stone-800 text-sm">Pegá los números de caravana</p>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Una por línea, o separadas por coma, punto y coma o espacio. Las cabeceras de CSV se ignoran automáticamente.
+            </p>
+          </div>
+          <textarea
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder={"982000123456789\n982000123456790\n982000123456791"}
+            rows={10}
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-300 resize-y"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={procesarTexto}
+              disabled={!texto.trim()}
+              className="px-5 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previsualizar
+            </button>
+            {texto.trim() && (
+              <span className="text-xs text-stone-400">
+                {parsearTextoLibre(texto).length} caravanas detectadas
+              </span>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-4">
+          <div>
+            <p className="font-medium text-stone-800 text-sm">Subí un archivo CSV</p>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Una caravana por fila. Separador: punto y coma (;). Compatible con el bastón XRS2i.
+            </p>
+          </div>
+          <input ref={fileRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="px-5 py-3 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center transition-colors"
+          >
+            Seleccionar archivo CSV (.csv)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
