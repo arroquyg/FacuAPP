@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import CamposConfig from "./CamposConfig";
 import SimpleListConfig from "./SimpleListConfig";
+import AlimentosConfig from "./AlimentosConfig";
 import {
   actualizarCategoria,
   actualizarRaza,
@@ -22,7 +23,7 @@ export default async function ConfiguracionPage({
   const empresaId = user.empresa_id;
   const tab = searchParams.tab ?? "campos";
 
-  const [{ data: campos }, { data: categorias }, { data: razas }] =
+  const [{ data: campos }, { data: categorias }, { data: razas }, { data: alimentos }] =
     await Promise.all([
       sb
         .from("campos")
@@ -39,12 +40,18 @@ export default async function ConfiguracionPage({
         .select("id, nombre, activo")
         .eq("empresa_id", empresaId)
         .order("nombre"),
+      sb
+        .from("alimentos")
+        .select("id, nombre, precio_por_tonelada, activo")
+        .eq("empresa_id", empresaId)
+        .order("nombre"),
     ]);
 
   const tabs = [
     { key: "campos", label: "Campos" },
     { key: "categorias", label: "Categorías" },
     { key: "razas", label: "Razas" },
+    ...(user.rol === "administrador" ? [{ key: "alimentos", label: "Alimentos" }] : []),
   ];
 
   return (
@@ -90,6 +97,10 @@ export default async function ConfiguracionPage({
           onCrear={crearRaza}
           onActualizar={actualizarRaza}
         />
+      )}
+
+      {tab === "alimentos" && user.rol === "administrador" && (
+        <AlimentosConfig items={alimentos ?? []} />
       )}
     </div>
   );

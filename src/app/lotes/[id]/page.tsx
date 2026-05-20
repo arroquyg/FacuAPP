@@ -43,7 +43,10 @@ export default async function LotePage({ params }: { params: { id: string } }) {
     (sum, a) => sum + (a.kg_por_dia * a.precio_por_tonelada) / 1000, 0
   );
   const nAnimales = animalesActivos.length;
-  const costoDiarioAnimal = nAnimales > 0 ? costoDiarioLote / nAnimales : 0;
+  // Usa el total de animales del lote como denominador (no solo los activos)
+  // evita que el costo acumulado quede en 0 cuando el lote está cerrado
+  const totalAnimalesLote = (animalesLote ?? []).length;
+  const costoDiarioAnimal = totalAnimalesLote > 0 ? costoDiarioLote / totalAnimalesLote : 0;
 
   function diasDesde(fecha: string) {
     const diff = new Date(today).getTime() - new Date(fecha).getTime();

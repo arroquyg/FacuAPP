@@ -70,9 +70,68 @@ export default async function AnimalPage({
       .from("lote_animales")
       .select("id, fecha_entrada, peso_entrada_kg, fecha_salida, peso_salida_kg, lote:lote_id(id, nombre, campo:campo_id(nombre), lote_alimentos(kg_por_dia, precio_por_tonelada))")
       .eq("animal_id", params.id)
-      .not("fecha_salida", "is", null)
-      .order("fecha_salida", { ascending: false }),
+      .order("fecha_entrada", { ascending: false }),
   ]);
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Headcount por lote para calcular costo por animal
+  const loteIds = [...new Set(
+    (lotesAnimal ?? [])
+      .map(la => (la.lote as unknown as { id: string } | null)?.id)
+      .filter(Boolean) as string[]
+  )];
+  const { data: headcountData } = loteIds.length
+    ? await supabase
+        .from("lote_animales")
+        .select("lote_id, animal_id")
+        .eq("empresa_id", user.empresa_id)
+        .in("lote_id", loteIds)
+    : { data: [] };
+  // Distinct por animal_id para no contar reingresos múltiples veces
+  const headcountByLote = new Map<string, number>();
+  const seenPairs = new Set<string>();
+  for (const row of headcountData ?? []) {
+    const key = `${row.lote_id}:${row.animal_id}`;
+    if (!seenPairs.has(key)) {
+      seenPairs.add(key);
+      headcountByLote.set(row.lote_id, (headcountByLote.get(row.lote_id) ?? 0) + 1);
+    }
+  }
+
+  // Último peso: el más reciente entre pesajes y pesos de lote
+  const primerPesaje = (pesajes ?? [])[0];
+  let loteUltimoPeso: { peso: number; fecha: string } | null = null;
+  for (const la of (lotesAnimal ?? [])) {
+    const fechaRef = la.fecha_salida ?? la.fecha_entrada;
+    const pesoRef = la.fecha_salida != null ? (la.peso_salida_kg ?? null) : la.peso_entrada_kg;
+    if (pesoRef != null && fechaRef && (!loteUltimoPeso || fechaRef > loteUltimoPeso.fecha)) {
+      loteUltimoPeso = { peso: pesoRef, fecha: fechaRef };
+    }
+  }
+  let ultimoPeso: number | null = null;
+  if (primerPesaje && loteUltimoPeso) {
+    ultimoPeso = primerPesaje.fecha_pesaje >= loteUltimoPeso.fecha
+      ? primerPesaje.peso_kg : loteUltimoPeso.peso;
+  } else {
+    ultimoPeso = primerPesaje?.peso_kg ?? loteUltimoPeso?.peso ?? null;
+  }
+
+  // Costo nutricional total del animal
+  const costoTotalNutricion = (lotesAnimal ?? []).reduce((sum, la) => {
+    type LoteData = { id: string; lote_alimentos: { kg_por_dia: number; precio_por_tonelada: number }[] };
+    const lote = la.lote as unknown as LoteData | null;
+    const loteId = lote?.id ?? "";
+    const headcount = headcountByLote.get(loteId) ?? 1;
+    const costoDiarioLote = (lote?.lote_alimentos ?? []).reduce(
+      (s, a) => s + (a.kg_por_dia * a.precio_por_tonelada) / 1000, 0
+    );
+    const fechaRef = la.fecha_salida ?? today;
+    const dias = la.fecha_entrada
+      ? Math.max(0, Math.floor((new Date(fechaRef).getTime() - new Date(la.fecha_entrada).getTime()) / 86400000))
+      : 0;
+    return sum + (costoDiarioLote / headcount) * dias;
+  }, 0);
 
   // Resolución de nombres de empresa por separado para evitar dependencia de FK
   const empresaIds = [
@@ -130,6 +189,18 @@ export default async function AnimalPage({
           />
           <Campo label="Estado sanitario" value={animal.estado_sanitario} />
           <Campo label="Campo actual" value={campo?.nombre} />
+          {ultimoPeso != null && (
+            <Campo
+              label="Último peso"
+              value={`${Number(ultimoPeso).toFixed(0)} kg`}
+            />
+          )}
+          {costoTotalNutricion > 0 && (
+            <Campo
+              label="Costo nutricional"
+              value={`$${costoTotalNutricion.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            />
+          )}
           <Campo
             label="Activo"
             value={
@@ -184,21 +255,23 @@ export default async function AnimalPage({
         nutricion={(lotesAnimal ?? []).map((la) => {
           type LoteData = { id: string; nombre: string; campo: { nombre: string } | null; lote_alimentos: { kg_por_dia: number; precio_por_tonelada: number }[] };
           const lote = la.lote as unknown as LoteData | null;
-          const dias = la.fecha_entrada && la.fecha_salida
-            ? Math.max(0, Math.floor((new Date(la.fecha_salida).getTime() - new Date(la.fecha_entrada).getTime()) / 86400000))
+          const loteId = lote?.id ?? "";
+          const headcount = headcountByLote.get(loteId) ?? 1;
+          const fechaRef = la.fecha_salida ?? today;
+          const dias = la.fecha_entrada
+            ? Math.max(0, Math.floor((new Date(fechaRef).getTime() - new Date(la.fecha_entrada).getTime()) / 86400000))
             : 0;
           const kgGanados = la.peso_salida_kg != null ? la.peso_salida_kg - la.peso_entrada_kg : null;
           const pctGanado = kgGanados != null && la.peso_entrada_kg > 0
             ? parseFloat(((kgGanados / la.peso_entrada_kg) * 100).toFixed(1))
             : null;
-          // Costo: se calcula sobre el costo diario total del lote dividido por la cantidad de animales del lote
-          // En este contexto no tenemos el headcount, así que mostramos costo basado en proporcional de alimentos
           const costoDiarioLote = (lote?.lote_alimentos ?? []).reduce(
             (sum, a) => sum + (a.kg_por_dia * a.precio_por_tonelada) / 1000, 0
           );
+          const costoAcum = (costoDiarioLote / headcount) * dias;
           return {
             id: la.id,
-            loteId: lote?.id ?? "",
+            loteId,
             loteNombre: lote?.nombre ?? "—",
             campo: (lote?.campo as unknown as { nombre: string } | null)?.nombre ?? "—",
             fechaEntrada: formatDate(la.fecha_entrada),
@@ -208,7 +281,8 @@ export default async function AnimalPage({
             pesoSalida: la.peso_salida_kg,
             kgGanados,
             pctGanado,
-            costoDiarioLote,
+            costoAcum,
+            activo: !la.fecha_salida,
           };
         })}
       />

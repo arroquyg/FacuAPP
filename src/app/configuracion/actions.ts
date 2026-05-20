@@ -97,11 +97,37 @@ export async function actualizarRaza(id: string, nombre: string): Promise<{ ok: 
   return { ok: true };
 }
 
-export async function toggleActivo(tabla: "campos" | "categorias" | "razas", id: string, activo: boolean): Promise<{ ok: boolean; error?: string }> {
+export async function toggleActivo(tabla: "campos" | "categorias" | "razas" | "alimentos", id: string, activo: boolean): Promise<{ ok: boolean; error?: string }> {
   const empresaId = await getEmpresaId();
   const sb = createAdminClient();
   const { error } = await sb.from(tabla).update({ activo }).eq("id", id).eq("empresa_id", empresaId);
   if (error) return { ok: false, error: error.message };
   revalidarTodo();
+  return { ok: true };
+}
+
+export async function crearAlimento(data: { nombre: string; precio_por_tonelada: number }): Promise<{ ok: boolean; error?: string }> {
+  const empresaId = await getEmpresaId();
+  const sb = createAdminClient();
+  const { error } = await sb.from("alimentos").insert({
+    empresa_id: empresaId,
+    nombre: data.nombre.trim(),
+    precio_por_tonelada: data.precio_por_tonelada,
+    activo: true,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/configuracion");
+  return { ok: true };
+}
+
+export async function actualizarAlimento(id: string, data: { nombre: string; precio_por_tonelada: number }): Promise<{ ok: boolean; error?: string }> {
+  const empresaId = await getEmpresaId();
+  const sb = createAdminClient();
+  const { error } = await sb.from("alimentos").update({
+    nombre: data.nombre.trim(),
+    precio_por_tonelada: data.precio_por_tonelada,
+  }).eq("id", id).eq("empresa_id", empresaId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/configuracion");
   return { ok: true };
 }

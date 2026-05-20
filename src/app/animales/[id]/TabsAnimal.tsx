@@ -42,7 +42,8 @@ type Nutricion = {
   pesoSalida: number | null;
   kgGanados: number | null;
   pctGanado: number | null;
-  costoDiarioLote: number;
+  costoAcum: number;
+  activo: boolean;
 };
 
 type HistorialClinico = {
@@ -255,7 +256,8 @@ export default function TabsAnimal({
                     <th className="pb-2 pr-4 text-right whitespace-nowrap">Días</th>
                     <th className="pb-2 pr-4 text-right whitespace-nowrap">Peso entrada</th>
                     <th className="pb-2 pr-4 text-right whitespace-nowrap">Peso salida</th>
-                    <th className="pb-2 text-right whitespace-nowrap">Kg ganados</th>
+                    <th className="pb-2 pr-4 text-right whitespace-nowrap">Kg ganados</th>
+                    <th className="pb-2 text-right whitespace-nowrap">Costo acumulado</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -263,16 +265,17 @@ export default function TabsAnimal({
                     <tr key={n.id}>
                       <td className="py-2 pr-4 text-stone-700 font-medium whitespace-nowrap">
                         <a href={`/lotes/${n.loteId}`} className="text-green-800 hover:underline">{n.loteNombre}</a>
+                        {n.activo && <span className="ml-1 text-xs text-green-600">(activo)</span>}
                       </td>
                       <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.campo}</td>
                       <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.fechaEntrada}</td>
-                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.fechaSalida}</td>
+                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{n.activo ? "En curso" : n.fechaSalida}</td>
                       <td className="py-2 pr-4 text-stone-600 text-right">{n.dias}</td>
                       <td className="py-2 pr-4 text-stone-600 text-right whitespace-nowrap">{n.pesoEntrada} kg</td>
                       <td className="py-2 pr-4 text-stone-600 text-right whitespace-nowrap">
                         {n.pesoSalida != null ? `${n.pesoSalida} kg` : "—"}
                       </td>
-                      <td className="py-2 text-right whitespace-nowrap">
+                      <td className="py-2 pr-4 text-right whitespace-nowrap">
                         {n.kgGanados != null ? (
                           <span className={`font-medium ${n.kgGanados >= 0 ? "text-green-700" : "text-red-600"}`}>
                             {n.kgGanados > 0 ? "+" : ""}{n.kgGanados} kg
@@ -282,8 +285,20 @@ export default function TabsAnimal({
                           </span>
                         ) : "—"}
                       </td>
+                      <td className="py-2 text-right whitespace-nowrap text-stone-700 font-medium">
+                        ${n.costoAcum.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        {n.activo && <span className="text-xs text-stone-400 ml-1">(est.)</span>}
+                      </td>
                     </tr>
                   ))}
+                  {nutricion.length > 1 && (
+                    <tr className="border-t-2 border-stone-200 bg-stone-50">
+                      <td colSpan={8} className="py-2 pr-4 text-right text-xs font-semibold text-stone-500 uppercase tracking-wide">Total</td>
+                      <td className="py-2 text-right whitespace-nowrap font-bold text-stone-800">
+                        ${nutricion.reduce((s, n) => s + n.costoAcum, 0).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

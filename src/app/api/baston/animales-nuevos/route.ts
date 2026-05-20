@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const rows = body.animales.map((a) => ({
     empresa_id: user.empresa_id,
     chip_id: a.chip_id,
-    procedencia: a.campo ?? null,
+    genetica_empresa: a.campo ?? null,
     fecha_nacimiento: a.fecha_ingreso ?? null,
     activo: true,
   }));
