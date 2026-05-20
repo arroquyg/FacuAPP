@@ -53,7 +53,6 @@ export async function importarAnimalesSanitario(
       const animalId = animalMap.get(eid) ?? animalMap.get(eidNorm) ?? null;
       if (!animalId) { noEncontrados.push(eid); return null; }
       return {
-        empresa_id: empresaId,
         animal_id: animalId,
         sanitario_trabajo_id: sanitarioTrabajoId,
         tipo_evento: trabajo.tipo_evento,

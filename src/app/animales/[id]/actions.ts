@@ -20,7 +20,6 @@ export async function crearEventoSanitario(data: {
 
   const sb = createAdminClient();
   const { error } = await sb.from("eventos_sanitarios").insert({
-    empresa_id: user.empresa_id,
     animal_id: data.animal_id,
     tipo_evento: data.tipo_evento,
     fecha_evento: data.fecha_evento,
