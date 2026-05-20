@@ -116,7 +116,7 @@ export default async function SanitarioDetallePage({ params }: { params: { id: s
               </tr>
             ) : (
               (eventos ?? []).map((ev, i) => {
-                const animal = ev.animal as { chip_id: string } | null;
+                const animal = ev.animal as unknown as { chip_id: string } | null;
                 return (
                   <tr key={ev.id} className="hover:bg-stone-50">
                     <td className="px-4 py-3 text-stone-400 text-xs">{i + 1}</td>

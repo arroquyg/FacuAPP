@@ -104,7 +104,7 @@ export default async function TrabajoDetallePage({ params }: { params: { id: str
               </tr>
             ) : (
               todos.map((r) => {
-                const animal = r.animal as { chip_id: string } | null;
+                const animal = r.animal as unknown as { chip_id: string } | null;
                 return (
                   <tr key={r.id} className={!r.encontrado ? "bg-yellow-50" : "hover:bg-stone-50"}>
                     <td className="px-4 py-3 font-medium">{r.eid}</td>

@@ -151,13 +151,11 @@ export default async function AnimalPage({
   }, 0);
 
   // Resolución de nombres de empresa por separado para evitar dependencia de FK
-  const empresaIds = [
-    ...new Set(
-      (trabajosRegistros ?? [])
-        .map((r) => (r.trabajo as unknown as { empresa_id?: string } | null)?.empresa_id)
-        .filter(Boolean) as string[]
-    ),
-  ];
+  const empresaIds = Array.from(new Set(
+    (trabajosRegistros ?? [])
+      .map((r) => (r.trabajo as unknown as { empresa_id?: string } | null)?.empresa_id)
+      .filter(Boolean) as string[]
+  ));
   const { data: empresas } = empresaIds.length
     ? await supabase.from("empresas").select("id, nombre").in("id", empresaIds)
     : { data: [] };
