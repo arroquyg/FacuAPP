@@ -84,11 +84,11 @@ export default async function AnimalPage({
   const today = new Date().toISOString().slice(0, 10);
 
   // Headcount por lote para calcular costo por animal
-  const loteIds = [...new Set(
+  const loteIds = Array.from(new Set(
     (lotesAnimal ?? [])
       .map(la => (la.lote as unknown as { id: string } | null)?.id)
       .filter(Boolean) as string[]
-  )];
+  ));
   const { data: headcountData } = loteIds.length
     ? await supabase
         .from("lote_animales")
