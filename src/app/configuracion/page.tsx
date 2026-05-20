@@ -58,7 +58,7 @@ export default async function ConfiguracionPage({
     { key: "categorias", label: "Categorías" },
     { key: "razas", label: "Razas" },
     ...(user.rol === "administrador" ? [{ key: "alimentos", label: "Alimentos" }] : []),
-    ...(user.rol === "administrador" ? [{ key: "productos_sanitarios", label: "Productos sanitarios" }] : []),
+    ...(user.rol === "administrador" ? [{ key: "productos_sanitarios", label: "Insumos veterinarios" }] : []),
   ];
 
   return (

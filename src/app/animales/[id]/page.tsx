@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import TabsAnimal from "./TabsAnimal";
 import FormEventoSanitario from "./FormEventoSanitario";
+import CambiarCaravana from "./CambiarCaravana";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
@@ -41,6 +42,7 @@ export default async function AnimalPage({
     { data: trabajosRegistros },
     { data: lotesAnimal },
     { data: productosSanitarios },
+    { data: cambiosCaravana },
   ] = await Promise.all([
     supabase
       .from("animales")
@@ -59,7 +61,7 @@ export default async function AnimalPage({
       .order("fecha_pesaje", { ascending: false }),
     supabase
       .from("eventos_sanitarios")
-      .select("id, tipo_evento, fecha_evento, producto, dosis, precio_unitario, unidad, veterinario, descripcion")
+      .select("id, tipo_evento, fecha_evento, producto, dosis, precio_unitario, unidad, veterinario, descripcion, empresa:empresa_id(nombre)")
       .eq("animal_id", params.id)
       .order("fecha_evento", { ascending: false }),
     supabase
@@ -79,6 +81,11 @@ export default async function AnimalPage({
       .eq("empresa_id", user.empresa_id)
       .eq("activo", true)
       .order("nombre"),
+    supabase
+      .from("cambios_caravana")
+      .select("id, chip_id_anterior, chip_id_nuevo, fecha, motivo, usuario:usuario_id(nombre)")
+      .eq("animal_id", params.id)
+      .order("fecha", { ascending: false }),
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -177,12 +184,15 @@ export default async function AnimalPage({
           <h1 className="text-3xl font-bold text-stone-800">Caravana {animal.chip_id}</h1>
         </div>
         {user.rol === "administrador" && (
-          <a
-            href={`/animales/${params.id}/editar`}
-            className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"
-          >
-            Editar
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <CambiarCaravana animalId={params.id} />
+            <a
+              href={`/animales/${params.id}/editar`}
+              className="px-4 py-2 border border-stone-300 rounded-lg text-sm text-stone-600 hover:bg-stone-50 transition-colors"
+            >
+              Editar
+            </a>
+          </div>
         )}
       </div>
 
@@ -265,6 +275,7 @@ export default async function AnimalPage({
           unidad: (e as unknown as { unidad: string | null }).unidad,
           veterinario: e.veterinario ?? "—",
           descripcion: e.descripcion ?? null,
+          empresa: (e as unknown as { empresa: { nombre: string } | null }).empresa?.nombre ?? "—",
         }))}
         historialClinico={(trabajosRegistros ?? []).map((r) => {
           const trabajo = r.trabajo as unknown as { id: string; tipo: string; fecha: string; veterinario: string; campo: string; columnas: string[]; empresa_id?: string } | null;
@@ -281,6 +292,14 @@ export default async function AnimalPage({
             datos,
           };
         })}
+        cambiosCaravana={(cambiosCaravana ?? []).map((c) => ({
+          id: c.id,
+          anterior: c.chip_id_anterior,
+          nuevo: c.chip_id_nuevo,
+          fecha: formatDate(c.fecha),
+          motivo: c.motivo ?? null,
+          usuario: (c.usuario as unknown as { nombre: string } | null)?.nombre ?? "—",
+        }))}
         nutricion={(lotesAnimal ?? []).map((la) => {
           type LoteData = { id: string; nombre: string; campo: { nombre: string } | null; lote_alimentos: { kg_por_dia: number; precio_por_tonelada: number }[] };
           const lote = la.lote as unknown as LoteData | null;

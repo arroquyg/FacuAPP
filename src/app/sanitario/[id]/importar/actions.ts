@@ -23,18 +23,23 @@ export async function importarAnimalesSanitario(
   const sb = createAdminClient();
   const empresaId = user.empresa_id;
 
-  // Fetch the sanitario_trabajo to get event details
-  const { data: trabajo, error: trabajoError } = await sb
-    .from("sanitario_trabajos")
-    .select("*")
-    .eq("id", sanitarioTrabajoId)
-    .eq("empresa_id", empresaId)
-    .single();
+  // Fetch trabajo + productos
+  const [{ data: trabajo, error: trabajoError }, { data: sanitarioProductos }] = await Promise.all([
+    sb.from("sanitario_trabajos").select("*").eq("id", sanitarioTrabajoId).eq("empresa_id", empresaId).single(),
+    sb.from("sanitario_productos").select("*").eq("sanitario_id", sanitarioTrabajoId),
+  ]);
 
   if (trabajoError || !trabajo)
     return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: "Evento no encontrado." };
 
-  // Normalize EIDs (remove whitespace)
+  // Si tiene productos en sanitario_productos úsalos; si no, cae al campo único del trabajo
+  const productos = (sanitarioProductos ?? []).length > 0
+    ? sanitarioProductos!
+    : trabajo.producto
+      ? [{ producto: trabajo.producto, dosis: trabajo.dosis, precio_unitario: trabajo.precio_unitario, unidad: trabajo.unidad }]
+      : [];
+
+  // Normalize EIDs
   const eidsNorm = eids.map((e) => e.replace(/\s+/g, ""));
 
   const [{ data: byEid }, { data: byNorm }] = await Promise.all([
@@ -47,25 +52,45 @@ export async function importarAnimalesSanitario(
   for (const a of byNorm ?? []) if (!animalMap.has(a.chip_id)) animalMap.set(a.chip_id, a.id);
 
   const noEncontrados: string[] = [];
-  const rows = eids
-    .map((eid) => {
-      const eidNorm = eid.replace(/\s+/g, "");
-      const animalId = animalMap.get(eid) ?? animalMap.get(eidNorm) ?? null;
-      if (!animalId) { noEncontrados.push(eid); return null; }
-      return {
+  const rows: object[] = [];
+
+  for (const eid of eids) {
+    const eidNorm = eid.replace(/\s+/g, "");
+    const animalId = animalMap.get(eid) ?? animalMap.get(eidNorm) ?? null;
+    if (!animalId) { noEncontrados.push(eid); continue; }
+
+    if (productos.length === 0) {
+      rows.push({
         animal_id: animalId,
+        empresa_id: empresaId,
         sanitario_trabajo_id: sanitarioTrabajoId,
         tipo_evento: trabajo.tipo_evento,
         fecha_evento: trabajo.fecha,
-        producto: trabajo.producto,
-        dosis: trabajo.dosis,
-        precio_unitario: trabajo.precio_unitario,
-        unidad: trabajo.unidad,
+        producto: null,
+        dosis: null,
+        precio_unitario: null,
+        unidad: null,
         veterinario: trabajo.veterinario,
         descripcion: trabajo.descripcion,
-      };
-    })
-    .filter(Boolean) as object[];
+      });
+    } else {
+      for (const p of productos) {
+        rows.push({
+          animal_id: animalId,
+          empresa_id: empresaId,
+          sanitario_trabajo_id: sanitarioTrabajoId,
+          tipo_evento: trabajo.tipo_evento,
+          fecha_evento: trabajo.fecha,
+          producto: p.producto,
+          dosis: p.dosis,
+          precio_unitario: p.precio_unitario,
+          unidad: p.unidad,
+          veterinario: trabajo.veterinario,
+          descripcion: trabajo.descripcion,
+        });
+      }
+    }
+  }
 
   if (rows.length > 0) {
     const { error: errInsert } = await sb.from("eventos_sanitarios").insert(rows);
@@ -73,13 +98,11 @@ export async function importarAnimalesSanitario(
       return { ok: false, total: 0, encontrados: 0, noEncontrados: [], error: errInsert.message };
   }
 
-  // Update total_animales count
-  const { count } = await sb
-    .from("eventos_sanitarios")
-    .select("*", { count: "exact", head: true })
-    .eq("sanitario_trabajo_id", sanitarioTrabajoId);
-
-  await sb.from("sanitario_trabajos").update({ total_animales: count ?? 0 }).eq("id", sanitarioTrabajoId);
+  // total_animales = animales distintos (no filas, que pueden ser N por producto)
+  const encontrados = eids.length - noEncontrados.length;
+  await sb.from("sanitario_trabajos")
+    .update({ total_animales: encontrados })
+    .eq("id", sanitarioTrabajoId);
 
   revalidatePath(`/sanitario/${sanitarioTrabajoId}`);
   revalidatePath("/sanitario");
@@ -87,7 +110,7 @@ export async function importarAnimalesSanitario(
   return {
     ok: true,
     total: eids.length,
-    encontrados: rows.length,
+    encontrados,
     noEncontrados,
   };
 }

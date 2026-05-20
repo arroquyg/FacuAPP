@@ -3,16 +3,9 @@
 import { useRef, useState } from "react";
 import { importarDatos } from "./actions";
 
-type RegistroFila = {
-  eid: string;
-  datos: (string | null)[];
-};
-
-type Trabajo = {
-  id: string;
-  tipo: string;
-  columnas: string[];
-};
+type RegistroFila = { eid: string; datos: (string | null)[] };
+type Trabajo = { id: string; tipo: string; columnas: string[] };
+type Modo = "archivo" | "pegar";
 
 const SKIP_COLS = new Set(["VID", "Date", "Time"]);
 
@@ -24,7 +17,6 @@ function parsearCSV(text: string, columnasTrabajo: string[]): RegistroFila[] {
   const eidIdx = headers.findIndex((h) => h === "EID");
   if (eidIdx === -1) return [];
 
-  // Try matching by column name first; fall back to positional order
   const colIndices = columnasTrabajo.map((col) => headers.indexOf(col));
   const customByPosition = headers
     .map((h, i) => ({ h, i }))
@@ -36,43 +28,41 @@ function parsearCSV(text: string, columnasTrabajo: string[]): RegistroFila[] {
     const vals = lines[i].split(";");
     const eid = vals[eidIdx]?.trim();
     if (!eid) continue;
-
     const datos = columnasTrabajo.map((_, ci) => {
       const idx = colIndices[ci] !== -1 ? colIndices[ci] : customByPosition[ci];
       return idx !== undefined ? vals[idx]?.trim() || null : null;
     });
-
     filas.push({ eid, datos });
   }
   return filas;
 }
 
-type Resultado = {
-  ok: boolean;
-  total: number;
-  encontrados: number;
-  noEncontrados: string[];
-  error?: string;
-};
+type Resultado = { ok: boolean; total: number; encontrados: number; noEncontrados: string[]; error?: string };
 
 export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
   const [paso, setPaso] = useState<"upload" | "preview" | "resultado">("upload");
+  const [modo, setModo] = useState<Modo>("archivo");
   const [filas, setFilas] = useState<RegistroFila[]>([]);
+  const [texto, setTexto] = useState("");
   const [importando, setImportando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleCSV(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleCSVFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const parsed = parsearCSV(ev.target?.result as string, trabajo.columnas);
-      setFilas(parsed);
-      if (parsed.length > 0) setPaso("preview");
+      procesarTexto(ev.target?.result as string);
     };
     reader.readAsText(file, "utf-8");
     e.target.value = "";
+  }
+
+  function procesarTexto(text: string) {
+    const parsed = parsearCSV(text, trabajo.columnas);
+    setFilas(parsed);
+    if (parsed.length > 0) setPaso("preview");
   }
 
   async function handleImportar() {
@@ -87,6 +77,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
     setPaso("upload");
     setFilas([]);
     setResultado(null);
+    setTexto("");
   }
 
   if (paso === "resultado" && resultado) {
@@ -101,7 +92,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
             {resultado.noEncontrados.length > 0 && (
               <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-yellow-800 text-sm font-medium">
-                  {resultado.noEncontrados.length} chip(s) no encontrados en la base de datos:
+                  {resultado.noEncontrados.length} chip(s) no encontrados:
                 </p>
                 <p className="text-yellow-700 text-xs mt-1 font-mono break-all">
                   {resultado.noEncontrados.join(", ")}
@@ -120,7 +111,7 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
             Ver trabajo
           </a>
           <button onClick={reiniciar} className="px-4 py-2 border border-stone-300 rounded-lg text-sm hover:bg-stone-50">
-            Importar otro archivo
+            Importar de nuevo
           </button>
         </div>
       </div>
@@ -134,11 +125,8 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
           <p className="text-sm text-stone-600">
             <span className="font-semibold text-stone-800">{filas.length}</span> registros detectados
           </p>
-          <button onClick={reiniciar} className="text-sm text-stone-500 hover:underline">
-            Cargar otro archivo
-          </button>
+          <button onClick={reiniciar} className="text-sm text-stone-500 hover:underline">Volver</button>
         </div>
-
         <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
           <table className="w-full min-w-max text-xs">
             <thead className="bg-stone-50 text-stone-500 uppercase">
@@ -161,7 +149,6 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
             </tbody>
           </table>
         </div>
-
         <div className="flex gap-3">
           <button
             onClick={handleImportar}
@@ -180,31 +167,68 @@ export default function ImportarDatos({ trabajo }: { trabajo: Trabajo }) {
 
   return (
     <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-5">
+      {/* Columnas esperadas */}
       <div>
-        <p className="font-medium text-stone-800">Columnas que se esperan en el CSV</p>
+        <p className="font-medium text-stone-800">Columnas esperadas</p>
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">Caravana</span>
+          <span className="px-2 py-1 bg-green-800 text-white text-xs rounded font-medium">EID (Caravana)</span>
           {trabajo.columnas.map((col, i) => (
-            <span key={i} className="px-2 py-1 bg-stone-100 text-stone-700 text-xs rounded border border-stone-200">
-              {col}
-            </span>
+            <span key={i} className="px-2 py-1 bg-stone-100 text-stone-700 text-xs rounded border border-stone-200">{col}</span>
           ))}
         </div>
       </div>
 
-      <div>
-        <p className="text-sm text-stone-500">
-          Subí el CSV completado desde el bastón XRS2i o desde la computadora. Las columnas se detectan automáticamente por nombre.
-        </p>
+      {/* Selector de modo */}
+      <div className="flex gap-2 border-b border-stone-200 pb-1">
+        {(["archivo", "pegar"] as Modo[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setModo(m)}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+              modo === m
+                ? "bg-green-800 text-white"
+                : "text-stone-500 hover:text-stone-800 hover:bg-stone-50"
+            }`}
+          >
+            {m === "archivo" ? "Subir archivo CSV" : "Pegar CSV"}
+          </button>
+        ))}
       </div>
 
-      <input ref={fileRef} type="file" accept=".csv" onChange={handleCSV} className="hidden" />
-      <button
-        onClick={() => fileRef.current?.click()}
-        className="px-5 py-3 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center transition-colors"
-      >
-        Seleccionar archivo CSV (.csv)
-      </button>
+      {modo === "archivo" ? (
+        <div className="space-y-3">
+          <p className="text-sm text-stone-500">
+            Subí el CSV del bastón XRS2i o generado desde el template. Las columnas se detectan por nombre (separador: <code className="bg-stone-100 px-1 rounded">;</code>).
+          </p>
+          <input ref={fileRef} type="file" accept=".csv" onChange={handleCSVFile} className="hidden" />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="px-5 py-3 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-gray-400 hover:bg-stone-50 w-full text-center transition-colors"
+          >
+            Seleccionar archivo CSV (.csv)
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-stone-500">
+            Pegá el contenido del CSV con la primera fila como encabezado. Separador: <code className="bg-stone-100 px-1 rounded">;</code> — la columna <strong>EID</strong> es obligatoria.
+          </p>
+          <textarea
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            rows={8}
+            placeholder={"EID;Peso;BCS\n982000123456789;320;3.0\n982000987654321;280;2.5"}
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-300 resize-y"
+          />
+          <button
+            onClick={() => procesarTexto(texto)}
+            disabled={!texto.trim()}
+            className="px-5 py-2 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40"
+          >
+            Previsualizar
+          </button>
+        </div>
+      )}
     </div>
   );
 }

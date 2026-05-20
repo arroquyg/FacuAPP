@@ -2,18 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { crearEventoSanitario } from "./actions";
+import { crearEventosSanitarios } from "./actions";
 
 type ProductoSanitario = { id: string; nombre: string; precio_por_unidad: number; unidad: string };
+type Linea = { productoId: string; dosis: string };
 
-const TIPOS_EVENTO = [
-  "Vacunación",
-  "Desparasitación",
-  "Tratamiento",
-  "Revisión",
-  "Cirugía",
-  "Otro",
-];
+const TIPOS_EVENTO = ["Vacunación", "Desparasitación", "Tratamiento", "Revisión", "Cirugía", "Otro"];
 
 export default function FormEventoSanitario({
   animalId,
@@ -23,34 +17,36 @@ export default function FormEventoSanitario({
   productos: ProductoSanitario[];
 }) {
   const router = useRouter();
+  const hoy = new Date().toISOString().slice(0, 10);
+
   const [abierto, setAbierto] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const hoy = new Date().toISOString().slice(0, 10);
-
   const [fecha, setFecha] = useState(hoy);
   const [tipoEvento, setTipoEvento] = useState(TIPOS_EVENTO[0]);
-  const [productoId, setProductoId] = useState("");
-  const [dosis, setDosis] = useState("");
   const [veterinario, setVeterinario] = useState("");
   const [descripcion, setDescripcion] = useState("");
-
-  const productoSeleccionado = productos.find((p) => p.id === productoId) ?? null;
-  const unidad = productoSeleccionado?.unidad || "ml";
-  const costoEstimado =
-    productoSeleccionado && dosis
-      ? productoSeleccionado.precio_por_unidad * parseFloat(dosis)
-      : null;
+  const [lineas, setLineas] = useState<Linea[]>([{ productoId: "", dosis: "" }]);
 
   function resetForm() {
     setFecha(hoy);
     setTipoEvento(TIPOS_EVENTO[0]);
-    setProductoId("");
-    setDosis("");
     setVeterinario("");
     setDescripcion("");
+    setLineas([{ productoId: "", dosis: "" }]);
     setError(null);
+  }
+
+  function setLinea(i: number, campo: keyof Linea, valor: string) {
+    setLineas((prev) => prev.map((l, idx) => idx === i ? { ...l, [campo]: valor } : l));
+  }
+
+  function agregarLinea() {
+    setLineas((prev) => [...prev, { productoId: "", dosis: "" }]);
+  }
+
+  function quitarLinea(i: number) {
+    setLineas((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   async function handleSubmit() {
@@ -58,16 +54,23 @@ export default function FormEventoSanitario({
     setGuardando(true);
     setError(null);
 
-    const res = await crearEventoSanitario({
+    const lineasData = lineas.map((l) => {
+      const prod = productos.find((p) => p.id === l.productoId) ?? null;
+      return {
+        producto: prod?.nombre ?? null,
+        dosis: l.dosis ? parseFloat(l.dosis) : null,
+        precio_unitario: prod?.precio_por_unidad ?? null,
+        unidad: prod?.unidad ?? null,
+      };
+    });
+
+    const res = await crearEventosSanitarios({
       animal_id: animalId,
       tipo_evento: tipoEvento,
       fecha_evento: fecha,
-      producto: productoSeleccionado?.nombre ?? null,
-      dosis: dosis ? parseFloat(dosis) : null,
-      precio_unitario: productoSeleccionado?.precio_por_unidad ?? null,
-      unidad: productoSeleccionado ? unidad : null,
       veterinario: veterinario || null,
       descripcion: descripcion || null,
+      lineas: lineasData,
     });
 
     if (res.ok) {
@@ -99,7 +102,8 @@ export default function FormEventoSanitario({
         <div className="bg-red-50 border border-red-200 rounded px-3 py-1.5 text-xs text-red-600">{error}</div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {/* Campos generales */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
           <label className="text-xs text-stone-500 block mb-1">Fecha *</label>
           <input
@@ -109,7 +113,6 @@ export default function FormEventoSanitario({
             className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
           />
         </div>
-
         <div>
           <label className="text-xs text-stone-500 block mb-1">Tipo de evento *</label>
           <select
@@ -117,62 +120,19 @@ export default function FormEventoSanitario({
             onChange={(e) => setTipoEvento(e.target.value)}
             className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 bg-white"
           >
-            {TIPOS_EVENTO.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
+            {TIPOS_EVENTO.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-
-        <div>
-          <label className="text-xs text-stone-500 block mb-1">Producto</label>
-          <select
-            value={productoId}
-            onChange={(e) => setProductoId(e.target.value)}
-            className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 bg-white"
-          >
-            <option value="">Sin producto</option>
-            {productos.map((p) => (
-              <option key={p.id} value={p.id}>{p.nombre}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-xs text-stone-500 block mb-1">
-            Dosis ({productoSeleccionado ? unidad : "ud"})
-            {productoSeleccionado && (
-              <span className="ml-1 text-stone-400">
-                — ${Number(productoSeleccionado.precio_por_unidad).toLocaleString("es-AR", { minimumFractionDigits: 2 })}/{unidad}
-              </span>
-            )}
-          </label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={dosis}
-            onChange={(e) => setDosis(e.target.value)}
-            placeholder="0"
-            className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
-          />
-          {costoEstimado != null && (
-            <p className="text-xs text-green-700 mt-0.5">
-              Costo estimado: ${costoEstimado.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
-            </p>
-          )}
-        </div>
-
         <div>
           <label className="text-xs text-stone-500 block mb-1">Veterinario</label>
           <input
             type="text"
             value={veterinario}
             onChange={(e) => setVeterinario(e.target.value)}
-            placeholder="Nombre del veterinario"
+            placeholder="Nombre"
             className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
           />
         </div>
-
         <div>
           <label className="text-xs text-stone-500 block mb-1">Descripción</label>
           <input
@@ -185,13 +145,67 @@ export default function FormEventoSanitario({
         </div>
       </div>
 
+      {/* Líneas de productos */}
+      <div className="space-y-2">
+        <p className="text-xs text-stone-500 font-medium">Insumos veterinarios aplicados</p>
+        {lineas.map((linea, i) => {
+          const prod = productos.find((p) => p.id === linea.productoId) ?? null;
+          const costo = prod && linea.dosis ? prod.precio_por_unidad * parseFloat(linea.dosis) : null;
+          return (
+            <div key={i} className="flex items-center gap-2 flex-wrap">
+              <select
+                value={linea.productoId}
+                onChange={(e) => setLinea(i, "productoId", e.target.value)}
+                className="border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 bg-white flex-1 min-w-40"
+              >
+                <option value="">Sin producto</option>
+                {productos.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={linea.dosis}
+                  onChange={(e) => setLinea(i, "dosis", e.target.value)}
+                  placeholder="Dosis"
+                  className="w-24 border border-stone-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+                />
+                {prod && <span className="text-xs text-stone-400">{prod.unidad}</span>}
+              </div>
+              {costo != null && (
+                <span className="text-xs text-green-700">
+                  ${costo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                </span>
+              )}
+              {lineas.length > 1 && (
+                <button
+                  onClick={() => quitarLinea(i)}
+                  className="text-xs text-red-400 hover:text-red-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          );
+        })}
+        <button
+          onClick={agregarLinea}
+          className="text-xs text-green-700 hover:text-green-900 underline"
+        >
+          + Agregar insumo
+        </button>
+      </div>
+
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
           disabled={guardando || !fecha || !tipoEvento}
           className="px-4 py-1.5 bg-green-800 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-40"
         >
-          {guardando ? "Guardando..." : "Guardar"}
+          {guardando ? "Guardando..." : `Guardar${lineas.length > 1 ? ` (${lineas.length} insumos)` : ""}`}
         </button>
         <button
           onClick={() => { resetForm(); setAbierto(false); }}

@@ -31,6 +31,16 @@ type Evento = {
   unidad: string | null;
   veterinario: string;
   descripcion: string | null;
+  empresa: string;
+};
+
+type CambioCaravana = {
+  id: string;
+  anterior: string;
+  nuevo: string;
+  fecha: string;
+  motivo: string | null;
+  usuario: string;
 };
 
 type Nutricion = {
@@ -61,7 +71,7 @@ type HistorialClinico = {
   datos: (string | null)[];
 };
 
-const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios", "Historia clínica", "Nutrición"] as const;
+const TABS = ["Movimientos", "Pesajes", "Eventos sanitarios", "Historia clínica", "Nutrición", "Caravanas"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function TabsAnimal({
@@ -70,6 +80,7 @@ export default function TabsAnimal({
   eventos,
   historialClinico,
   nutricion,
+  cambiosCaravana,
   formEventoSanitario,
 }: {
   movimientos: Movimiento[];
@@ -77,6 +88,7 @@ export default function TabsAnimal({
   eventos: Evento[];
   historialClinico: HistorialClinico[];
   nutricion: Nutricion[];
+  cambiosCaravana: CambioCaravana[];
   formEventoSanitario?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>("Movimientos");
@@ -179,6 +191,7 @@ export default function TabsAnimal({
                       <th className="pb-2 pr-4 text-left whitespace-nowrap">Producto</th>
                       <th className="pb-2 pr-4 text-left whitespace-nowrap">Dosis</th>
                       <th className="pb-2 pr-4 text-left whitespace-nowrap">Veterinario</th>
+                      <th className="pb-2 pr-4 text-left whitespace-nowrap">Empresa</th>
                       <th className="pb-2 text-right whitespace-nowrap">Costo</th>
                     </tr>
                   </thead>
@@ -194,6 +207,7 @@ export default function TabsAnimal({
                           <td className="py-2 pr-4 text-stone-600">{e.producto}</td>
                           <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{e.dosis !== null ? `${e.dosis} ${e.unidad || "ud"}` : "—"}</td>
                           <td className="py-2 pr-4 text-stone-600">{e.veterinario}</td>
+                          <td className="py-2 pr-4 text-stone-500 text-xs">{e.empresa}</td>
                           <td className="py-2 text-right whitespace-nowrap text-stone-700">
                             {costo != null
                               ? `$${costo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
@@ -270,6 +284,36 @@ export default function TabsAnimal({
                   )}
                 </div>
               ))}
+            </div>
+          ))}
+
+        {tab === "Caravanas" &&
+          (cambiosCaravana.length === 0 ? (
+            <p className="text-stone-400 text-sm py-4 text-center">Sin cambios de caravana registrados</p>
+          ) : (
+            <div className="overflow-x-auto -mx-4 px-4">
+              <table className="text-sm min-w-max w-full">
+                <thead className="text-xs text-stone-400 uppercase">
+                  <tr>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Fecha</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Anterior</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Nueva</th>
+                    <th className="pb-2 pr-4 text-left whitespace-nowrap">Motivo</th>
+                    <th className="pb-2 text-left whitespace-nowrap">Usuario</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {cambiosCaravana.map((c) => (
+                    <tr key={c.id}>
+                      <td className="py-2 pr-4 text-stone-600 whitespace-nowrap">{c.fecha}</td>
+                      <td className="py-2 pr-4 font-mono text-stone-500 text-xs">{c.anterior}</td>
+                      <td className="py-2 pr-4 font-mono text-stone-800 text-xs font-medium">{c.nuevo}</td>
+                      <td className="py-2 pr-4 text-stone-500">{c.motivo ?? "—"}</td>
+                      <td className="py-2 text-stone-500">{c.usuario}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ))}
 

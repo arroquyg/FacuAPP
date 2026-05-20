@@ -6,29 +6,33 @@ import { revalidatePath } from "next/cache";
 
 export async function crearSanitarioTrabajo(data: {
   tipo_evento: string;
-  producto: string | null;
-  dosis: number | null;
-  precio_unitario: number | null;
-  unidad: string | null;
   veterinario: string | null;
   descripcion: string | null;
   fecha: string;
+  lineas: Array<{
+    producto: string | null;
+    dosis: number | null;
+    precio_unitario: number | null;
+    unidad: string | null;
+  }>;
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "No autenticado" };
 
   const sb = createAdminClient();
+  const primeraLinea = data.lineas[0] ?? {};
+
   const { data: nuevo, error } = await sb
     .from("sanitario_trabajos")
     .insert({
       empresa_id: user.empresa_id,
       tipo_evento: data.tipo_evento,
-      producto: data.producto || null,
-      dosis: data.dosis,
-      precio_unitario: data.precio_unitario,
-      unidad: data.unidad || null,
-      veterinario: data.veterinario || null,
-      descripcion: data.descripcion || null,
+      producto: primeraLinea.producto || null,
+      dosis: primeraLinea.dosis ?? null,
+      precio_unitario: primeraLinea.precio_unitario ?? null,
+      unidad: primeraLinea.unidad || null,
+      veterinario: data.veterinario,
+      descripcion: data.descripcion,
       fecha: data.fecha,
       total_animales: 0,
     })
@@ -36,6 +40,22 @@ export async function crearSanitarioTrabajo(data: {
     .single();
 
   if (error) return { ok: false, error: error.message };
+
+  const productosRows = data.lineas
+    .filter((l) => l.producto)
+    .map((l) => ({
+      sanitario_id: nuevo.id,
+      producto: l.producto,
+      dosis: l.dosis,
+      precio_unitario: l.precio_unitario,
+      unidad: l.unidad,
+    }));
+
+  if (productosRows.length > 0) {
+    const { error: errProd } = await sb.from("sanitario_productos").insert(productosRows);
+    if (errProd) return { ok: false, error: errProd.message };
+  }
+
   revalidatePath("/sanitario");
   return { ok: true, id: nuevo.id };
 }

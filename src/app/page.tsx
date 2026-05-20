@@ -67,6 +67,31 @@ export default async function DashboardPage() {
   const sinMovimientos = Promise.resolve({ data: [], error: null });
   const sinConteo = Promise.resolve({ count: 0, data: null, error: null });
 
+  // Paginación de categorías para no truncar en el límite de 1000 filas de Supabase
+  type CatRow = { campo_actual_id: string | null; categoria: string | null };
+  let categoriasRaw: CatRow[] = [];
+  if (campoIds === null || campoIds.length > 0) {
+    const PAGE = 1000;
+    let from = 0;
+    while (true) {
+      let q = supabase
+        .from("animales")
+        .select("campo_actual_id, categoria")
+        .eq("empresa_id", empresaId)
+        .eq("activo", true)
+        .eq("vivo", true)
+        .range(from, from + PAGE - 1);
+      if (campoIds !== null && campoIds.length > 0) {
+        q = q.in("campo_actual_id", campoIds);
+      }
+      const { data } = await q;
+      if (!data || data.length === 0) break;
+      categoriasRaw = categoriasRaw.concat(data as CatRow[]);
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+  }
+
   const [
     { count: totalVivos },
     { count: totalMuertos },
@@ -116,6 +141,18 @@ export default async function DashboardPage() {
   conteoFiltrado.forEach((r: { campo_actual_id: string; cantidad: number }) => {
     conteoPorCampo[r.campo_actual_id] = Number(r.cantidad);
   });
+
+  const conteoPorCategoria: Record<string, number> = {};
+  const catPorCampo: Record<string, Record<string, number>> = {};
+  for (const a of categoriasRaw ?? []) {
+    const cat = a.categoria ?? "Sin categoría";
+    conteoPorCategoria[cat] = (conteoPorCategoria[cat] ?? 0) + 1;
+    if (a.campo_actual_id) {
+      if (!catPorCampo[a.campo_actual_id]) catPorCampo[a.campo_actual_id] = {};
+      catPorCampo[a.campo_actual_id][cat] = (catPorCampo[a.campo_actual_id][cat] ?? 0) + 1;
+    }
+  }
+  const categoriasOrdenadas = Object.entries(conteoPorCategoria).sort(([, a], [, b]) => b - a);
 
   return (
     <div className="space-y-8">
@@ -171,6 +208,24 @@ export default async function DashboardPage() {
       {/* Alerta muertos */}
       <AlertaMuertos totalMuertos={totalMuertos ?? 0} />
 
+      {/* Animales por categoría — totales */}
+      {categoriasOrdenadas.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-stone-700 mb-4">Animales por categoría</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {categoriasOrdenadas.map(([cat, count]) => (
+              <div
+                key={cat}
+                className="bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm"
+              >
+                <p className="text-xs text-stone-400 truncate" title={cat}>{cat}</p>
+                <p className="text-3xl font-bold text-stone-800 mt-1">{count}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Campos */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -191,29 +246,44 @@ export default async function DashboardPage() {
                 campo.capacidad_max && campo.capacidad_max > 0
                   ? Math.min(100, Math.round((cantidad / campo.capacidad_max) * 100))
                   : null;
+              const catsDelCampo = Object.entries(catPorCampo[campo.id] ?? {}).sort(
+                ([, a], [, b]) => b - a
+              );
               return (
-                <div key={campo.id} className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="font-semibold text-stone-800 text-base">{campo.nombre}</p>
-                  <p className="text-sm text-stone-500 mt-1">
-                    <span className="font-medium text-stone-700">{cantidad}</span>
-                    {campo.capacidad_max ? ` de ${campo.capacidad_max} animales` : " animales"}
-                  </p>
-                  {pct !== null && (
-                    <div className="mt-4">
-                      <div className="flex justify-between text-xs text-stone-400 mb-1.5">
-                        <span>Ocupación</span>
-                        <span className={pct >= 90 ? "text-red-500 font-medium" : pct >= 70 ? "text-amber-500 font-medium" : "text-green-600 font-medium"}>
-                          {pct}%
-                        </span>
+                <div key={campo.id} className="bg-white rounded-xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="p-5">
+                    <p className="font-semibold text-stone-800 text-base">{campo.nombre}</p>
+                    <p className="text-sm text-stone-500 mt-1">
+                      <span className="font-medium text-stone-700">{cantidad}</span>
+                      {campo.capacidad_max ? ` de ${campo.capacidad_max} animales` : " animales"}
+                    </p>
+                    {pct !== null && (
+                      <div className="mt-4">
+                        <div className="flex justify-between text-xs text-stone-400 mb-1.5">
+                          <span>Ocupación</span>
+                          <span className={pct >= 90 ? "text-red-500 font-medium" : pct >= 70 ? "text-amber-500 font-medium" : "text-green-600 font-medium"}>
+                            {pct}%
+                          </span>
+                        </div>
+                        <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              pct >= 90 ? "bg-red-400" : pct >= 70 ? "bg-amber-400" : "bg-green-500"
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${
-                            pct >= 90 ? "bg-red-400" : pct >= 70 ? "bg-amber-400" : "bg-green-500"
-                          }`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
+                    )}
+                  </div>
+                  {catsDelCampo.length > 0 && (
+                    <div className="border-t border-stone-100 px-5 py-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
+                      {catsDelCampo.map(([cat, count]) => (
+                        <div key={cat} className="flex items-center justify-between gap-1 min-w-0">
+                          <span className="text-xs text-stone-400 truncate" title={cat}>{cat}</span>
+                          <span className="text-xs font-semibold text-stone-700 shrink-0">{count}</span>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
