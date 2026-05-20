@@ -29,7 +29,22 @@
       "Bash(git commit *)",
       "Bash(sed -i '' 's/\"admin\"/\"administrador\"/g' src/app/NavBar.tsx src/app/perfil/page.tsx src/app/animales/page.tsx \"src/app/animales/[id]/page.tsx\" src/app/trabajos/page.tsx src/app/movimientos/page.tsx \"src/app/admin/usuarios/page.tsx\" src/app/admin/usuarios/actions.ts)",
       "Bash(sed -i '' \"s/rol: \\\\\"admin\\\\\" | \\\\\"operario\\\\\"/rol: \\\\\"administrador\\\\\" | \\\\\"operario\\\\\" | \\\\\"veterinario\\\\\"/\" src/lib/auth.ts)",
-      "Bash(sed -i '' \"s/rol as \\\\\"admin\\\\\" | \\\\\"operario\\\\\"/rol as \\\\\"administrador\\\\\" | \\\\\"operario\\\\\" | \\\\\"veterinario\\\\\"/\" src/lib/auth.ts)"
+      "Bash(sed -i '' \"s/rol as \\\\\"admin\\\\\" | \\\\\"operario\\\\\"/rol as \\\\\"administrador\\\\\" | \\\\\"operario\\\\\" | \\\\\"veterinario\\\\\"/\" src/lib/auth.ts)",
+      "Bash(npm install)",
+      "WebSearch",
+      "WebFetch(domain:manuals.plus)",
+      "WebFetch(domain:support.livestock.datamars.com)",
+      "WebFetch(domain:ccscales.com)",
+      "WebFetch(domain:manualzz.com)",
+      "WebFetch(domain:fccid.io)",
+      "WebFetch(domain:us.livestock.datamars.com)",
+      "WebFetch(domain:www.cattlescales.com)",
+      "WebFetch(domain:help.cattlemax.com)",
+      "Bash(git fetch --all 2>&1 && git status 2>&1)",
+      "Bash(git checkout main && git pull origin main)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nAdd Estado \\(Vivo/Muerto\\) field to bulk edit\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(which vercel && vercel --version)",
+      "Bash(git fetch origin && git status)"
     ]
   }
 }

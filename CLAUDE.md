@@ -6,6 +6,9 @@
 - Nunca usar `process.env.EMPRESA_ID`. Siempre usar `getCurrentUser()` → `user.empresa_id`.
 - No hacer `git commit` ni `git push` sin confirmación explícita del usuario.
 - Si hay dudas sobre cómo el usuario quiere que funcione algo nuevo, preguntar antes de implementar.
+- Hace tests unitarios y de integración.
+- No te extiendas con explicacion si no te lo pedí antes.
+- antes de hardcodear algo, preguntar si es posible hacerlo de forma dinámica.
 
 ## Stack
 
