@@ -61,11 +61,24 @@ export default async function AnimalPage({
       .order("fecha_evento", { ascending: false }),
     supabase
       .from("trabajo_registros")
-      .select("id, dato1, dato2, dato3, dato4, dato5, dato6, dato7, dato8, dato9, dato10, trabajo:trabajo_id(id, tipo, fecha, veterinario, campo, columnas, empresa:empresa_id(nombre))")
+      .select("id, dato1, dato2, dato3, dato4, dato5, dato6, dato7, dato8, dato9, dato10, trabajo:trabajo_id(id, tipo, fecha, veterinario, campo, columnas, empresa_id)")
       .eq("animal_id", params.id)
       .eq("encontrado", true)
       .order("created_at", { ascending: false }),
   ]);
+
+  // Resolución de nombres de empresa por separado para evitar dependencia de FK
+  const empresaIds = [
+    ...new Set(
+      (trabajosRegistros ?? [])
+        .map((r) => (r.trabajo as unknown as { empresa_id?: string } | null)?.empresa_id)
+        .filter(Boolean) as string[]
+    ),
+  ];
+  const { data: empresas } = empresaIds.length
+    ? await supabase.from("empresas").select("id, nombre").in("id", empresaIds)
+    : { data: [] };
+  const empresaMap = new Map((empresas ?? []).map((e) => [e.id, e.nombre]));
 
   if (error || !animal) return notFound();
 
@@ -147,7 +160,7 @@ export default async function AnimalPage({
           descripcion: e.descripcion ?? null,
         }))}
         historialClinico={(trabajosRegistros ?? []).map((r) => {
-          const trabajo = r.trabajo as unknown as { id: string; tipo: string; fecha: string; veterinario: string; campo: string; columnas: string[]; empresa: { nombre: string } | null } | null;
+          const trabajo = r.trabajo as unknown as { id: string; tipo: string; fecha: string; veterinario: string; campo: string; columnas: string[]; empresa_id?: string } | null;
           const datos: (string | null)[] = [r.dato1, r.dato2, r.dato3, r.dato4, r.dato5, r.dato6, r.dato7, r.dato8, r.dato9, r.dato10];
           return {
             id: r.id,
@@ -157,7 +170,7 @@ export default async function AnimalPage({
             veterinario: trabajo?.veterinario ?? "—",
             campo: trabajo?.campo ?? "—",
             columnas: trabajo?.columnas ?? [],
-            empresa: trabajo?.empresa?.nombre ?? "—",
+            empresa: empresaMap.get(trabajo?.empresa_id ?? "") ?? "—",
             datos,
           };
         })}
