@@ -3,6 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 function revalidarTodo() {
   revalidatePath("/transferencias");
@@ -36,6 +37,7 @@ export async function aceptarTransferencia(
       empresa_id: transferencia.empresa_destino_id,
       en_transferencia: false,
       campo_actual_id: campoId,
+      updated_by: user.id,
     })
     .eq("id", transferencia.animal_id);
   if (errAnimal) return { ok: false, error: errAnimal.message };
@@ -45,6 +47,12 @@ export async function aceptarTransferencia(
     .update({ estado: "aceptada" })
     .eq("id", transferenciaId);
   if (errEstado) return { ok: false, error: errEstado.message };
+
+  await registrarAudit(user, "aceptar_transferencia", {
+    tabla: "transferencias_pendientes",
+    registro_id: transferenciaId,
+    detalle: { animal_id: transferencia.animal_id, campo_id: campoId },
+  });
 
   revalidarTodo();
   return { ok: true };
@@ -85,22 +93,25 @@ export async function denegarTransferencia(
 
   if (errGet || !transferencia) return { ok: false, error: "Transferencia no encontrada." };
 
-  // Desbloquear el animal en la empresa origen
   const { error: errAnimal } = await sb
     .from("animales")
     .update({ en_transferencia: false })
     .eq("id", transferencia.animal_id);
   if (errAnimal) return { ok: false, error: errAnimal.message };
 
-  // Marcar transferencia como denegada
   await sb
     .from("transferencias_pendientes")
     .update({ estado: "denegada" })
     .eq("id", transferenciaId);
 
-  // Anular la transacción (eliminar registros)
   await sb.from("transaccion_animales").delete().eq("transaccion_id", transferencia.transaccion_id);
   await sb.from("transacciones").delete().eq("id", transferencia.transaccion_id);
+
+  await registrarAudit(user, "denegar_transferencia", {
+    tabla: "transferencias_pendientes",
+    registro_id: transferenciaId,
+    detalle: { animal_id: transferencia.animal_id },
+  });
 
   revalidarTodo();
   return { ok: true };

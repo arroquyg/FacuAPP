@@ -12,3 +12,6 @@
 # misc
 .DS_Store
 *.pem
+
+# SQL - estructura de base de datos (no versionar)
+*.sql

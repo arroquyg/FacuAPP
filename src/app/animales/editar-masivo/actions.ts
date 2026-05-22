@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 export type CampoEditable = "categoria" | "raza" | "campo_actual_id" | "estado_sanitario" | "color_pelaje" | "genetica_empresa" | "vivo";
 
@@ -26,7 +27,7 @@ export async function editarAnimalesMasivo(
     campo === "campo_actual_id" && valor === "" ? null :
     valor || null;
 
-  const payload: Record<string, unknown> = { [campo]: valorFinal };
+  const payload: Record<string, unknown> = { [campo]: valorFinal, updated_by: user.id };
   if (campo === "vivo" && valor === "false") {
     payload.fecha_muerte = fechaMuerte || null;
   } else if (campo === "vivo" && valor === "true") {
@@ -43,6 +44,11 @@ export async function editarAnimalesMasivo(
       .in("id", lote);
     if (error) return { ok: false, editados: i, error: error.message };
   }
+
+  await registrarAudit(user, "editar_masivo", {
+    tabla: "animales",
+    detalle: { campo, valor, cantidad: animalIds.length },
+  });
 
   revalidatePath("/animales");
   revalidatePath("/");

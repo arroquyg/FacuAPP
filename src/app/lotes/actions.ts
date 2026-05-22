@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 export async function crearLote(data: {
   nombre: string;
@@ -41,6 +42,7 @@ export async function crearLote(data: {
       nombre: data.nombre.trim(),
       fecha_inicio: data.fecha_inicio,
       activo: true,
+      created_by: user.id,
     })
     .select("id")
     .single();
@@ -67,6 +69,12 @@ export async function crearLote(data: {
   );
   if (errAnim) return { ok: false, error: errAnim.message };
 
+  await registrarAudit(user, "crear_lote", {
+    tabla: "lotes",
+    registro_id: lote.id,
+    detalle: { nombre: data.nombre, cantidad_animales: data.animales.length },
+  });
+
   revalidatePath("/lotes");
   return { ok: true, id: lote.id };
 }
@@ -82,7 +90,6 @@ export async function disolverLote(
 
   const sb = createAdminClient();
 
-  // Actualizar cada animal con su peso de salida
   for (const p of pesos) {
     const { error } = await sb
       .from("lote_animales")
@@ -92,7 +99,6 @@ export async function disolverLote(
     if (error) return { ok: false, error: error.message };
   }
 
-  // Cerrar el lote
   const { error: errLote } = await sb
     .from("lotes")
     .update({ activo: false, fecha_fin })
@@ -100,6 +106,12 @@ export async function disolverLote(
     .eq("empresa_id", user.empresa_id);
 
   if (errLote) return { ok: false, error: errLote.message };
+
+  await registrarAudit(user, "disolver_lote", {
+    tabla: "lotes",
+    registro_id: loteId,
+    detalle: { fecha_fin, cantidad_pesajes: pesos.length },
+  });
 
   revalidatePath("/lotes");
   revalidatePath(`/lotes/${loteId}`);
