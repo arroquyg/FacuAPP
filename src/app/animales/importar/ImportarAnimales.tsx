@@ -57,6 +57,9 @@ export default function ImportarAnimales({
   const [filas, setFilas] = useState<FilaParsed[]>([]);
   const [importando, setImportando] = useState(false);
   const [resultado, setResultado] = useState<{ ok: boolean; insertados: number; error?: string } | null>(null);
+  const [errorArchivo, setErrorArchivo] = useState<string | null>(null);
+
+  const MAX_XLSX_MB = 5;
 
   const camposPorNombre = Object.fromEntries(campos.map((c) => [c.nombre.toLowerCase(), c.id]));
   const categoriaSet = new Set(categorias.map((c) => c.nombre.toLowerCase()));
@@ -95,6 +98,12 @@ export default function ImportarAnimales({
   function handleArchivo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setErrorArchivo(null);
+    if (file.size > MAX_XLSX_MB * 1024 * 1024) {
+      setErrorArchivo(`El archivo supera el límite de ${MAX_XLSX_MB}MB.`);
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const data = ev.target?.result;
@@ -278,6 +287,9 @@ export default function ImportarAnimales({
         >
           Seleccionar archivo Excel (.xlsx)
         </button>
+        {errorArchivo && (
+          <p className="text-sm text-red-600 font-medium">{errorArchivo}</p>
+        )}
       </div>
     </div>
   );

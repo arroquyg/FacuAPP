@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserFromRequest } from "@/lib/auth-api";
+import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 
 // POST /api/baston/animales-nuevos
 // Crea animales nuevos a partir de EIDs no encontrados en el bastón.
@@ -8,6 +9,7 @@ import { getUserFromRequest } from "@/lib/auth-api";
 export async function POST(req: NextRequest) {
   const user = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  if (isDemoUser(user)) return NextResponse.json({ error: DEMO_MSG }, { status: 403 });
 
   let body: {
     animales: Array<{
