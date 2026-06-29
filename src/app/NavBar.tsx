@@ -147,7 +147,7 @@ export default function NavBar({ user, transferenciasCount = 0 }: { user: UserPr
                     {user.nombre.charAt(0).toUpperCase()}
                   </div>
                   <div className="text-left">
-                    <p className="text-xs font-medium text-white leading-tight">{user.nombre}</p>
+                    <p className="text-xs font-medium text-white leading-tight">{user.nombre} 🤓</p>
                     <p className="text-xs text-green-300 leading-tight">{user.empresa_nombre}</p>
                   </div>
                 </button>
