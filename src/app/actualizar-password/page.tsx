@@ -34,7 +34,8 @@ export default function ActualizarPasswordPage() {
       return;
     }
 
-    router.replace("/");
+    await supabase.auth.signOut();
+    router.replace("/login");
   }
 
   return (
