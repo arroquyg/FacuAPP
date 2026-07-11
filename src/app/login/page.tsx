@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "./actions";
 
 export default function LoginPage() {
@@ -60,7 +61,12 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-stone-600 mb-1">Contraseña</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-medium text-stone-600">Contraseña</label>
+              <Link href="/recuperar-password" className="text-xs text-green-800 hover:underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <div className="relative">
               <input
                 name="password"
