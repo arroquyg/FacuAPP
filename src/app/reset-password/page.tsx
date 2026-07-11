@@ -15,22 +15,45 @@ export default function ResetPasswordPage() {
   const [verPassword, setVerPassword] = useState(false);
 
   useEffect(() => {
+    const sb = createClient();
+
+    // Caso PKCE: Supabase envía ?code= en la URL (flow más nuevo)
     const code = searchParams.get("code");
-    if (!code) {
-      setEstado("error");
-      setErrorMsg("El link de recuperación es inválido o expiró. Solicitá uno nuevo.");
+    if (code) {
+      sb.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) {
+          setEstado("error");
+          setErrorMsg("El link de recuperación expiró. Solicitá uno nuevo.");
+        } else {
+          setEstado("listo");
+        }
+      });
       return;
     }
 
-    const sb = createClient();
-    sb.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        setEstado("error");
-        setErrorMsg("El link de recuperación expiró. Solicitá uno nuevo.");
-      } else {
+    // Caso implicit flow: Supabase envía el token en el hash (#access_token=...&type=recovery)
+    // El browser client lo detecta automáticamente y emite el evento PASSWORD_RECOVERY
+    const { data: { subscription } } = sb.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
         setEstado("listo");
       }
     });
+
+    // Timeout de seguridad: si en 6 segundos no llegó el evento, mostrar error
+    const timeout = setTimeout(() => {
+      setEstado((prev) => {
+        if (prev === "cargando") {
+          setErrorMsg("El link de recuperación es inválido o expiró. Solicitá uno nuevo.");
+          return "error";
+        }
+        return prev;
+      });
+    }, 6000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -60,10 +83,13 @@ export default function ResetPasswordPage() {
     if (error) {
       setErrorMsg("No se pudo actualizar la contraseña. Intentá de nuevo.");
       setCargando(false);
-    } else {
-      setEstado("exito");
-      setTimeout(() => router.push("/login"), 2500);
+      return;
     }
+
+    // Cerramos sesión para que el usuario tenga que hacer login con la nueva contraseña
+    await sb.auth.signOut();
+    setEstado("exito");
+    setTimeout(() => router.push("/login"), 2000);
   }
 
   return (
