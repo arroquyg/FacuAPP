@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 type AnimalData = {
   chip_id: string;
@@ -29,11 +30,18 @@ export async function crearAnimal(data: AnimalData): Promise<{ ok: boolean; id?:
   const sb = createAdminClient();
   const { data: inserted, error } = await sb
     .from("animales")
-    .insert({ ...data, empresa_id: user.empresa_id })
+    .insert({ ...data, empresa_id: user.empresa_id, created_by: user.id })
     .select("id")
     .single();
 
   if (error) return { ok: false, error: error.message };
+
+  await registrarAudit(user, "crear_animal", {
+    tabla: "animales",
+    registro_id: inserted.id,
+    detalle: { chip_id: data.chip_id },
+  });
+
   revalidatePath("/animales");
   revalidatePath("/");
   return { ok: true, id: inserted.id };
@@ -47,11 +55,18 @@ export async function actualizarAnimal(id: string, data: AnimalData): Promise<{ 
   const sb = createAdminClient();
   const { error } = await sb
     .from("animales")
-    .update(data)
+    .update({ ...data, updated_by: user.id })
     .eq("id", id)
     .eq("empresa_id", user.empresa_id);
 
   if (error) return { ok: false, error: error.message };
+
+  await registrarAudit(user, "actualizar_animal", {
+    tabla: "animales",
+    registro_id: id,
+    detalle: { chip_id: data.chip_id },
+  });
+
   revalidatePath("/animales");
   revalidatePath(`/animales/${id}`);
   revalidatePath("/");

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 async function requireAdmin() {
   const user = await getCurrentUser();
@@ -42,6 +43,11 @@ export async function crearUsuario(formData: FormData) {
     return { ok: false, error: dbError.message };
   }
 
+  await registrarAudit(admin, "crear_usuario", {
+    tabla: "usuarios",
+    detalle: { email, rol },
+  });
+
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
@@ -51,6 +57,13 @@ export async function toggleActivo(usuarioId: string, activo: boolean) {
   if (isDemoUser(admin)) return;
   const sb = createAdminClient();
   await sb.from("usuarios").update({ activo }).eq("id", usuarioId);
+
+  await registrarAudit(admin, "toggle_usuario", {
+    tabla: "usuarios",
+    registro_id: usuarioId,
+    detalle: { activo },
+  });
+
   revalidatePath("/admin/usuarios");
 }
 

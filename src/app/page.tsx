@@ -5,6 +5,18 @@ import Link from "next/link";
 import CaravanasCard from "./caravanas/CaravanasCard";
 import AlertaMuertos from "./AlertaMuertos";
 
+// UUID inválido → fuerza 0 filas en Supabase cuando el operario no tiene campos asignados
+const EMPRESA_SIN_CAMPOS = "00000000-0000-0000-0000-000000000000";
+
+type MovimientoCampo = {
+  id: string;
+  fecha_movimiento: string;
+  motivo: string | null;
+  animal: { chip_id: string } | null;
+  origen: { nombre: string } | null;
+  destino: { nombre: string } | null;
+};
+
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("es-AR", {
@@ -43,7 +55,7 @@ export default async function DashboardPage() {
 
   let qCampos = supabase.from("campos").select("id, nombre, capacidad_max, activo").eq("activo", true);
   if (campoIds !== null) {
-    qCampos = campoIds.length > 0 ? qCampos.in("id", campoIds) : qCampos.eq("empresa_id", "_vacio_");
+    qCampos = campoIds.length > 0 ? qCampos.in("id", campoIds) : qCampos.eq("empresa_id", EMPRESA_SIN_CAMPOS);
   } else {
     qCampos = qCampos.eq("empresa_id", empresaId);
   }
@@ -96,7 +108,7 @@ export default async function DashboardPage() {
     { count: totalVivos },
     { count: totalMuertos },
     { data: campos, error: errCampos },
-    { data: movimientos, error: errMovimientos },
+    { data: movimientosRaw, error: errMovimientos },
     { count: totalTrabajos },
     // RPC agrega en la BD — devuelve una fila por campo, sin límite de filas
     { data: conteoRpc },
@@ -116,6 +128,8 @@ export default async function DashboardPage() {
     supabase.rpc("contar_animales_por_campo", { p_empresa_id: empresaId }),
     supabase.rpc("contar_animales_por_sexo", { p_empresa_id: empresaId }),
   ]);
+
+  const movimientos = movimientosRaw as MovimientoCampo[] | null;
 
   const { data: empresaData } = user.rol === "administrador"
     ? await supabase.from("empresas").select("caravanas_compradas, caravanas_bajas").eq("id", empresaId).single()
@@ -306,9 +320,9 @@ export default async function DashboardPage() {
             {/* Mobile cards */}
             <div className="md:hidden space-y-2">
               {movimientos.map((m) => {
-                const chip = (m.animal as unknown as { chip_id: string } | null)?.chip_id ?? "—";
-                const origen = (m.origen as unknown as { nombre: string } | null)?.nombre ?? "—";
-                const destino = (m.destino as unknown as { nombre: string } | null)?.nombre ?? "—";
+                const chip = m.animal?.chip_id ?? "—";
+                const origen = m.origen?.nombre ?? "—";
+                const destino = m.destino?.nombre ?? "—";
                 return (
                   <div key={m.id} className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-2">
@@ -342,10 +356,10 @@ export default async function DashboardPage() {
                     <tr key={m.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDate(m.fecha_movimiento)}</td>
                       <td className="px-4 py-3 font-mono text-stone-700 text-xs">
-                        {(m.animal as unknown as { chip_id: string } | null)?.chip_id ?? "—"}
+                        {m.animal?.chip_id ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-stone-600">{(m.origen as unknown as { nombre: string } | null)?.nombre ?? "—"}</td>
-                      <td className="px-4 py-3 text-stone-600">{(m.destino as unknown as { nombre: string } | null)?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-600">{m.origen?.nombre ?? "—"}</td>
+                      <td className="px-4 py-3 text-stone-600">{m.destino?.nombre ?? "—"}</td>
                       <td className="px-4 py-3 text-stone-400">{m.motivo ?? "—"}</td>
                     </tr>
                   ))}

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 type AnimalTransaccion = { animal_id: string; precio_unitario: number };
 
@@ -48,8 +49,27 @@ export async function registrarTransaccion(params: {
 
   if (error) return { ok: false, error: error.message };
 
+  const transaccionId = data as string;
+
+  // Registrar quién creó la transacción
+  await supabase
+    .from("transacciones")
+    .update({ registrado_por: user.id })
+    .eq("id", transaccionId);
+
+  await registrarAudit(user, "registrar_transaccion", {
+    tabla: "transacciones",
+    registro_id: transaccionId,
+    detalle: {
+      tipo: params.tipo,
+      contraparte: params.contraparte,
+      precio_total: params.precio_total,
+      cantidad_animales: params.animales.length,
+    },
+  });
+
   revalidarTodo();
-  return { ok: true, id: data as string };
+  return { ok: true, id: transaccionId };
 }
 
 export async function registrarTransferenciaEmpresa(params: {
@@ -81,6 +101,7 @@ export async function registrarTransferenciaEmpresa(params: {
       numero_remito: params.numero_remito || null,
       numero_transaccion: params.numero_transaccion || null,
       observaciones: params.observaciones || null,
+      registrado_por: user.id,
     })
     .select("id")
     .single();
@@ -114,6 +135,15 @@ export async function registrarTransferenciaEmpresa(params: {
     }))
   );
   if (errP) return { ok: false, error: errP.message };
+
+  await registrarAudit(user, "transferencia_empresa", {
+    tabla: "transferencias_pendientes",
+    detalle: {
+      empresa_destino_id: params.empresaDestinoId,
+      precio_total: params.precio_total,
+      cantidad_animales: params.animales.length,
+    },
+  });
 
   revalidarTodo();
   return { ok: true };

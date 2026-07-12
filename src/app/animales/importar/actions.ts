@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 type FilaAnimal = {
   chip_id: string;
@@ -26,12 +27,26 @@ export async function importarAnimales(filas: FilaAnimal[]): Promise<{ ok: boole
   if (isDemoUser(user)) return { ok: false, insertados: 0, error: DEMO_MSG };
 
   const sb = createAdminClient();
-  const registros = filas.map((f) => ({ ...f, empresa_id: user.empresa_id, activo: true, vivo: true }));
+  const registros = filas.map((f) => ({
+    ...f,
+    empresa_id: user.empresa_id,
+    activo: true,
+    vivo: true,
+    created_by: user.id,
+  }));
 
   const { error, count } = await sb.from("animales").insert(registros, { count: "exact" });
 
   if (error) return { ok: false, insertados: 0, error: error.message };
+
+  const insertados = count ?? filas.length;
+
+  await registrarAudit(user, "importar_animales", {
+    tabla: "animales",
+    detalle: { cantidad: insertados },
+  });
+
   revalidatePath("/animales");
   revalidatePath("/");
-  return { ok: true, insertados: count ?? filas.length };
+  return { ok: true, insertados };
 }

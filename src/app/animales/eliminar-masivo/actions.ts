@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_MSG } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 async function eliminarEnLotes(
   sb: ReturnType<typeof createAdminClient>,
@@ -41,6 +42,11 @@ export async function eliminarAnimalesMasivo(
   } catch (e) {
     return { ok: false, eliminados: 0, error: (e as Error).message };
   }
+
+  await registrarAudit(user, "eliminar_masivo", {
+    tabla: "animales",
+    detalle: { cantidad: animalIds.length, animal_ids: animalIds },
+  });
 
   revalidatePath("/animales");
   revalidatePath("/");

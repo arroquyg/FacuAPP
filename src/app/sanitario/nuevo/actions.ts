@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { isDemoUser, DEMO_BLOCKED } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
+import { registrarAudit } from "@/lib/audit";
 
 export async function crearSanitarioTrabajo(data: {
   tipo_evento: string;
@@ -57,6 +58,12 @@ export async function crearSanitarioTrabajo(data: {
     const { error: errProd } = await sb.from("sanitario_productos").insert(productosRows);
     if (errProd) return { ok: false, error: errProd.message };
   }
+
+  await registrarAudit(user, "crear_sanitario", {
+    tabla: "sanitario_trabajos",
+    registro_id: nuevo.id,
+    detalle: { tipo_evento: data.tipo_evento, fecha: data.fecha },
+  });
 
   revalidatePath("/sanitario");
   return { ok: true, id: nuevo.id };
