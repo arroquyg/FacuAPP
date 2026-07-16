@@ -58,6 +58,58 @@ export async function aceptarTransferencia(
   return { ok: true };
 }
 
+export async function aceptarTransferenciasMasivo(
+  transferenciaIds: string[],
+  campoId: string | null
+): Promise<{ ok: boolean; aceptadas?: number; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || user.rol !== "administrador") return { ok: false, error: "No autorizado." };
+
+  const ids = Array.from(new Set(transferenciaIds)).filter(Boolean);
+  if (ids.length === 0) return { ok: false, error: "No seleccionaste transferencias." };
+
+  const sb = createAdminClient();
+
+  const { data: transferencias, error: errGet } = await sb
+    .from("transferencias_pendientes")
+    .select("id, animal_id, empresa_destino_id")
+    .in("id", ids)
+    .eq("empresa_destino_id", user.empresa_id)
+    .eq("estado", "pendiente");
+
+  if (errGet) return { ok: false, error: errGet.message };
+  if (!transferencias || transferencias.length === 0)
+    return { ok: false, error: "No se encontraron transferencias pendientes." };
+
+  const idsValidos = transferencias.map((t) => t.id);
+  const animalIds = transferencias.map((t) => t.animal_id);
+
+  const { error: errAnimal } = await sb
+    .from("animales")
+    .update({
+      empresa_id: user.empresa_id,
+      en_transferencia: false,
+      campo_actual_id: campoId,
+      updated_by: user.id,
+    })
+    .in("id", animalIds);
+  if (errAnimal) return { ok: false, error: errAnimal.message };
+
+  const { error: errEstado } = await sb
+    .from("transferencias_pendientes")
+    .update({ estado: "aceptada" })
+    .in("id", idsValidos);
+  if (errEstado) return { ok: false, error: errEstado.message };
+
+  await registrarAudit(user, "aceptar_transferencia", {
+    tabla: "transferencias_pendientes",
+    detalle: { transferencia_ids: idsValidos, animal_ids: animalIds, campo_id: campoId, cantidad: idsValidos.length },
+  });
+
+  revalidarTodo();
+  return { ok: true, aceptadas: idsValidos.length };
+}
+
 export async function crearCampoParaTransferencia(nombre: string): Promise<{ ok: boolean; id?: string; error?: string }> {
   const user = await getCurrentUser();
   if (!user || user.rol !== "administrador") return { ok: false, error: "No autorizado." };

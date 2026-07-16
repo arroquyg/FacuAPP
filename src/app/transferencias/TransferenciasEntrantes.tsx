@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { aceptarTransferencia, denegarTransferencia, crearCampoParaTransferencia } from "./actions";
+import {
+  aceptarTransferencia,
+  aceptarTransferenciasMasivo,
+  denegarTransferencia,
+  crearCampoParaTransferencia,
+} from "./actions";
 
 type Campo = { id: string; nombre: string };
 type Transferencia = {
@@ -137,6 +142,27 @@ export default function TransferenciasEntrantes({
   const [procesando, setProcesando] = useState<string | null>(null);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [modalAceptar, setModalAceptar] = useState<string | null>(null);
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
+  const [modalMasivo, setModalMasivo] = useState(false);
+  const [procesandoMasivo, setProcesandoMasivo] = useState(false);
+  const [errorMasivo, setErrorMasivo] = useState<string | null>(null);
+
+  const todosSeleccionados = transferencias.length > 0 && seleccionados.size === transferencias.length;
+
+  function toggleUno(id: string) {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleTodos() {
+    setSeleccionados((prev) =>
+      prev.size === transferencias.length ? new Set() : new Set(transferencias.map((t) => t.id))
+    );
+  }
 
   async function handleAceptar(id: string, campoId: string | null) {
     setModalAceptar(null);
@@ -144,6 +170,17 @@ export default function TransferenciasEntrantes({
     const res = await aceptarTransferencia(id, campoId);
     if (!res.ok) setErrores((prev) => ({ ...prev, [id]: res.error ?? "Error" }));
     setProcesando(null);
+  }
+
+  async function handleAceptarMasivo(campoId: string | null) {
+    setModalMasivo(false);
+    setProcesandoMasivo(true);
+    setErrorMasivo(null);
+    const ids = Array.from(seleccionados);
+    const res = await aceptarTransferenciasMasivo(ids, campoId);
+    if (!res.ok) setErrorMasivo(res.error ?? "Error al aceptar las transferencias");
+    else setSeleccionados(new Set());
+    setProcesandoMasivo(false);
   }
 
   async function handleDenegar(id: string) {
@@ -172,16 +209,68 @@ export default function TransferenciasEntrantes({
         />
       )}
 
+      {modalMasivo && (
+        <ModalCampo
+          campos={campos}
+          onConfirmar={handleAceptarMasivo}
+          onCancelar={() => setModalMasivo(false)}
+        />
+      )}
+
+      {/* Barra de selección masiva */}
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm px-4 py-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={todosSeleccionados}
+            onChange={toggleTodos}
+            className="w-4 h-4 accent-green-700"
+          />
+          <span className="text-sm text-stone-600">
+            {seleccionados.size > 0
+              ? `${seleccionados.size} seleccionada${seleccionados.size > 1 ? "s" : ""}`
+              : "Seleccionar todas"}
+          </span>
+        </label>
+
+        {seleccionados.size > 0 && (
+          <button
+            onClick={() => setModalMasivo(true)}
+            disabled={procesandoMasivo}
+            className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-600 disabled:opacity-50 transition-colors"
+          >
+            {procesandoMasivo ? "Aceptando..." : `Aceptar ${seleccionados.size} y asignar campo`}
+          </button>
+        )}
+      </div>
+
+      {errorMasivo && (
+        <p className="mb-4 text-xs text-red-600 font-mono">{errorMasivo}</p>
+      )}
+
       <div className="space-y-4">
         {transferencias.map((t) => {
           const animal = t.animal as Transferencia["animal"];
           const origen = (t.empresa_origen as { nombre: string } | null)?.nombre ?? "—";
           const cargando = procesando === t.id;
+          const seleccionado = seleccionados.has(t.id);
 
           return (
-            <div key={t.id} className="bg-white rounded-xl border border-amber-200 shadow-sm p-5">
+            <div
+              key={t.id}
+              className={`bg-white rounded-xl border shadow-sm p-5 transition-colors ${
+                seleccionado ? "border-green-300 ring-1 ring-green-200" : "border-amber-200"
+              }`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="space-y-1">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={seleccionado}
+                    onChange={() => toggleUno(t.id)}
+                    className="w-4 h-4 mt-1 accent-green-700 shrink-0"
+                  />
+                  <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
                       Pendiente
@@ -204,6 +293,7 @@ export default function TransferenciasEntrantes({
                       Precio: <span className="font-semibold">${formatPeso(t.precio_total)}</span>
                     </p>
                   )}
+                  </div>
                 </div>
 
                 <div className="flex gap-2 shrink-0">
